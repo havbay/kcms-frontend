@@ -10,7 +10,8 @@ Before any task, read the canonical sibling planning repository:
 6. `../kcms-planning/03-api-contract.md`
 
 Work only on the active part. Do not create production screens before their
-OpenDesign handoff is approved. Do not hand-maintain API response types when a
+design handoff is approved. Direct Codex handoffs are accepted under planning
+decision D-017; OpenDesign remains optional. Do not hand-maintain API response types when a
 generated OpenAPI client owns them. Production entry points must not import test
 fixtures or sample customer data.
 
