@@ -202,15 +202,17 @@ describe('KCMS public landing page', () => {
     render(<App />)
 
     const control = screen.getByRole('region', {
-      name: 'KCMS never acts on your Page by itself.',
+      name: 'You decide what KCMS is allowed to do.',
     })
 
     expect(control).toHaveAttribute('id', 'human-control')
+    expect(control).toHaveTextContent('Automatic hiding is off today')
     expect(control).toHaveTextContent('Every hide and unhide is performed by a person')
     expect(control).toHaveTextContent('Actions are reversible')
     expect(control).toHaveTextContent('Correcting a model label is separate from hiding')
-    expect(control).toHaveTextContent('never removed automatically')
-    expect(control).toHaveTextContent('does not train itself from your moderation actions')
+    expect(control).toHaveTextContent('never hidden automatically')
+    expect(control).toHaveTextContent('The model is frozen between releases')
+    expect(control).toHaveTextContent('reviewed offline')
     expect(control).toHaveTextContent('Messenger and Instagram are not connected yet')
   })
 
@@ -233,8 +235,8 @@ describe('KCMS public landing page', () => {
     ).toHaveTextContent('អង្គភាព')
     expect(
       screen.getByRole('region', {
-        name: 'KCMS មិនធ្វើសកម្មភាពលើទំព័ររបស់អ្នកដោយខ្លួនឯងឡើយ។',
+        name: 'អ្នកជាអ្នកសម្រេចថា KCMS អាចធ្វើអ្វីបាន។',
       }),
-    ).toHaveTextContent('មិនហ្វឹកហាត់ខ្លួនឯង')
+    ).toHaveTextContent('គំរូត្រូវបានបង្កក')
   })
 })

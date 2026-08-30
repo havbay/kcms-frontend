@@ -125,13 +125,13 @@ test('trust sections render before the pilot ask at both sizes', async ({ page }
       name: 'Khmer, Khmerlish, and the slang in between.',
     })
     const control = page.getByRole('region', {
-      name: 'KCMS never acts on your Page by itself.',
+      name: 'You decide what KCMS is allowed to do.',
     })
 
     await khmer.scrollIntoViewIfNeeded()
     await expect(khmer).toContainText('Stays visible')
     await control.scrollIntoViewIfNeeded()
-    await expect(control).toContainText('does not train itself from your moderation actions')
+    await expect(control).toContainText('The model is frozen between releases')
 
     const khmerBox = await khmer.boundingBox()
     const accessBox = await page.locator('#early-access').boundingBox()
