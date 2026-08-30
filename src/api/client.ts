@@ -12,6 +12,10 @@ export type WorkListItem = components['schemas']['WorkListItem']
 export type WorkList = components['schemas']['WorkList']
 export type HistoryEntry = components['schemas']['HistoryEntry']
 export type ActionKind = components['schemas']['ActionRequest']['kind']
+export type CorrectionRequest = components['schemas']['CorrectionRequest']
+export type CorrectionResponse = components['schemas']['CorrectionResponse']
+export type SeverityLabel = CorrectionRequest['severity']
+export type TargetLabel = CorrectionRequest['target']
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '')
 
@@ -51,4 +55,21 @@ export function recordAction(commentId: string, kind: ActionKind): Promise<Histo
     method: 'POST',
     body: JSON.stringify({ kind, actor: 'demo-client' }),
   })
+}
+
+/**
+ * Submit what a human says the labels should be.
+ *
+ * This is NOT an action: it does not hide, unhide or leave the comment. The
+ * two are separate records on purpose — actions must never become labels.
+ */
+export function recordCorrection(
+  commentId: string,
+  severity: SeverityLabel,
+  target: TargetLabel,
+): Promise<CorrectionResponse> {
+  return request<CorrectionResponse>(
+    `/api/v1/comments/${encodeURIComponent(commentId)}/corrections`,
+    { method: 'POST', body: JSON.stringify({ severity, target, actor: 'demo-client' }) },
+  )
 }

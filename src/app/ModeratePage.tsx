@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { type ActionKind, listComments, recordAction, type WorkListItem } from '../api/client'
+import { CorrectionForm } from './CorrectionForm'
 import { copy, type Locale } from './copy'
 
 type ModeratePageProps = {
@@ -124,6 +125,22 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                     ]}
                   </p>
 
+                  {item.corrected_severity && (
+                    <p className="work-corrected">
+                      {content.modCorrected}:{' '}
+                      <strong>
+                        {content.modSeverity[
+                          item.corrected_severity as keyof typeof content.modSeverity
+                        ]}
+                        {' · '}
+                        {content.modTarget[
+                          item.corrected_target as keyof typeof content.modTarget
+                        ]}
+                      </strong>{' '}
+                      {content.modBy} {item.corrected_by}
+                    </p>
+                  )}
+
                   {item.latest_action && (
                     <p className="work-latest">
                       {content.modActioned}: <strong>{item.latest_action}</strong>{' '}
@@ -156,6 +173,26 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                     >
                       {content.modUnhide}
                     </button>
+                    <CorrectionForm
+                      commentId={item.comment_id}
+                      currentSeverity={item.severity}
+                      currentTarget={item.target}
+                      locale={locale}
+                      onSaved={(severity, target) =>
+                        setItems((current) =>
+                          current.map((row) =>
+                            row.comment_id === item.comment_id
+                              ? {
+                                  ...row,
+                                  corrected_severity: severity,
+                                  corrected_target: target,
+                                  corrected_by: 'demo-client',
+                                }
+                              : row,
+                          ),
+                        )
+                      }
+                    />
                   </div>
                 </li>
               ))}

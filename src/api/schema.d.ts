@@ -42,6 +42,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/comments/{comment_id}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Correction
+         * @description Records what a human asserts the labels should be.
+         *
+         *     A Correction is not an Action. Submitting one does not hide, unhide or
+         *     otherwise change what happens to the comment.
+         */
+        post: operations["recordCorrection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -75,6 +98,44 @@ export interface components {
              * @enum {string}
              */
             kind: "LEAVE" | "HIDE" | "UNHIDE";
+        };
+        /** CorrectionRequest */
+        CorrectionRequest: {
+            /**
+             * Actor
+             * @default demo-client
+             */
+            actor: string;
+            /** Note */
+            note?: string | null;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "SAFE" | "OFFENSIVE" | "HARMFUL";
+            /**
+             * Target
+             * @enum {string}
+             */
+            target: "PERSON" | "INSTITUTION" | "NEITHER";
+        };
+        /** CorrectionResponse */
+        CorrectionResponse: {
+            /** Actor */
+            actor: string;
+            /** Disagrees With Model */
+            disagrees_with_model: string;
+            /** Note */
+            note: string | null;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Severity */
+            severity: string;
+            /** Target */
+            target: string;
         };
         /**
          * DatabaseStatus
@@ -146,6 +207,14 @@ export interface components {
             author_ref: string;
             /** Comment Id */
             comment_id: string;
+            /** Corrected At */
+            corrected_at: string | null;
+            /** Corrected By */
+            corrected_by: string | null;
+            /** Corrected Severity */
+            corrected_severity: string | null;
+            /** Corrected Target */
+            corrected_target: string | null;
             /** Latest Action */
             latest_action: string | null;
             /** Latest Action At */
@@ -225,6 +294,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HistoryEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recordCorrection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectionResponse"];
                 };
             };
             /** @description Validation Error */
