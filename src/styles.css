@@ -47,7 +47,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #e2a13a; outline-offs
 .nav-link, .text-link { text-underline-offset: 0.35rem; }
 .nav-link:hover, .text-link:hover { text-decoration: underline; }
 .language-toggle { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0; border: 0; background: transparent; cursor: pointer; }
-.language-toggle span { display: inline-flex; align-items: center; justify-content: center; min-width: 2.2rem; min-height: 2.2rem; border: 1px solid var(--line); border-radius: 50%; color: var(--mekong-teal); font-size: 0.65rem; font-weight: 800; }
+.language-flag { width: 1.65rem; height: 1.1rem; border: 1px solid rgba(24, 48, 51, 0.22); border-radius: 0.18rem; box-shadow: 0 1px 2px rgba(24, 48, 51, 0.12); object-fit: cover; }
 
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 0.8rem; min-height: 3.25rem; padding: 0.8rem 1.25rem; border: 1px solid var(--mekong-teal); border-radius: 0.55rem; color: var(--clean-white); background: var(--mekong-teal); box-shadow: 0 0.28rem 0 #064b46; font-weight: 750; text-decoration: none; transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease; }
 .button:hover { background: #095d56; transform: translateY(-1px); box-shadow: 0 0.38rem 0 #064b46; }

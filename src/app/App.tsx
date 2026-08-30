@@ -55,7 +55,13 @@ export function App() {
         <nav aria-label="Primary navigation" className="primary-navigation" data-open={menuOpen} id="primary-navigation">
           <a className="nav-link" href="#how-it-works">{content.howItWorks}</a>
           <button aria-pressed={locale === 'km'} className="language-toggle" onClick={() => setLocale(locale === 'en' ? 'km' : 'en')} type="button">
-            <span aria-hidden="true">ក / A</span>{content.language}
+            <img
+              alt=""
+              aria-hidden="true"
+              className="language-flag"
+              src={locale === 'en' ? '/flags/kh.svg' : '/flags/gb.svg'}
+            />
+            {content.language}
           </button>
           <a className="nav-link" href="/sign-in">{content.signIn}</a>
           <a className="button button-small" href="/request-access">{content.requestAccess}</a>

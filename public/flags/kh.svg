@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24" role="img" aria-label="Cambodia">
+  <path fill="#032ea1" d="M0 0h36v24H0z"/>
+  <path fill="#e00025" d="M0 6h36v12H0z"/>
+  <g fill="#fff">
+    <path d="M8 15h20v1H8zM10 13h16v2H10zM13 10h10v3H13z"/>
+    <path d="m12 13 2-5 2 5h-2l-2-3-1 3zm8 0 2-5 2 5h-2l-2-3-1 3zm-5 0 3-7 3 7h-2l-1-4-1 4z"/>
+  </g>
+</svg>

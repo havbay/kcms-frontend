@@ -43,7 +43,13 @@ describe('KCMS public landing page', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
+    const languageButton = screen.getByRole('button', { name: 'ភាសាខ្មែរ' })
+    expect(languageButton.querySelector('img')).toHaveAttribute(
+      'src',
+      '/flags/kh.svg',
+    )
+
+    await user.click(languageButton)
 
     expect(
       screen.getByRole('heading', {
@@ -56,6 +62,9 @@ describe('KCMS public landing page', () => {
     })) {
       expect(link).toHaveAttribute('href', '/request-access')
     }
+    expect(
+      screen.getByRole('button', { name: 'English' }).querySelector('img'),
+    ).toHaveAttribute('src', '/flags/gb.svg')
   })
 
   it('opens and closes the compact navigation with one labelled control', async () => {
