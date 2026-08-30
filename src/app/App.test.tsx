@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 
@@ -25,15 +25,17 @@ describe('KCMS public landing page', () => {
   it('offers familiar public navigation without competing with the primary action', () => {
     render(<App />)
 
+    const header = within(screen.getByRole('navigation', { name: 'Primary navigation' }))
+
     expect(screen.getByRole('link', { name: 'KCMS home' })).toHaveAttribute(
       'href',
       '/',
     )
-    expect(screen.getByRole('link', { name: 'How KCMS works' })).toHaveAttribute(
+    expect(header.getByRole('link', { name: 'How KCMS works' })).toHaveAttribute(
       'href',
       '#how-it-works',
     )
-    expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
+    expect(header.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
       'href',
       '/sign-in',
     )
@@ -81,6 +83,18 @@ describe('KCMS public landing page', () => {
     expect(menuButton).toHaveAttribute('aria-expanded', 'false')
   })
 
+  it('closes compact navigation after changing language', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const menuButton = screen.getByRole('button', { name: 'Open menu' })
+
+    await user.click(menuButton)
+    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
+
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+  })
+
   it('shows the disclosed path from pattern matching to a human decision', () => {
     render(<App />)
 
@@ -92,5 +106,79 @@ describe('KCMS public landing page', () => {
     expect(pathway).toHaveTextContent('Needs human review')
     expect(pathway).toHaveTextContent('Your team decides')
     expect(pathway).toHaveTextContent('No automatic moderation actions')
+  })
+
+  it('explains the public workflow without requiring Meta developer expertise', () => {
+    render(<App />)
+
+    const workflow = screen.getByRole('region', {
+      name: 'From Facebook comment to human decision.',
+    })
+
+    expect(workflow).toHaveAttribute('id', 'how-it-works')
+    expect(workflow).toHaveTextContent('Connect the Page')
+    expect(workflow).toHaveTextContent('Prioritize review')
+    expect(workflow).toHaveTextContent('Decide with context')
+    expect(workflow).toHaveTextContent('No Meta developer workflow for client staff')
+  })
+
+  it('translates the public workflow to Khmer', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
+
+    const workflow = screen.getByRole('region', {
+      name: 'ពីមតិយោបល់ Facebook ទៅការសម្រេចដោយមនុស្ស។',
+    })
+
+    expect(workflow).toHaveTextContent('ភ្ជាប់ទំព័រ')
+    expect(workflow).toHaveTextContent('កំណត់អាទិភាពពិនិត្យ')
+    expect(workflow).toHaveTextContent('សម្រេចដោយមានបរិបទ')
+  })
+
+  it('offers an early access pilot without inventing price tiers', () => {
+    render(<App />)
+
+    const access = screen.getByRole('region', {
+      name: 'Start a pilot with your Page and your team.',
+    })
+
+    expect(access).toHaveAttribute('id', 'early-access')
+    expect(access).toHaveTextContent('Pilot access')
+    expect(access).toHaveTextContent('Pricing discussed with your team')
+    expect(access).toHaveTextContent('Khmer and Khmerlish pattern matching')
+    expect(access).toHaveTextContent('Future pricing may depend on connected Pages')
+    expect(within(access).getByRole('link', { name: /Request pilot access/ })).toHaveAttribute(
+      'href',
+      '/request-access',
+    )
+  })
+
+  it('closes the page with a footer that states prototype status', () => {
+    render(<App />)
+
+    const footer = screen.getByRole('contentinfo')
+
+    expect(footer).toHaveTextContent('Prototype status')
+    expect(footer).toHaveTextContent('Versioned pattern matching')
+    expect(footer).toHaveTextContent('Human review required')
+    expect(within(footer).getByRole('navigation', { name: 'Footer navigation' })).toBeVisible()
+    expect(within(footer).getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/sign-in')
+  })
+
+  it('translates the early access section and footer to Khmer', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
+
+    const access = screen.getByRole('region', {
+      name: 'ចាប់ផ្តើមសាកល្បងជាមួយទំព័រ និងក្រុមរបស់អ្នក។',
+    })
+
+    expect(access).toHaveTextContent('ការចូលប្រើសាកល្បង')
+    expect(access).toHaveTextContent('តម្លៃពិភាក្សាជាមួយក្រុមរបស់អ្នក')
+    expect(screen.getByRole('contentinfo')).toHaveTextContent('ស្ថានភាព Prototype')
   })
 })
