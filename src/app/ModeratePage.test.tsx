@@ -36,7 +36,7 @@ const WORK_LIST = {
 }
 
 function renderPage() {
-  return render(<ModeratePage locale="en" setLocale={() => {}} />, { wrapper: MemoryRouter })
+  return render(<ModeratePage locale="en" />, { wrapper: MemoryRouter })
 }
 
 describe('moderation work list', () => {

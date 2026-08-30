@@ -159,5 +159,21 @@ test('a visitor can reach the moderation demo from the landing page', async ({ p
   await page.goto('/')
   await page.getByRole('navigation', { name: 'Primary navigation' })
     .getByRole('link', { name: 'Open the demo' }).click()
-  await expect(page).toHaveURL(/\/moderate$/)
+  await expect(page).toHaveURL(/\/app$/)
+  await expect(page.getByRole('navigation', { name: /workspace|កន្លែងធ្វើការ/i })).toBeVisible()
+})
+
+test('the dashboard shows the workspace shell and marks unbuilt areas', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/app')
+
+  const nav = page.getByRole('navigation', { name: /workspace/i })
+  await expect(nav.getByRole('link', { name: 'Overview' })).toBeVisible()
+  await expect(nav.getByRole('link', { name: 'Moderate' })).toBeVisible()
+  // Unbuilt areas are shown but must not be links.
+  await expect(nav.getByRole('link', { name: 'Team' })).toHaveCount(0)
+  await expect(nav.getByText('Team')).toBeVisible()
+
+  await nav.getByRole('link', { name: 'Moderate' }).click()
+  await expect(page).toHaveURL(/\/app\/moderate$/)
 })

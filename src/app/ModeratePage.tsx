@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 
 import { type ActionKind, listComments, recordAction, type WorkListItem } from '../api/client'
 import { copy, type Locale } from './copy'
 
 type ModeratePageProps = {
   locale: Locale
-  setLocale: (locale: Locale) => void
 }
 
 type LoadState = 'loading' | 'ready' | 'error'
 
-export function ModeratePage({ locale, setLocale }: ModeratePageProps) {
+export function ModeratePage({ locale }: ModeratePageProps) {
   const content = copy[locale]
   const [items, setItems] = useState<WorkListItem[]>([])
   const [state, setState] = useState<LoadState>('loading')
@@ -72,31 +70,7 @@ export function ModeratePage({ locale, setLocale }: ModeratePageProps) {
   }
 
   return (
-    <div className="site app-shell" lang={locale === 'km' ? 'km' : 'en'}>
-      <header className="app-header">
-        <div className="app-header-left">
-          <span aria-hidden="true" className="brand-mark"><span /><span /></span>
-          <div>
-            <h1>{content.modTitle}</h1>
-            <p>{content.modSubtitle}</p>
-          </div>
-        </div>
-        <div className="app-header-actions">
-          <button
-            aria-pressed={locale === 'km'}
-            className="language-toggle"
-            onClick={() => setLocale(locale === 'en' ? 'km' : 'en')}
-            type="button"
-          >
-            <img alt="" aria-hidden="true" className="language-flag"
-                 src={locale === 'en' ? '/flags/kh.svg' : '/flags/gb.svg'} />
-            {content.language}
-          </button>
-          <Link className="text-link" to="/">{content.modBackToSite}</Link>
-        </div>
-      </header>
-
-      <main className="work-list">
+    <main className="work-list">
         {state === 'loading' && (
           <p className="work-status" role="status">
             {slow ? content.modWaking : content.modLoading}
@@ -188,7 +162,6 @@ export function ModeratePage({ locale, setLocale }: ModeratePageProps) {
             </ul>
           </>
         )}
-      </main>
-    </div>
+    </main>
   )
 }
