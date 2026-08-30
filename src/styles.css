@@ -398,3 +398,26 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .correction-field span { min-inline-size: 5.5rem; color: var(--deep-ink); font-size: 0.84rem; font-weight: 700; }
 .correction-field select { min-height: 2.6rem; padding: 0.4rem 0.7rem; border: 1px solid rgba(24, 48, 51, 0.28); border-radius: 0.45rem; color: var(--deep-ink); background: var(--clean-white); font: inherit; font-size: 0.88rem; }
 .correction-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 1rem; }
+
+/* ---- Sign in / sign up -------------------------------------------------- */
+.auth { display: flex; flex-direction: column; width: min(100% - 3rem, 26rem); margin-inline: auto; padding-block: clamp(3rem, 9vh, 5rem); flex: 1; }
+.auth h1 { max-width: 16ch; font-size: clamp(1.9rem, 4vw, 2.5rem); letter-spacing: -0.03em; line-height: 1.15; }
+.site[lang='km'] .auth h1 { max-width: 20ch; line-height: 1.4; }
+.auth-form { display: grid; gap: 1.05rem; margin-top: 2rem; }
+.auth-field { display: grid; gap: 0.4rem; }
+.auth-field span { color: var(--deep-ink); font-size: 0.85rem; font-weight: 700; }
+.auth-field input { min-height: 3rem; padding: 0.7rem 0.9rem; border: 1px solid rgba(24, 48, 51, 0.28); border-radius: 0.5rem; background: var(--clean-white); font: inherit; font-size: 0.95rem; }
+.auth-field input:focus-visible { border-color: var(--mekong-teal); }
+.auth-field small { color: var(--muted); font-size: 0.78rem; }
+.auth-error { margin: 0; padding: 0.75rem 0.9rem; border-left: 0.22rem solid #b42318; border-radius: 0.3rem; color: #8a1c13; background: #fdf4f3; font-size: 0.88rem; line-height: 1.55; }
+.auth-divider { display: flex; align-items: center; gap: 0.9rem; margin: 1.75rem 0 1.25rem; color: var(--muted); font-size: 0.78rem; }
+.auth-divider::before, .auth-divider::after { height: 1px; background: rgba(24, 48, 51, 0.18); content: ''; flex: 1; }
+.auth-telegram { display: flex; justify-content: center; min-height: 3rem; }
+.auth-switch { align-self: flex-start; margin-top: 1.75rem; border: none; background: none; color: var(--mekong-teal); cursor: pointer; }
+
+.dash-account { margin-top: auto; padding-top: 1.25rem; border-top: 1px solid rgba(24, 48, 51, 0.14); }
+.dash-user { margin: 0 0 0.5rem; font-size: 0.82rem; line-height: 1.45; }
+.dash-user span { display: block; color: var(--muted); font-size: 0.72rem; }
+.dash-user strong { color: var(--deep-ink); }
+.dash-signout { min-height: 2.4rem; border: none; background: none; color: var(--mekong-teal); cursor: pointer; font-size: 0.86rem; }
+.dashboard .dash-language { margin-top: 0.75rem; }

@@ -6,6 +6,8 @@ import { DashboardLayout } from './DashboardLayout'
 import { LandingPage } from './LandingPage'
 import { ModeratePage } from './ModeratePage'
 import { NoticePage } from './NoticePage'
+import { RequireSession } from './RequireSession'
+import { SignInPage } from './SignInPage'
 import { OverviewPage } from './OverviewPage'
 
 export function App() {
@@ -13,7 +15,9 @@ export function App() {
   const shared = { locale, setLocale }
 
   const dashboard = (children: React.ReactNode) => (
-    <DashboardLayout {...shared}>{children}</DashboardLayout>
+    <RequireSession locale={locale}>
+      <DashboardLayout {...shared}>{children}</DashboardLayout>
+    </RequireSession>
   )
 
   return (
@@ -27,7 +31,7 @@ export function App() {
       <Route path="/moderate" element={<Navigate replace to="/app/moderate" />} />
 
       <Route path="/request-access" element={<NoticePage kind="request-access" {...shared} />} />
-      <Route path="/sign-in" element={<NoticePage kind="sign-in" {...shared} />} />
+      <Route path="/sign-in" element={<SignInPage {...shared} />} />
       {/* Never leave a route blank: the SPA rewrite makes every path return 200. */}
       <Route path="*" element={<NoticePage kind="not-found" {...shared} />} />
     </Routes>

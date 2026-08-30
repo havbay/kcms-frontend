@@ -29,12 +29,44 @@ export class ApiError extends Error {
   }
 }
 
+/** Kept in memory and mirrored to localStorage. A bearer token is used rather
+ *  than a cookie because the frontend and API are on different sites, where
+ *  SameSite=None cookies are blocked by default in several browsers. */
+const TOKEN_KEY = 'kcms.session'
+let sessionToken: string | null = readStoredToken()
+
+function readStoredToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function setSessionToken(token: string | null) {
+  sessionToken = token
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token)
+    else localStorage.removeItem(TOKEN_KEY)
+  } catch {
+    // Private browsing: the in-memory token still works for this tab.
+  }
+}
+
+export function getSessionToken(): string | null {
+  return sessionToken
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       ...init,
-      headers: { 'Content-Type': 'application/json', ...init?.headers },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
+        ...init?.headers,
+      },
     })
   } catch {
     // Network failure, CORS rejection, or a cold backend that timed out.
@@ -43,7 +75,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) {
     throw new ApiError(response.status, `request failed with ${response.status}`)
   }
-  return (await response.json()) as T
+  // 204 and other empty bodies must not be fed to json(): sign-out returns
+  // No Content, and parsing it throws after the request already succeeded.
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return undefined as T
+  }
+  const body = await response.text()
+  return (body ? JSON.parse(body) : undefined) as T
 }
 
 export function listComments(): Promise<WorkList> {
@@ -72,4 +110,45 @@ export function recordCorrection(
     `/api/v1/comments/${encodeURIComponent(commentId)}/corrections`,
     { method: 'POST', body: JSON.stringify({ severity, target, actor: 'demo-client' }) },
   )
+}
+
+export type AuthUser = components['schemas']['AuthUser']
+export type Session = components['schemas']['Session']
+export type Providers = components['schemas']['Providers']
+
+export function listAuthProviders(): Promise<Providers> {
+  return request<Providers>('/api/v1/auth/providers')
+}
+
+export function signUp(email: string, password: string, displayName: string): Promise<Session> {
+  return request<Session>('/api/v1/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, display_name: displayName }),
+  })
+}
+
+export function signIn(email: string, password: string): Promise<Session> {
+  return request<Session>('/api/v1/auth/signin', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  })
+}
+
+export function signInWithTelegram(payload: Record<string, string>): Promise<Session> {
+  return request<Session>('/api/v1/auth/telegram', {
+    method: 'POST',
+    body: JSON.stringify({ payload }),
+  })
+}
+
+export function getCurrentUser(): Promise<AuthUser> {
+  return request<AuthUser>('/api/v1/auth/me')
+}
+
+export async function signOut(): Promise<void> {
+  try {
+    await request<void>('/api/v1/auth/signout', { method: 'POST' })
+  } finally {
+    setSessionToken(null)
+  }
 }

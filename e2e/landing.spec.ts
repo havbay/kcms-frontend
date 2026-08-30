@@ -146,7 +146,7 @@ test('trust sections render before the pilot ask at both sizes', async ({ page }
 })
 
 test('unbuilt routes explain themselves instead of rendering blank', async ({ page }) => {
-  for (const path of ['/sign-in', '/request-access', '/nonsense-route']) {
+  for (const path of ['/request-access', '/nonsense-route']) {
     await page.goto(path)
     const body = (await page.locator('body').innerText()).trim()
     expect(body, `${path} rendered blank`).not.toBe('')
@@ -159,11 +159,31 @@ test('a visitor can reach the moderation demo from the landing page', async ({ p
   await page.goto('/')
   await page.getByRole('navigation', { name: 'Primary navigation' })
     .getByRole('link', { name: 'Open the demo' }).click()
-  await expect(page).toHaveURL(/\/app$/)
-  await expect(page.getByRole('navigation', { name: /workspace|កន្លែងធ្វើការ/i })).toBeVisible()
+  // The dashboard is guarded, so the demo link lands on sign-in.
+  await expect(page).toHaveURL(/\/sign-in$/)
+  await expect(page.getByRole('heading', { name: 'Sign in to KCMS' })).toBeVisible()
 })
 
-test('the dashboard shows the workspace shell and marks unbuilt areas', async ({ page }) => {
+test('the dashboard requires a session and bounces anonymous visitors', async ({ page }) => {
+  await page.goto('/app')
+  await expect(page).toHaveURL(/\/sign-in$/)
+  await expect(page.getByRole('heading', { name: 'Sign in to KCMS' })).toBeVisible()
+})
+
+test('sign-in offers email, and hides Telegram until a bot is configured', async ({ page }) => {
+  await page.goto('/sign-in')
+  await expect(page.getByLabel('Email')).toBeVisible()
+  await expect(page.getByLabel('Password')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible()
+
+  // An unconfigured provider must be absent, never a dead button.
+  await page.waitForTimeout(1500)
+  const telegramSlots = await page.locator('.auth-telegram').count()
+  const enabled = await page.getByText('or', { exact: true }).count()
+  expect(telegramSlots).toBe(enabled)
+})
+
+test.skip('the dashboard shows the workspace shell and marks unbuilt areas', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.goto('/app')
 

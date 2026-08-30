@@ -6,6 +6,7 @@ import '@fontsource-variable/noto-sans-khmer'
 import { BrowserRouter } from 'react-router-dom'
 
 import { App } from './app/App'
+import { SessionProvider } from './app/session'
 import './styles.css'
 
 const rootElement = document.getElementById('root')
@@ -17,7 +18,9 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <SessionProvider>
+        <App />
+      </SessionProvider>
     </BrowserRouter>
   </StrictMode>,
 )

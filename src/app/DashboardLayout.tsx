@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 
 import { copy, type Locale } from './copy'
+import { useSession } from './session'
 
 type DashboardLayoutProps = {
   locale: Locale
@@ -11,6 +12,7 @@ type DashboardLayoutProps = {
 
 export function DashboardLayout({ locale, setLocale, children }: DashboardLayoutProps) {
   const content = copy[locale]
+  const session = useSession()
 
   // Only Overview and Moderate are built. The rest are shown so the shape of
   // the product is legible, and marked so nobody mistakes them for working.
@@ -47,6 +49,18 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
             </span>
           ))}
         </nav>
+
+        <div className="dash-account">
+          {session.user && (
+            <p className="dash-user">
+              <span>{content.authSignedInAs}</span>
+              <strong>{session.user.display_name}</strong>
+            </p>
+          )}
+          <button className="text-link dash-signout" onClick={() => void session.signOut()} type="button">
+            {content.authSignOut}
+          </button>
+        </div>
 
         <button
           aria-pressed={locale === 'km'}
