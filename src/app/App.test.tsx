@@ -102,7 +102,8 @@ describe('KCMS public landing page', () => {
       name: 'How a comment reaches human review',
     })
 
-    expect(pathway).toHaveTextContent('Pattern matching')
+    expect(pathway).toHaveTextContent('Automatic detection')
+    expect(pathway).toHaveTextContent('Pattern matching · v0.1')
     expect(pathway).toHaveTextContent('Needs human review')
     expect(pathway).toHaveTextContent('Your team decides')
     expect(pathway).toHaveTextContent('No automatic moderation actions')
