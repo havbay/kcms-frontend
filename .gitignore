@@ -6,3 +6,5 @@ test-results/
 *.local
 .vercel
 .env*
+!.env.production
+!.env.development

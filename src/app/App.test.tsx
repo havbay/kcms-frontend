@@ -1,12 +1,13 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 
 import { App } from './App'
 
 describe('KCMS public landing page', () => {
   it('explains the product and gives visitors one primary next action', () => {
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     expect(
       screen.getByRole('heading', {
@@ -23,7 +24,7 @@ describe('KCMS public landing page', () => {
   })
 
   it('offers familiar public navigation without competing with the primary action', () => {
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const header = within(screen.getByRole('navigation', { name: 'Primary navigation' }))
 
@@ -43,7 +44,7 @@ describe('KCMS public landing page', () => {
 
   it('lets a visitor read the hero in Khmer without leaving the page', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const languageButton = screen.getByRole('button', { name: 'ភាសាខ្មែរ' })
     expect(languageButton.querySelector('img')).toHaveAttribute(
@@ -71,7 +72,7 @@ describe('KCMS public landing page', () => {
 
   it('opens and closes the compact navigation with one labelled control', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const menuButton = screen.getByRole('button', { name: 'Open menu' })
     expect(menuButton).toHaveAttribute('aria-expanded', 'false')
@@ -85,7 +86,7 @@ describe('KCMS public landing page', () => {
 
   it('closes compact navigation after changing language', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const menuButton = screen.getByRole('button', { name: 'Open menu' })
 
@@ -96,7 +97,7 @@ describe('KCMS public landing page', () => {
   })
 
   it('shows the disclosed path from pattern matching to a human decision', () => {
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const pathway = screen.getByRole('figure', {
       name: 'How a comment reaches human review',
@@ -110,7 +111,7 @@ describe('KCMS public landing page', () => {
   })
 
   it('explains the public workflow without requiring Meta developer expertise', () => {
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const workflow = screen.getByRole('region', {
       name: 'From Facebook comment to human decision.',
@@ -125,7 +126,7 @@ describe('KCMS public landing page', () => {
 
   it('translates the public workflow to Khmer', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
 
@@ -139,7 +140,7 @@ describe('KCMS public landing page', () => {
   })
 
   it('offers an early access pilot without inventing price tiers', () => {
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const access = screen.getByRole('region', {
       name: 'Start a pilot with your Page and your team.',
@@ -157,7 +158,7 @@ describe('KCMS public landing page', () => {
   })
 
   it('closes the page with a footer that states prototype status', () => {
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const footer = screen.getByRole('contentinfo')
 
@@ -170,7 +171,7 @@ describe('KCMS public landing page', () => {
 
   it('translates the early access section and footer to Khmer', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
 
@@ -184,7 +185,7 @@ describe('KCMS public landing page', () => {
   })
 
   it('shows how Khmer context separates institution criticism from person-directed abuse', () => {
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const khmer = screen.getByRole('region', {
       name: 'Khmer, Khmerlish, and the slang in between.',
@@ -200,7 +201,7 @@ describe('KCMS public landing page', () => {
   })
 
   it('states every human-control guarantee including the no-self-training rule', () => {
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     const control = screen.getByRole('region', {
       name: 'You decide what KCMS is allowed to do.',
@@ -218,7 +219,7 @@ describe('KCMS public landing page', () => {
   })
 
   it('asks for a pilot only after establishing Khmer capability and human control', () => {
-    const { container } = render(<App />)
+    const { container } = render(<App />, { wrapper: MemoryRouter })
 
     const ids = Array.from(container.querySelectorAll('main > section')).map((s) => s.id)
 
@@ -227,7 +228,7 @@ describe('KCMS public landing page', () => {
 
   it('translates the Khmer context and human control sections', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    render(<App />, { wrapper: MemoryRouter })
 
     await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
 
