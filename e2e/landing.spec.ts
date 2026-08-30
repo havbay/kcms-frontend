@@ -197,3 +197,37 @@ test.skip('the dashboard shows the workspace shell and marks unbuilt areas', asy
   await nav.getByRole('link', { name: 'Moderate' }).click()
   await expect(page).toHaveURL(/\/app\/moderate$/)
 })
+
+test('the header stays on top while scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/')
+  await page.evaluate(() => window.scrollTo(0, 2400))
+  await page.waitForTimeout(400)
+
+  const bar = await page.locator('.site-header-bar').boundingBox()
+  expect(bar!.y).toBeLessThanOrEqual(1)
+  await expect(
+    page.getByRole('navigation', { name: 'Primary navigation' }),
+  ).toBeVisible()
+})
+
+test('the mobile drawer opens from the left and closes with Escape', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 })
+  await page.goto('/')
+
+  const drawer = page.locator('.primary-navigation')
+  expect((await drawer.boundingBox())!.x).toBeLessThan(0)
+
+  await page.getByRole('button', { name: 'Open menu' }).click()
+  await page.waitForTimeout(500)
+  const open = (await drawer.boundingBox())!
+  expect(open.x).toBe(0)
+  // Sized to the viewport, not to the header bar.
+  expect(open.height).toBeGreaterThan(700)
+  await expect(page.locator('.nav-backdrop[data-open="true"]')).toBeVisible()
+
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(500)
+  expect((await drawer.boundingBox())!.x).toBeLessThan(0)
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe('')
+})

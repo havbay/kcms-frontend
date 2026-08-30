@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { copy, type Locale } from './copy'
 
@@ -26,9 +26,25 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const content = copy[locale]
 
+  // A drawer that cannot be dismissed with Escape traps keyboard users, and
+  // a scrolling page behind an open drawer is disorienting on touch.
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [menuOpen])
+
   return (
     <div className="site" lang={locale === 'km' ? 'km' : 'en'}>
-      <header className="site-header">
+      <div className="site-header-bar">
+        <header className="site-header">
         <Brand />
         <button aria-controls="primary-navigation" aria-expanded={menuOpen} aria-label={menuOpen ? 'Close menu' : 'Open menu'} className="menu-toggle" onClick={() => setMenuOpen((isOpen) => !isOpen)} type="button">
           <span aria-hidden="true" className="menu-icon"><span /><span /></span>
@@ -56,9 +72,18 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             {content.language}
           </button>
           <a className="nav-link" href="/sign-in">{content.signIn}</a>
-          <a className="button button-small" href="/request-access">{content.requestAccess}</a>
-        </nav>
-      </header>
+            <a className="button button-small" href="/request-access">{content.requestAccess}</a>
+          </nav>
+        </header>
+      </div>
+      <button
+        aria-hidden="true"
+        className="nav-backdrop"
+        data-open={menuOpen}
+        onClick={() => setMenuOpen(false)}
+        tabIndex={-1}
+        type="button"
+      />
 
       <main>
         <section aria-labelledby="landing-heading" className="hero">
