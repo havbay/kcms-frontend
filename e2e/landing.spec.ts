@@ -144,3 +144,20 @@ test('trust sections render before the pilot ask at both sizes', async ({ page }
     ).toBe(true)
   }
 })
+
+test('unbuilt routes explain themselves instead of rendering blank', async ({ page }) => {
+  for (const path of ['/sign-in', '/request-access', '/nonsense-route']) {
+    await page.goto(path)
+    const body = (await page.locator('body').innerText()).trim()
+    expect(body, `${path} rendered blank`).not.toBe('')
+    await expect(page.getByRole('link', { name: /Open the demo/ })).toBeVisible()
+  }
+})
+
+test('a visitor can reach the moderation demo from the landing page', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/')
+  await page.getByRole('navigation', { name: 'Primary navigation' })
+    .getByRole('link', { name: 'Open the demo' }).click()
+  await expect(page).toHaveURL(/\/moderate$/)
+})

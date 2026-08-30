@@ -37,6 +37,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
           <a className="nav-link" href="#how-it-works">{content.howItWorks}</a>
           <a className="nav-link" href="#human-control">{content.navHumanControl}</a>
           <a className="nav-link" href="#early-access">{content.accessEyebrow}</a>
+          <a className="nav-link nav-link-demo" href="/moderate">{content.openDemo}</a>
           <button
             aria-pressed={locale === 'km'}
             className="language-toggle"

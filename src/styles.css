@@ -314,3 +314,22 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   .work-item { padding: 1.15rem; }
   .work-actions { flex-direction: column; align-items: stretch; }
 }
+
+/* ---- Notice pages (unbuilt routes) ------------------------------------- */
+.notice-shell { display: flex; flex-direction: column; min-height: 100vh; }
+.notice-shell .app-header { justify-content: space-between; }
+.notice { display: flex; flex-direction: column; justify-content: center; width: min(100% - 3rem, 42rem); margin-inline: auto; padding-block: clamp(4rem, 12vh, 8rem); flex: 1; }
+.notice h1 { max-width: 18ch; font-size: clamp(2.1rem, 4.5vw, 3.1rem); letter-spacing: -0.03em; line-height: 1.1; }
+.site[lang='km'] .notice h1 { max-width: 22ch; line-height: 1.4; }
+.notice p { margin: 1.4rem 0 0; color: var(--muted); font-size: 1.02rem; line-height: 1.8; }
+.site[lang='km'] .notice p { line-height: 2; }
+.notice-hint { padding-left: 1rem; border-left: 0.22rem solid var(--mekong-teal); color: var(--deep-ink) !important; }
+.notice-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; margin-top: 2.5rem; }
+
+@media (max-width: 560px) {
+  .notice { width: min(100% - 1.5rem, 34rem); }
+  .notice-actions { align-items: stretch; flex-direction: column; gap: 0.9rem; }
+  .notice-actions .text-link { justify-content: center; }
+}
+.nav-link-demo { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--mekong-teal); font-weight: 750; }
+.nav-link-demo::before { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--mekong-teal); content: ''; }
