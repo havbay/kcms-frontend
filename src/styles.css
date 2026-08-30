@@ -215,3 +215,54 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   .footer-nav { grid-template-columns: 1fr; gap: 1.35rem; }
   .footer-meta { flex-direction: column; align-items: flex-start; }
 }
+
+.khmer-section { scroll-margin-top: 2rem; width: min(100% - 3rem, 76rem); margin-inline: auto; padding-block: clamp(4.5rem, 8vw, 7rem); border-top: 1px solid rgba(24, 48, 51, 0.16); }
+.khmer-intro { max-width: 48rem; }
+.khmer-intro h2 { max-width: 18ch; }
+.site[lang='km'] .khmer-intro h2 { max-width: 22ch; }
+.khmer-description { max-width: 40rem; margin: 1.45rem 0 0; color: var(--muted); font-size: 1.02rem; line-height: 1.8; }
+.site[lang='km'] .khmer-description { line-height: 2; }
+.khmer-coverage-label, .khmer-examples-label { margin: 2.4rem 0 0; color: var(--muted); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.09em; line-height: 1.4; text-transform: uppercase; }
+.site[lang='km'] .khmer-coverage-label, .site[lang='km'] .khmer-examples-label { letter-spacing: 0; text-transform: none; }
+.khmer-coverage { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.1rem 0 0; padding: 0; list-style: none; }
+.khmer-coverage li { padding: 0.5rem 0.9rem; border: 1px solid rgba(11, 107, 99, 0.28); border-radius: 999px; color: #075049; background: #f1faf8; font-size: 0.84rem; font-weight: 650; }
+.khmer-examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1.1rem; margin: 1.2rem 0 0; padding: 0; list-style: none; }
+.khmer-example { position: relative; padding: 1.5rem; border: 1px solid rgba(24, 48, 51, 0.14); border-radius: 0.75rem; background: var(--clean-white); }
+.khmer-example::before { position: absolute; inset: 0 auto 0 0; width: 0.28rem; border-radius: 0.75rem 0 0 0.75rem; content: ''; }
+.khmer-example[data-tone='safe']::before { background: var(--mekong-teal); }
+.khmer-example[data-tone='review']::before { background: var(--review-amber); }
+.khmer-example blockquote { margin: 0; color: var(--deep-ink); font-family: 'Noto Sans Khmer Variable', sans-serif; font-size: 1.02rem; line-height: 1.95; }
+.khmer-gloss { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.86rem; font-style: italic; line-height: 1.6; }
+.khmer-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.1rem 0 0; }
+.khmer-target, .khmer-outcome { padding: 0.32rem 0.7rem; border-radius: 999px; font-size: 0.74rem; font-weight: 800; }
+.khmer-target { border: 1px solid rgba(24, 48, 51, 0.2); color: var(--deep-ink); background: rgba(24, 48, 51, 0.05); }
+.khmer-example[data-tone='safe'] .khmer-outcome { color: #075049; background: #ddf1ed; }
+.khmer-example[data-tone='review'] .khmer-outcome { color: #7b3e00; background: #f7e3c2; }
+.khmer-note { margin: 0.95rem 0 0; color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+.site[lang='km'] .khmer-note { line-height: 1.95; }
+
+.control-section { scroll-margin-top: 2rem; border-block: 1px solid rgba(11, 107, 99, 0.2); background: #f1faf8; }
+.control-inner { width: min(100% - 3rem, 76rem); margin-inline: auto; padding-block: clamp(4.5rem, 8vw, 7rem); }
+.control-intro { max-width: 44rem; margin-inline: auto; text-align: center; }
+.control-intro .eyebrow { justify-content: center; }
+.control-intro h2 { max-width: 20ch; margin-inline: auto; }
+.site[lang='km'] .control-intro h2 { max-width: 24ch; }
+.control-description { max-width: 34rem; margin: 1.45rem auto 0; color: var(--muted); font-size: 1.02rem; line-height: 1.8; }
+.site[lang='km'] .control-description { line-height: 2; }
+.control-guarantees { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 0.85rem; max-width: 62rem; margin: clamp(2.25rem, 4vw, 3rem) auto 0; padding: 0; list-style: none; }
+.control-guarantees li { display: grid; grid-template-columns: auto 1fr; gap: 0.85rem; align-items: start; padding: 1.15rem 1.25rem; border: 1px solid rgba(11, 107, 99, 0.22); border-radius: 0.6rem; background: rgba(255, 255, 255, 0.75); color: var(--deep-ink); font-size: 0.95rem; line-height: 1.65; }
+.site[lang='km'] .control-guarantees li { line-height: 1.95; }
+.control-shield { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 0.35rem; color: var(--clean-white); background: var(--mekong-teal); font-size: 0.78rem; font-weight: 850; }
+.control-scope { display: flex; align-items: baseline; gap: 0.65rem; justify-content: center; flex-wrap: wrap; max-width: 44rem; margin: clamp(1.75rem, 3vw, 2.25rem) auto 0; color: var(--muted); font-size: 0.88rem; line-height: 1.7; text-align: center; }
+.control-scope span { flex: none; width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--review-amber); }
+.control-scope strong { color: var(--deep-ink); font-weight: 800; }
+
+@media (max-width: 560px) {
+  .khmer-section, .control-inner { width: min(100% - 1.5rem, 34rem); }
+  .khmer-section, .control-inner { padding-block: 3.75rem 4.25rem; }
+  .khmer-examples { grid-template-columns: 1fr; }
+  .khmer-example { padding: 1.2rem; }
+  .control-guarantees { grid-template-columns: 1fr; }
+}
+
+.control-guarantees li:last-child { grid-column: 1 / -1; border-color: rgba(11, 107, 99, 0.4); background: var(--clean-white); }

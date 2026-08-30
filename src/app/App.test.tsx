@@ -181,4 +181,60 @@ describe('KCMS public landing page', () => {
     expect(access).toHaveTextContent('តម្លៃពិភាក្សាជាមួយក្រុមរបស់អ្នក')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('ស្ថានភាព Prototype')
   })
+
+  it('shows how Khmer context separates institution criticism from person-directed abuse', () => {
+    render(<App />)
+
+    const khmer = screen.getByRole('region', {
+      name: 'Khmer, Khmerlish, and the slang in between.',
+    })
+
+    expect(khmer).toHaveAttribute('id', 'khmer-context')
+    expect(khmer).toHaveTextContent('Khmerlish and code-switching')
+    expect(khmer).toHaveTextContent('Misspellings and obfuscated words')
+    expect(khmer).toHaveTextContent('Institution')
+    expect(khmer).toHaveTextContent('Stays visible')
+    expect(khmer).toHaveTextContent('Person')
+    expect(khmer).toHaveTextContent('Needs review')
+  })
+
+  it('states every human-control guarantee including the no-self-training rule', () => {
+    render(<App />)
+
+    const control = screen.getByRole('region', {
+      name: 'KCMS never acts on your Page by itself.',
+    })
+
+    expect(control).toHaveAttribute('id', 'human-control')
+    expect(control).toHaveTextContent('Every hide and unhide is performed by a person')
+    expect(control).toHaveTextContent('Actions are reversible')
+    expect(control).toHaveTextContent('Correcting a model label is separate from hiding')
+    expect(control).toHaveTextContent('never removed automatically')
+    expect(control).toHaveTextContent('does not train itself from your moderation actions')
+    expect(control).toHaveTextContent('Messenger and Instagram are not connected yet')
+  })
+
+  it('asks for a pilot only after establishing Khmer capability and human control', () => {
+    const { container } = render(<App />)
+
+    const ids = Array.from(container.querySelectorAll('main > section')).map((s) => s.id)
+
+    expect(ids).toEqual(['', 'how-it-works', 'khmer-context', 'human-control', 'early-access'])
+  })
+
+  it('translates the Khmer context and human control sections', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
+
+    expect(
+      screen.getByRole('region', { name: 'ខ្មែរ Khmerlish និងពាក្យស្លែងនៅចន្លោះ។' }),
+    ).toHaveTextContent('អង្គភាព')
+    expect(
+      screen.getByRole('region', {
+        name: 'KCMS មិនធ្វើសកម្មភាពលើទំព័ររបស់អ្នកដោយខ្លួនឯងឡើយ។',
+      }),
+    ).toHaveTextContent('មិនហ្វឹកហាត់ខ្លួនឯង')
+  })
 })

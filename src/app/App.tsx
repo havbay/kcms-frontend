@@ -33,6 +33,43 @@ const copy = {
         meta: 'Human controlled',
       },
     ],
+    navHumanControl: 'Human control',
+    khmerEyebrow: 'Built for Khmer',
+    khmerHeading: 'Khmer, Khmerlish, and the slang in between.',
+    khmerDescription: 'Most moderation tools read Khmer as noise. KCMS matches Khmer script, romanized Khmerlish, everyday slang, misspellings, and deliberately obfuscated words — then separates who the comment is aimed at.',
+    khmerCoverageLabel: 'Pattern matching covers',
+    khmerCoverage: ['Khmer script', 'Khmerlish and code-switching', 'Everyday slang', 'Misspellings and obfuscated words'],
+    khmerExamplesLabel: 'Same frustration, different target',
+    khmerExamples: [
+      {
+        comment: 'សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់ ខកចិត្តខ្លាំង។',
+        gloss: '“This company’s service is so slow. Very disappointed.”',
+        target: 'Institution',
+        outcome: 'Stays visible',
+        note: 'Criticism of an organization is protected. KCMS never removes it automatically.',
+        tone: 'safe',
+      },
+      {
+        comment: 'អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។',
+        gloss: '“This person is so stupid. Don’t let them speak.”',
+        target: 'Person',
+        outcome: 'Needs review',
+        note: 'Person-directed abuse is surfaced so your team can decide what happens.',
+        tone: 'review',
+      },
+    ],
+    controlEyebrow: 'Human control',
+    controlHeading: 'KCMS never acts on your Page by itself.',
+    controlDescription: 'Pattern matching decides what your team sees first. It never decides what happens to a comment.',
+    controlGuarantees: [
+      'Every hide and unhide is performed by a person on your team.',
+      'Actions are reversible, and the record shows who did what.',
+      'Correcting a model label is separate from hiding a comment.',
+      'Criticism aimed at an organization is never removed automatically.',
+      'KCMS does not train itself from your moderation actions.',
+    ],
+    controlScopeLabel: 'Current scope',
+    controlScope: 'Facebook Page comments only. Messenger and Instagram are not connected yet.',
     accessEyebrow: 'Early access',
     accessHeading: 'Start a pilot with your Page and your team.',
     accessDescription: 'KCMS is onboarding a small number of Cambodian organizations. We size each pilot around your Page volume, team, and review workload before discussing cost.',
@@ -93,6 +130,43 @@ const copy = {
         meta: 'គ្រប់គ្រងដោយមនុស្ស',
       },
     ],
+    navHumanControl: 'ការគ្រប់គ្រងដោយមនុស្ស',
+    khmerEyebrow: 'សាងសម្រាប់ភាសាខ្មែរ',
+    khmerHeading: 'ខ្មែរ Khmerlish និងពាក្យស្លែងនៅចន្លោះ។',
+    khmerDescription: 'ឧបករណ៍គ្រប់គ្រងភាគច្រើនអានភាសាខ្មែរជាសំឡេងរំខាន។ KCMS ផ្គូផ្គងអក្សរខ្មែរ Khmerlish ពាក្យស្លែងប្រចាំថ្ងៃ ពាក្យសរសេរខុស និងពាក្យបំបាំង រួចបែងចែកថាមតិយោបល់នោះសំដៅលើនរណា។',
+    khmerCoverageLabel: 'ការផ្គូផ្គងលំនាំគ្របដណ្តប់',
+    khmerCoverage: ['អក្សរខ្មែរ', 'Khmerlish និងការលាយភាសា', 'ពាក្យស្លែងប្រចាំថ្ងៃ', 'ពាក្យសរសេរខុស និងពាក្យបំបាំង'],
+    khmerExamplesLabel: 'ការខកចិត្តដូចគ្នា គោលដៅខុសគ្នា',
+    khmerExamples: [
+      {
+        comment: 'សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់ ខកចិត្តខ្លាំង។',
+        gloss: '“សេវាកម្មរបស់ក្រុមហ៊ុននេះយឺតណាស់។ ខកចិត្តខ្លាំង។”',
+        target: 'អង្គភាព',
+        outcome: 'នៅតែបង្ហាញ',
+        note: 'ការរិះគន់អង្គភាពត្រូវបានការពារ។ KCMS មិនលុបវាដោយស្វ័យប្រវត្តិឡើយ។',
+        tone: 'safe',
+      },
+      {
+        comment: 'អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។',
+        gloss: '“អ្នកនេះល្ងង់ណាស់។ កុំឱ្យគាត់និយាយ។”',
+        target: 'បុគ្គល',
+        outcome: 'ត្រូវការពិនិត្យ',
+        note: 'ការវាយប្រហារសំដៅលើបុគ្គល ត្រូវបានបង្ហាញដល់ក្រុមរបស់អ្នកដើម្បីសម្រេច។',
+        tone: 'review',
+      },
+    ],
+    controlEyebrow: 'ការគ្រប់គ្រងដោយមនុស្ស',
+    controlHeading: 'KCMS មិនធ្វើសកម្មភាពលើទំព័ររបស់អ្នកដោយខ្លួនឯងឡើយ។',
+    controlDescription: 'ការផ្គូផ្គងលំនាំកំណត់តែថាក្រុមរបស់អ្នកគួរមើលអ្វីមុន។ វាមិនកំណត់ថាមតិយោបល់នឹងទទួលរងអ្វីឡើយ។',
+    controlGuarantees: [
+      'រាល់ការលាក់ និងការបើកលាក់វិញ ធ្វើឡើងដោយមនុស្សក្នុងក្រុមរបស់អ្នក។',
+      'សកម្មភាពអាចត្រឡប់វិញបាន ហើយកំណត់ត្រាបង្ហាញថានរណាធ្វើអ្វី។',
+      'ការកែស្លាកគំរូ ដាច់ដោយឡែកពីការលាក់មតិយោបល់។',
+      'ការរិះគន់ដែលសំដៅលើអង្គភាព មិនត្រូវបានលុបដោយស្វ័យប្រវត្តិឡើយ។',
+      'KCMS មិនហ្វឹកហាត់ខ្លួនឯងពីសកម្មភាពគ្រប់គ្រងរបស់អ្នកឡើយ។',
+    ],
+    controlScopeLabel: 'វិសាលភាពបច្ចុប្បន្ន',
+    controlScope: 'មតិយោបល់លើទំព័រ Facebook តែប៉ុណ្ណោះ។ Messenger និង Instagram មិនទាន់ភ្ជាប់នៅឡើយទេ។',
     accessEyebrow: 'ការចូលប្រើដំបូង',
     accessHeading: 'ចាប់ផ្តើមសាកល្បងជាមួយទំព័រ និងក្រុមរបស់អ្នក។',
     accessDescription: 'KCMS កំពុងទទួលអង្គភាពកម្ពុជាមួយចំនួនតូច។ យើងកំណត់ទំហំនៃការសាកល្បងតាមបរិមាណមតិយោបល់ ក្រុមការងារ និងបន្ទុកពិនិត្យរបស់អ្នក មុននឹងពិភាក្សាអំពីតម្លៃ។',
@@ -152,6 +226,8 @@ export function App() {
         </button>
         <nav aria-label="Primary navigation" className="primary-navigation" data-open={menuOpen} id="primary-navigation">
           <a className="nav-link" href="#how-it-works">{content.howItWorks}</a>
+          <a className="nav-link" href="#human-control">{content.navHumanControl}</a>
+          <a className="nav-link" href="#early-access">{content.accessEyebrow}</a>
           <button
             aria-pressed={locale === 'km'}
             className="language-toggle"
@@ -236,6 +312,54 @@ export function App() {
                 </div>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="khmer-heading" className="khmer-section" id="khmer-context">
+          <div className="khmer-intro">
+            <p className="eyebrow"><span aria-hidden="true" />{content.khmerEyebrow}</p>
+            <h2 id="khmer-heading">{content.khmerHeading}</h2>
+            <p className="khmer-description">{content.khmerDescription}</p>
+            <h3 className="khmer-coverage-label" id="khmer-coverage">{content.khmerCoverageLabel}</h3>
+            <ul aria-labelledby="khmer-coverage" className="khmer-coverage">
+              {content.khmerCoverage.map((item) => (<li key={item}>{item}</li>))}
+            </ul>
+          </div>
+
+          <h3 className="khmer-examples-label" id="khmer-examples">{content.khmerExamplesLabel}</h3>
+          <ul aria-labelledby="khmer-examples" className="khmer-examples">
+            {content.khmerExamples.map((example) => (
+              <li className="khmer-example" data-tone={example.tone} key={example.target}>
+                <blockquote lang="km">{example.comment}</blockquote>
+                <p className="khmer-gloss">{example.gloss}</p>
+                <p className="khmer-tags">
+                  <span className="khmer-target">{example.target}</span>
+                  <span className="khmer-outcome">{example.outcome}</span>
+                </p>
+                <p className="khmer-note">{example.note}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section aria-labelledby="control-heading" className="control-section" id="human-control">
+          <div className="control-inner">
+            <div className="control-intro">
+              <p className="eyebrow"><span aria-hidden="true" />{content.controlEyebrow}</p>
+              <h2 id="control-heading">{content.controlHeading}</h2>
+              <p className="control-description">{content.controlDescription}</p>
+            </div>
+
+            <ul aria-labelledby="control-heading" className="control-guarantees">
+              {content.controlGuarantees.map((guarantee) => (
+                <li key={guarantee}><span aria-hidden="true" className="control-shield">✓</span>{guarantee}</li>
+              ))}
+            </ul>
+
+            <p className="control-scope">
+              <span aria-hidden="true" />
+              <strong>{content.controlScopeLabel}:</strong> {content.controlScope}
+            </p>
           </div>
         </section>
 

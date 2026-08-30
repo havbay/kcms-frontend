@@ -112,3 +112,35 @@ test('mobile early access and footer stack without horizontal scroll', async ({ 
     ),
   ).toBe(true)
 })
+
+test('trust sections render before the pilot ask at both sizes', async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 1000 },
+    { width: 375, height: 812 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+
+    const khmer = page.getByRole('region', {
+      name: 'Khmer, Khmerlish, and the slang in between.',
+    })
+    const control = page.getByRole('region', {
+      name: 'KCMS never acts on your Page by itself.',
+    })
+
+    await khmer.scrollIntoViewIfNeeded()
+    await expect(khmer).toContainText('Stays visible')
+    await control.scrollIntoViewIfNeeded()
+    await expect(control).toContainText('does not train itself from your moderation actions')
+
+    const khmerBox = await khmer.boundingBox()
+    const accessBox = await page.locator('#early-access').boundingBox()
+    expect(khmerBox!.y).toBeLessThan(accessBox!.y)
+
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      ),
+    ).toBe(true)
+  }
+})
