@@ -162,3 +162,40 @@ export async function signOut(): Promise<void> {
     setSessionToken(null)
   }
 }
+
+export type AccessRequest = components['schemas']['AccessRequest']
+export type AdminAccessRequest = components['schemas']['AdminAccessRequest']
+export type MonthlyComments = components['schemas']['AccessRequestCreate']['monthly_comments']
+export type TeamSize = components['schemas']['AccessRequestCreate']['team_size']
+
+export function createAccessRequest(body: {
+  page_name: string
+  monthly_comments: MonthlyComments
+  team_size: TeamSize
+  note?: string | null
+}): Promise<AccessRequest> {
+  return request<AccessRequest>('/api/v1/access-requests', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export function getMyAccessRequest(): Promise<AccessRequest | null> {
+  return request<AccessRequest | null>('/api/v1/access-requests/mine')
+}
+
+export function listAccessRequests(status?: string): Promise<AdminAccessRequest[]> {
+  const query = status ? `?status=${encodeURIComponent(status)}` : ''
+  return request<AdminAccessRequest[]>(`/api/v1/admin/access-requests${query}`)
+}
+
+export function decideAccessRequest(
+  id: string,
+  decision: 'APPROVED' | 'DECLINED',
+  reason?: string,
+): Promise<AccessRequest> {
+  return request<AccessRequest>(`/api/v1/admin/access-requests/${encodeURIComponent(id)}/decision`, {
+    method: 'POST',
+    body: JSON.stringify({ decision, reason }),
+  })
+}

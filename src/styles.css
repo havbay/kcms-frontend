@@ -468,3 +468,43 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .work-spinner { width: 1.6rem; height: 1.6rem; border: 2px solid rgba(11, 107, 99, 0.2); border-top-color: var(--mekong-teal); border-radius: 50%; animation: work-spin 720ms linear infinite; }
 @keyframes work-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .work-spinner { animation: none; border-top-color: rgba(11, 107, 99, 0.2); } }
+
+/* ---- Page connection request -------------------------------------------- */
+.conn-form { display: grid; gap: 1.05rem; max-width: 32rem; margin-top: 1.9rem; }
+.conn-form select, .conn-form textarea { min-height: 3rem; padding: 0.7rem 0.9rem; border: 1px solid rgba(24, 48, 51, 0.28); border-radius: 0.5rem; background: var(--clean-white); font: inherit; font-size: 0.95rem; }
+.conn-form textarea { min-height: 5rem; resize: vertical; }
+.conn-outcome { max-width: 34rem; margin-top: 1.9rem; padding: 1.5rem; border-radius: 0.6rem; border: 1px solid rgba(24, 48, 51, 0.14); background: var(--clean-white); }
+.conn-outcome h1, .conn-outcome h2 { max-width: none; margin: 0; font-size: 1.5rem; line-height: 1.25; }
+.conn-outcome p { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+.conn-outcome.is-pending { border-color: rgba(194, 106, 10, 0.4); background: #fffaf1; }
+.conn-outcome.is-approved { border-color: rgba(11, 107, 99, 0.4); background: #f1faf8; }
+.conn-outcome.is-declined { border-color: rgba(180, 35, 24, 0.35); background: #fdf4f3; margin-bottom: 1.5rem; }
+.conn-summary { display: grid; gap: 0.6rem; margin: 1.3rem 0 0; padding-top: 1.2rem; border-top: 1px solid rgba(24, 48, 51, 0.12); }
+.conn-summary div { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; justify-content: space-between; }
+.conn-summary dt { color: var(--muted); font-size: 0.84rem; }
+.conn-summary dd { margin: 0; color: var(--deep-ink); font-size: 0.9rem; font-weight: 700; }
+
+/* ---- Platform administration -------------------------------------------- */
+.admin-shell { min-height: 100vh; background: #f2f4f4; }
+.admin-shell .app-header { background: var(--clean-white); width: 100%; padding-inline: clamp(1.25rem, 3vw, 2.5rem); }
+.admin-filters { display: flex; gap: 0.5rem; margin-bottom: 1.4rem; }
+.filter-chip { padding: 0.5rem 1rem; border: 1px solid rgba(24, 48, 51, 0.22); border-radius: 999px; background: var(--clean-white); color: var(--deep-ink); cursor: pointer; font-size: 0.86rem; font-weight: 650; }
+.filter-chip[aria-pressed='true'] { border-color: var(--mekong-teal); color: var(--clean-white); background: var(--mekong-teal); }
+.admin-list { display: grid; gap: 0.9rem; margin: 0; padding: 0; list-style: none; }
+.admin-card { padding: 1.4rem 1.5rem; border: 1px solid rgba(24, 48, 51, 0.14); border-radius: 0.6rem; background: var(--clean-white); }
+.admin-card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.admin-card h2 { max-width: none; margin: 0; font-size: 1.2rem; line-height: 1.3; }
+.work-chip.status-PENDING { color: #7b3e00; background: #f7e3c2; }
+.work-chip.status-APPROVED { color: #075049; background: #ddf1ed; }
+.work-chip.status-DECLINED { color: #8a1c13; background: #f8d7d3; }
+.admin-requester { margin: 0.6rem 0 0; color: var(--muted); font-size: 0.88rem; }
+.admin-page { margin: 0.35rem 0 0; color: var(--deep-ink); font-size: 0.92rem; font-weight: 650; }
+.admin-meta { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.85rem; }
+.admin-note { margin: 0.9rem 0 0; padding-left: 0.9rem; border-left: 0.2rem solid var(--line); color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+.admin-decision { margin: 0.9rem 0 0; color: #8a1c13; font-size: 0.88rem; line-height: 1.6; }
+.admin-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 1.15rem; }
+.admin-decline { margin-top: 1.15rem; padding: 1rem 1.15rem; border: 1px solid rgba(180, 35, 24, 0.3); border-radius: 0.5rem; background: #fdf4f3; }
+.admin-decline label { display: block; margin-bottom: 0.4rem; color: var(--deep-ink); font-size: 0.85rem; font-weight: 700; }
+.admin-decline textarea { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid rgba(24, 48, 51, 0.28); border-radius: 0.45rem; background: var(--clean-white); font: inherit; font-size: 0.9rem; resize: vertical; }
+.dash-nav-link.is-admin { color: var(--review-amber); font-weight: 750; }
+.dash-nav-link.is-admin.is-active { color: var(--clean-white); background: var(--review-amber); }

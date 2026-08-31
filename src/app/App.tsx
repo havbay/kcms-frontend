@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import type { Locale } from './copy'
+import { AdminRequestsPage } from './AdminRequestsPage'
+import { ConnectPage } from './ConnectPage'
 import { DashboardLayout } from './DashboardLayout'
 import { LandingPage } from './LandingPage'
 import { ModeratePage } from './ModeratePage'
@@ -26,6 +28,8 @@ export function App() {
 
       <Route path="/app" element={dashboard(<OverviewPage locale={locale} />)} />
       <Route path="/app/moderate" element={dashboard(<ModeratePage locale={locale} />)} />
+      <Route path="/app/connect" element={dashboard(<ConnectPage locale={locale} />)} />
+      <Route path="/admin/requests" element={<AdminRequestsPage {...shared} />} />
 
       {/* Older shared links kept working. */}
       <Route path="/moderate" element={<Navigate replace to="/app/moderate" />} />

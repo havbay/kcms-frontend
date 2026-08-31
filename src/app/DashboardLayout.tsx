@@ -19,8 +19,9 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
   const built = [
     { to: '/app', label: content.dashNavOverview, end: true },
     { to: '/app/moderate', label: content.dashNavModerate, end: false },
+    { to: '/app/connect', label: content.dashNavPage, end: false },
   ]
-  const pending = [content.dashNavPage, content.dashNavTeam, content.dashNavSettings]
+  const pending = [content.dashNavTeam, content.dashNavSettings]
 
   return (
     <div className="site dashboard" lang={locale === 'km' ? 'km' : 'en'}>
@@ -42,6 +43,14 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
               {item.label}
             </NavLink>
           ))}
+          {session.user?.is_platform_admin && (
+            <NavLink
+              className={({ isActive }) => `dash-nav-link is-admin${isActive ? ' is-active' : ''}`}
+              to="/admin/requests"
+            >
+              {content.navAdmin}
+            </NavLink>
+          )}
           {pending.map((label) => (
             <span aria-disabled="true" className="dash-nav-link is-pending" key={label}>
               {label}
@@ -82,7 +91,7 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
           <p>
             <strong>{content.sandboxTitle}</strong> {content.sandboxBody}
           </p>
-          <a className="button button-small" href="/request-access">{content.sandboxCta}</a>
+          <Link className="button button-small" to="/app/connect">{content.sandboxCta}</Link>
         </div>
         {children}
       </div>

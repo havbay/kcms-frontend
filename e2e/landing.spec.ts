@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 test('desktop hero communicates the human-review workflow without overflow', async ({
   page,
@@ -260,4 +260,81 @@ test('sign-up says what a demo workspace is before asking for details', async ({
   await page.getByRole('button', { name: /Need an account/ }).click()
   await expect(page.getByText(/demo workspace with sample Khmer comments/)).toBeVisible()
   await expect(page.getByText(/Connecting your own Facebook Page needs approval/)).toBeVisible()
+})
+
+/**
+ * Contract-faithful network interception (D-016). Production modules import no
+ * fixtures; only the boundary is simulated, and the shapes mirror the generated
+ * OpenAPI types.
+ */
+async function stubApi(page: Page, options: { isAdmin?: boolean } = {}) {
+  const user = {
+    id: 'u1',
+    display_name: 'Dara Sok',
+    is_platform_admin: options.isAdmin === true,
+  }
+  await page.route('**/api/v1/**', async (route) => {
+    const url = new URL(route.request().url())
+    const path = url.pathname
+    const json = (body: unknown, status = 200) =>
+      route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) })
+
+    if (path.endsWith('/auth/providers')) {
+      return json({ email: true, telegram: false, telegram_bot_username: null })
+    }
+    if (path.endsWith('/auth/signup') || path.endsWith('/auth/signin')) {
+      return json({ token: 'test-token', user }, 201)
+    }
+    if (path.endsWith('/auth/me')) return json(user)
+    if (path.endsWith('/comments')) return json({ items: [], total: 0 })
+    if (path.endsWith('/access-requests/mine')) return json(null)
+    if (path.endsWith('/admin/access-requests')) {
+      return options.isAdmin ? json([]) : json({ detail: 'forbidden' }, 403)
+    }
+    return json({}, 200)
+  })
+}
+
+async function signUp(page: Page) {
+  await page.goto('/sign-in')
+  await page.getByRole('button', { name: /Need an account/ }).click()
+  await page.getByLabel('Your name').fill('Dara Sok')
+  await page.getByLabel('Email').fill('dara@example.com')
+  await page.getByLabel('Password').fill('a-long-enough-password')
+  await page.getByRole('button', { name: 'Create account' }).click()
+  await page.waitForURL(/\/app$/, { timeout: 20000 })
+}
+
+test('administration is unreachable without the platform role', async ({ page }) => {
+  await stubApi(page, { isAdmin: false })
+  await signUp(page)
+
+  // The navigation entry is absent...
+  await expect(page.locator('.dash-nav-link.is-admin')).toHaveCount(0)
+
+  // ...and the route refuses too, rather than relying on a hidden link.
+  await page.goto('/admin/requests')
+  await expect(page).toHaveURL(/\/app$/, { timeout: 15000 })
+})
+
+test('an administrator sees the administration entry and can open it', async ({ page }) => {
+  await stubApi(page, { isAdmin: true })
+  await signUp(page)
+
+  await expect(page.locator('.dash-nav-link.is-admin')).toHaveCount(1)
+  await page.getByRole('link', { name: 'Administration' }).click()
+  await expect(page).toHaveURL(/\/admin\/requests$/)
+  await expect(page.getByRole('button', { name: 'Pending' })).toBeVisible()
+})
+
+test('the page connection form is reachable and validates its required field', async ({ page }) => {
+  await stubApi(page)
+  await signUp(page)
+
+  await page.getByRole('link', { name: 'Request Page connection' }).click()
+  await expect(page).toHaveURL(/\/app\/connect$/)
+
+  await page.getByRole('button', { name: 'Request connection' }).click()
+  await expect(page.locator('#conn-page-error')).toBeVisible()
+  await expect(page.getByLabel('Facebook Page name or URL')).toHaveAttribute('aria-invalid', 'true')
 })
