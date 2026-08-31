@@ -72,6 +72,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/pilot-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Pilot Requests */
+        get: operations["listPilotRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/pilot-requests/{request_id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decide Pilot Request */
+        post: operations["decidePilotRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -269,6 +303,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pilot-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Pilot Request */
+        post: operations["createPilotRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings": {
         parameters: {
             query?: never;
@@ -322,6 +373,40 @@ export interface paths {
         head?: never;
         /** Rename Workspace */
         patch: operations["renameWorkspace"];
+        trace?: never;
+    };
+    "/api/v1/setup-invitations/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Preview Setup Invitation */
+        get: operations["previewSetupInvitation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/setup-invitations/{token}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept Setup Invitation */
+        post: operations["acceptSetupInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/team": {
@@ -524,6 +609,34 @@ export interface components {
             /** Workspace Name */
             workspace_name: string;
         };
+        /** AdminPilotRequest */
+        AdminPilotRequest: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Decided At */
+            decided_at: string | null;
+            /** Decision Reason */
+            decision_reason: string | null;
+            /** Delivery Status */
+            delivery_status?: string | null;
+            /** Email */
+            email: string;
+            /** Facebook Page */
+            facebook_page: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Note */
+            note: string | null;
+            /** Organization */
+            organization: string;
+            /** Status */
+            status: string;
+        };
         /** AuthUser */
         AuthUser: {
             /** Display Name */
@@ -689,6 +802,71 @@ export interface components {
             /** User Id */
             user_id: string;
         };
+        /** PilotDecision */
+        PilotDecision: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "APPROVED" | "DECLINED";
+            /** Reason */
+            reason?: string | null;
+        };
+        /** PilotDecisionResult */
+        PilotDecisionResult: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Decided At */
+            decided_at: string | null;
+            /** Decision Reason */
+            decision_reason: string | null;
+            /** Delivery Status */
+            delivery_status: string;
+            /** Email */
+            email: string;
+            /** Facebook Page */
+            facebook_page: string;
+            /** Id */
+            id: string;
+            /** Invitation Url */
+            invitation_url: string | null;
+            /** Name */
+            name: string;
+            /** Note */
+            note: string | null;
+            /** Organization */
+            organization: string;
+            /** Status */
+            status: string;
+        };
+        /** PilotRequestCreate */
+        PilotRequestCreate: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Facebook Page */
+            facebook_page: string;
+            /** Name */
+            name: string;
+            /** Note */
+            note?: string | null;
+            /** Organization */
+            organization: string;
+        };
+        /** PilotRequestReceipt */
+        PilotRequestReceipt: {
+            /** Id */
+            id: string;
+            /** Message */
+            message: string;
+            /** Status */
+            status: string;
+        };
         /** Providers */
         Providers: {
             /** Email */
@@ -725,6 +903,25 @@ export interface components {
             /** Token */
             token: string;
             user: components["schemas"]["AuthUser"];
+        };
+        /** SetupInvitationAccept */
+        SetupInvitationAccept: {
+            /** Display Name */
+            display_name: string;
+            /** Password */
+            password: string;
+        };
+        /** SetupInvitationPreview */
+        SetupInvitationPreview: {
+            /** Email */
+            email: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Organization */
+            organization: string;
         };
         /** SignInRequest */
         SignInRequest: {
@@ -1011,6 +1208,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccessRequest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listPilotRequests: {
+        parameters: {
+            query?: {
+                status?: ("PENDING" | "APPROVED" | "DECLINED") | null;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPilotRequest"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decidePilotRequest: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PilotDecision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PilotDecisionResult"];
                 };
             };
             /** @description Validation Error */
@@ -1371,6 +1638,39 @@ export interface operations {
             };
         };
     };
+    createPilotRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PilotRequestCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PilotRequestReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     getSettings: {
         parameters: {
             query?: never;
@@ -1459,6 +1759,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WorkspaceSettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    previewSetupInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SetupInvitationPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    acceptSetupInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetupInvitationAccept"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
                 };
             };
             /** @description Validation Error */

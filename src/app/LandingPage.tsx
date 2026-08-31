@@ -24,7 +24,10 @@ function Brand() {
 
 export function LandingPage({ locale, setLocale }: LandingPageProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [overviewPaused, setOverviewPaused] = useState(false)
   const content = copy[locale]
+  const overviewVideoUrl = import.meta.env.VITE_OVERVIEW_VIDEO_URL
 
   // A drawer that cannot be dismissed with Escape traps keyboard users, and
   // a scrolling page behind an open drawer is disorienting on touch.
@@ -129,6 +132,51 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
           </figure>
         </section>
 
+        <section aria-labelledby="overview-heading" className="overview-section" id="service-overview">
+          <div className="overview-intro">
+            <p className="eyebrow"><span aria-hidden="true" />{content.overviewEyebrow}</p>
+            <h2 id="overview-heading">{content.overviewHeading}</h2>
+            <p>{content.overviewDescription}</p>
+          </div>
+
+          <div className="overview-media">
+            {overviewVideoUrl ? (
+              <video controls playsInline preload="metadata">
+                <source src={overviewVideoUrl} />
+                {content.overviewVideoUnsupported}
+              </video>
+            ) : (
+              <div className="overview-poster" data-paused={overviewPaused}>
+                <span aria-hidden="true" className="overview-browser-bar overview-animated"><i /><i /><i /></span>
+                <span className="overview-loop-label"><i aria-hidden="true" />{content.overviewLoopLabel}</span>
+                <span className="overview-comment overview-animated" lang="km">{content.sampleComment}</span>
+                <span aria-hidden="true" className="overview-scan overview-animated" />
+                <span aria-hidden="true" className="overview-route">
+                  {content.overviewChapters.map((chapter, index) => (
+                    <i className="overview-animated" key={chapter}><b>{String(index + 1).padStart(2, '0')}</b>{chapter}</i>
+                  ))}
+                </span>
+                <span aria-hidden="true" className="overview-progress"><i className="overview-animated" /></span>
+                <span className="overview-actions">
+                  <a className="overview-play" href="/app"><i aria-hidden="true">↗</i>{content.overviewDemoCta}</a>
+                  <button
+                    aria-label={overviewPaused ? content.overviewPlay : content.overviewPause}
+                    className="overview-pause"
+                    onClick={() => setOverviewPaused((paused) => !paused)}
+                    type="button"
+                  >
+                    <i aria-hidden="true">{overviewPaused ? '▶' : 'Ⅱ'}</i>
+                  </button>
+                </span>
+              </div>
+            )}
+          </div>
+
+          <ol aria-label={content.overviewTranscriptLabel} className="overview-transcript">
+            {content.overviewChapters.map((chapter) => <li key={chapter}>{chapter}</li>)}
+          </ol>
+        </section>
+
         <section aria-labelledby="workflow-heading" className="workflow-section" id="how-it-works">
           <div className="workflow-intro">
             <p className="eyebrow"><span aria-hidden="true" />{content.workflowEyebrow}</p>
@@ -224,6 +272,38 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             <p className="access-note">{content.planNote}</p>
           </article>
         </section>
+
+        <section aria-labelledby="faq-heading" className="faq-section" id="faq">
+          <div className="faq-intro">
+            <p className="eyebrow"><span aria-hidden="true" />{content.faqEyebrow}</p>
+            <h2 id="faq-heading">{content.faqHeading}</h2>
+            <p>{content.faqDescription}</p>
+          </div>
+
+          <div className="faq-list">
+            {content.faqItems.map((item, index) => {
+              const isOpen = openFaq === index
+              const answerId = `faq-answer-${index}`
+              return (
+                <article className="faq-item" data-open={isOpen} key={item.question}>
+                  <h3>
+                    <button
+                      aria-controls={answerId}
+                      aria-expanded={isOpen}
+                      onClick={() => setOpenFaq(isOpen ? null : index)}
+                      type="button"
+                    >
+                      <span>{item.question}</span><i aria-hidden="true">+</i>
+                    </button>
+                  </h3>
+                  <div className="faq-answer" hidden={!isOpen} id={answerId}>
+                    <p>{item.answer}</p>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </section>
       </main>
 
       <footer className="site-footer">
@@ -239,6 +319,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
               <ul>
                 <li><a href="#how-it-works">{content.howItWorks}</a></li>
                 <li><a href="#early-access">{content.accessEyebrow}</a></li>
+                <li><a href="#faq">{content.faqEyebrow}</a></li>
               </ul>
             </div>
             <div className="footer-column">

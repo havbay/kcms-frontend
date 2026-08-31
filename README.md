@@ -31,14 +31,35 @@ The complete bilingual public landing page:
 
 ```
 Header ─▶ Hero + Comment Pathway
+       ─▶ Service overview      interactive preview; optional real video
        ─▶ How KCMS works        three handoffs, Page to human decision
        ─▶ Built for Khmer       institution complaint vs person-directed abuse
        ─▶ Human control         five guarantees, current scope
        ─▶ Early access          pilot card, no invented price tiers
+       ─▶ FAQ                   automation, access, data and pricing
        ─▶ Footer
 ```
 
 Every section is fully English/Khmer switchable.
+
+The public-to-client onboarding flow is also implemented:
+
+```
+/request-access ──▶ public pilot request
+                          │
+/admin/requests ──▶ approve / decline + email delivery state
+                          │
+/setup/:token ────▶ invited owner chooses their own password
+                          │
+/app ───────────▶ authenticated client workspace
+```
+
+No password is emailed. When transactional email is not configured, the
+Platform Administrator receives a copyable one-time setup URL instead.
+
+Set `VITE_OVERVIEW_VIDEO_URL` to a public MP4/WebM URL to replace the overview
+poster with native video controls. When it is unset, the page links to the real
+interactive demo instead of rendering a broken or "coming soon" player.
 
 A unit test asserts the **section order**, so the pilot ask cannot drift above
 the trust sections that justify it.
@@ -73,8 +94,13 @@ Claims on the public site must stay true as automation grows:
 ## Backend
 
 The API lives at https://kcms-backend.onrender.com and is CORS-allowed for this
-origin. **The two are not yet connected** — the landing page is static and the
-moderation work list is the next slice.
+origin. Authentication, isolated workspaces, overview, moderation, corrections,
+public pilot requests, invitation setup, Page connection requests, team
+management, settings, and request administration are connected to the backend
+contract.
+
+The new pilot-onboarding changes are currently local and must not be described
+as live until the approved branches are pushed and both deployments are checked.
 
 ## Deployment
 
@@ -83,6 +109,6 @@ Framework Vite, output `dist`.
 
 ## Not yet built
 
-`/request-access` · `/sign-in` · `/contact` · `/privacy` are navigation targets
-for later slices and currently **404**. Moderation work list, comment review,
-Page connection, team, settings and platform administration are all pending.
+Real Facebook ingestion, full comment context/history, workspace switching,
+Platform Administration beyond request review, and the trained Khmer model.
+`/contact` and `/privacy` still use the application's explanatory fallback.

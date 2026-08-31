@@ -14,6 +14,8 @@ import { TeamPage } from './TeamPage'
 import { RequireSession } from './RequireSession'
 import { SignInPage } from './SignInPage'
 import { OverviewPage } from './OverviewPage'
+import { RequestAccessPage } from './RequestAccessPage'
+import { SetupPage } from './SetupPage'
 
 export function App() {
   const [locale, setLocale] = useState<Locale>('en')
@@ -35,12 +37,13 @@ export function App() {
       <Route path="/app/team" element={dashboard(<TeamPage locale={locale} />)} />
       <Route path="/app/settings" element={dashboard(<SettingsPage locale={locale} />)} />
       <Route path="/join/:token" element={<JoinPage {...shared} />} />
+      <Route path="/setup/:token" element={<SetupPage {...shared} />} />
       <Route path="/admin/requests" element={<AdminRequestsPage {...shared} />} />
 
       {/* Older shared links kept working. */}
       <Route path="/moderate" element={<Navigate replace to="/app/moderate" />} />
 
-      <Route path="/request-access" element={<NoticePage kind="request-access" {...shared} />} />
+      <Route path="/request-access" element={<RequestAccessPage {...shared} />} />
       <Route path="/sign-in" element={<SignInPage {...shared} />} />
       {/* Never leave a route blank: the SPA rewrite makes every path return 200. */}
       <Route path="*" element={<NoticePage kind="not-found" {...shared} />} />

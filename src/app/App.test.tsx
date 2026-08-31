@@ -150,7 +150,7 @@ describe('KCMS public landing page', () => {
     expect(access).toHaveTextContent('Pilot access')
     expect(access).toHaveTextContent('Pricing discussed with your team')
     expect(access).toHaveTextContent('Khmer and Khmerlish pattern matching')
-    expect(access).toHaveTextContent('Future pricing may depend on connected Pages')
+    expect(access).toHaveTextContent('Future pricing may depend on the number of connected Facebook Pages')
     expect(within(access).getByRole('link', { name: /Request pilot access/ })).toHaveAttribute(
       'href',
       '/request-access',
@@ -223,7 +223,42 @@ describe('KCMS public landing page', () => {
 
     const ids = Array.from(container.querySelectorAll('main > section')).map((s) => s.id)
 
-    expect(ids).toEqual(['', 'how-it-works', 'khmer-context', 'human-control', 'early-access'])
+    expect(ids).toEqual(['', 'service-overview', 'how-it-works', 'khmer-context', 'human-control', 'early-access', 'faq'])
+  })
+
+  it('offers an honest looping service overview without publishing a broken video', async () => {
+    const user = userEvent.setup()
+    render(<App />, { wrapper: MemoryRouter })
+
+    const overview = screen.getByRole('region', { name: 'See KCMS in action.' })
+    expect(overview).toHaveAttribute('id', 'service-overview')
+    expect(overview).toHaveTextContent('Automatic detection')
+    expect(overview).toHaveTextContent('Human review')
+    expect(overview).toHaveTextContent('Recorded correction')
+    expect(within(overview).getByRole('link', { name: 'Open the interactive demo' })).toHaveAttribute('href', '/app')
+    const pause = within(overview).getByRole('button', { name: 'Pause animation' })
+    await user.click(pause)
+    expect(within(overview).getByRole('button', { name: 'Play animation' })).toBeInTheDocument()
+    expect(within(overview).queryByText(/coming soon/i)).not.toBeInTheDocument()
+  })
+
+  it('answers the core product questions one at a time', async () => {
+    const user = userEvent.setup()
+    render(<App />, { wrapper: MemoryRouter })
+
+    const faq = screen.getByRole('region', { name: 'Questions before connecting a Page.' })
+    const detection = within(faq).getByRole('button', { name: 'Does KCMS automatically detect comments?' })
+    const pricing = within(faq).getByRole('button', { name: 'How much does KCMS cost?' })
+
+    expect(detection).toHaveAttribute('aria-expanded', 'true')
+    expect(faq).toHaveTextContent('Pattern matching powers the current prototype')
+
+    await user.click(pricing)
+    expect(detection).toHaveAttribute('aria-expanded', 'false')
+    expect(pricing).toHaveAttribute('aria-expanded', 'true')
+    expect(faq).toHaveTextContent('number of connected Facebook Pages')
+    expect(faq).not.toHaveTextContent('comment volume')
+    expect(faq).not.toHaveTextContent('team size')
   })
 
   it('translates the Khmer context and human control sections', async () => {

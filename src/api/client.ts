@@ -206,6 +206,52 @@ export function decideAccessRequest(
   })
 }
 
+export type PilotRequestCreate = components['schemas']['PilotRequestCreate']
+export type PilotRequestReceipt = components['schemas']['PilotRequestReceipt']
+export type AdminPilotRequest = components['schemas']['AdminPilotRequest']
+export type PilotDecisionResult = components['schemas']['PilotDecisionResult']
+export type SetupInvitationPreview = components['schemas']['SetupInvitationPreview']
+
+export function createPilotRequest(body: PilotRequestCreate): Promise<PilotRequestReceipt> {
+  return request<PilotRequestReceipt>('/api/v1/pilot-requests', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export function listPilotRequests(status?: string): Promise<AdminPilotRequest[]> {
+  const query = status ? `?status=${encodeURIComponent(status)}` : ''
+  return request<AdminPilotRequest[]>(`/api/v1/admin/pilot-requests${query}`)
+}
+
+export function decidePilotRequest(
+  id: string,
+  decision: 'APPROVED' | 'DECLINED',
+  reason?: string,
+): Promise<PilotDecisionResult> {
+  return request<PilotDecisionResult>(
+    `/api/v1/admin/pilot-requests/${encodeURIComponent(id)}/decision`,
+    { method: 'POST', body: JSON.stringify({ decision, reason }) },
+  )
+}
+
+export function previewSetupInvitation(token: string): Promise<SetupInvitationPreview> {
+  return request<SetupInvitationPreview>(
+    `/api/v1/setup-invitations/${encodeURIComponent(token)}`,
+  )
+}
+
+export function acceptSetupInvitation(
+  token: string,
+  displayName: string,
+  password: string,
+): Promise<Session> {
+  return request<Session>(`/api/v1/setup-invitations/${encodeURIComponent(token)}/accept`, {
+    method: 'POST',
+    body: JSON.stringify({ display_name: displayName, password }),
+  })
+}
+
 export type Team = components['schemas']['Team']
 export type Member = components['schemas']['Member']
 export type CreatedInvitation = components['schemas']['CreatedInvitation']

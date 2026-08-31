@@ -145,13 +145,53 @@ test('trust sections render before the pilot ask at both sizes', async ({ page }
   }
 })
 
+test('service overview and FAQ work without horizontal overflow', async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 1000 },
+    { width: 375, height: 812 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+
+    const overview = page.getByRole('region', { name: 'See KCMS in action.' })
+    await expect(overview.getByRole('link', { name: 'Open the interactive demo' })).toBeVisible()
+
+    const faq = page.getByRole('region', { name: 'Questions before connecting a Page.' })
+    const pricing = faq.getByRole('button', { name: 'How much does KCMS cost?' })
+    await pricing.click()
+    await expect(pricing).toHaveAttribute('aria-expanded', 'true')
+    await expect(faq).toContainText('number of connected Facebook Pages')
+    await expect(faq).not.toContainText('comment volume')
+    await expect(faq).not.toContainText('team size')
+
+    expect(await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    )).toBe(true)
+  }
+})
+
 test('unbuilt routes explain themselves instead of rendering blank', async ({ page }) => {
-  for (const path of ['/request-access', '/nonsense-route']) {
+  for (const path of ['/nonsense-route']) {
     await page.goto(path)
     const body = (await page.locator('body').innerText()).trim()
     expect(body, `${path} rendered blank`).not.toBe('')
     await expect(page.getByRole('link', { name: /Open the demo/ })).toBeVisible()
   }
+})
+
+test('a visitor can submit a pilot request without creating an account first', async ({ page }) => {
+  await page.route('**/api/v1/pilot-requests', (route) => route.fulfill({
+    status: 202,
+    contentType: 'application/json',
+    body: JSON.stringify({ id: 'p1', status: 'PENDING', message: 'received' }),
+  }))
+  await page.goto('/request-access')
+  await page.getByLabel('Your name').fill('Dara Sok')
+  await page.getByLabel('Organization').fill('Angkor Shop')
+  await page.getByLabel('Work email').fill('dara@example.com')
+  await page.getByLabel('Facebook Page').fill('facebook.com/angkorshop')
+  await page.getByRole('button', { name: 'Send request' }).click()
+  await expect(page.getByRole('heading', { name: 'Request received' })).toBeVisible()
 })
 
 test('a visitor can reach the moderation demo from the landing page', async ({ page }) => {
@@ -330,6 +370,9 @@ async function stubApi(
       return json({ token: 'tok-123', role: 'member', expires_at: '2026-09-07T00:00:00Z' }, 201)
     }
     if (path.endsWith('/admin/access-requests')) {
+      return options.isAdmin ? json([]) : json({ detail: 'forbidden' }, 403)
+    }
+    if (path.endsWith('/admin/pilot-requests')) {
       return options.isAdmin ? json([]) : json({ detail: 'forbidden' }, 403)
     }
     return json({}, 200)
