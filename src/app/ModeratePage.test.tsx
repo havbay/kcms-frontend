@@ -9,6 +9,8 @@ import { ModeratePage } from './ModeratePage'
  *  modules are untouched. Shapes mirror the generated OpenAPI types. */
 const WORK_LIST = {
   total: 2,
+  limit: 25,
+  offset: 0,
   items: [
     {
       comment_id: 'c-001',
@@ -49,7 +51,7 @@ describe('moderation work list', () => {
     )
     renderPage()
 
-    await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(2))
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
     expect(
       screen.getByText(/Aimed at an organization — never hidden automatically/),
     ).toBeVisible()
@@ -62,7 +64,7 @@ describe('moderation work list', () => {
     )
     renderPage()
 
-    const rendered = await screen.findAllByRole('listitem')
+    const rendered = (await screen.findAllByRole('row')).slice(1)
     const institution = rendered[0]!
     const person = rendered[1]!
     expect(institution).toHaveAttribute('data-reason', 'institution_sample')
@@ -86,7 +88,7 @@ describe('moderation work list', () => {
       )
     renderPage()
 
-    const items = await screen.findAllByRole('listitem')
+    const items = (await screen.findAllByRole('row')).slice(1)
     const person = items[1]!
     await user.click(within(person).getByRole('button', { name: 'Hide' }))
 

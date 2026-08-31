@@ -1,44 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { listComments, type WorkListItem } from '../api/client'
+import { getSummary, type Summary } from '../api/client'
 import { copy, type Locale } from './copy'
 
 type OverviewPageProps = { locale: Locale }
 
 type LoadState = 'loading' | 'ready' | 'error'
 
-/** Every figure here is derived from real work-list data. Nothing is invented:
- *  if the backend has no actions yet, the outcomes panel says so rather than
- *  showing a zero that reads like a measured result. */
-function summarise(items: WorkListItem[]) {
-  const surfaced = items.filter((i) => i.surfaced_reason && i.surfaced_reason !== 'cleared')
-  const reviewed = items.filter((i) => i.latest_action)
-  const reasons = new Map<string, number>()
-  for (const item of surfaced) {
-    const key = item.surfaced_reason ?? 'cleared'
-    reasons.set(key, (reasons.get(key) ?? 0) + 1)
-  }
-  const outcomes = { LEAVE: 0, HIDE: 0, UNHIDE: 0 }
-  for (const item of reviewed) {
-    if (item.latest_action && item.latest_action in outcomes) {
-      outcomes[item.latest_action as keyof typeof outcomes] += 1
-    }
-  }
-  return {
-    processed: items.length,
-    needReview: surfaced.length,
-    reviewed: reviewed.length,
-    pending: surfaced.filter((i) => !i.latest_action).length,
-    reasons: [...reasons.entries()].sort((a, b) => b[1] - a[1]),
-    outcomes,
-    hasOutcomes: reviewed.length > 0,
-  }
-}
-
 export function OverviewPage({ locale }: OverviewPageProps) {
   const content = copy[locale]
-  const [items, setItems] = useState<WorkListItem[]>([])
+  const [summary, setSummary] = useState<Summary | null>(null)
   const [state, setState] = useState<LoadState>('loading')
   const [slow, setSlow] = useState(false)
 
@@ -47,8 +19,7 @@ export function OverviewPage({ locale }: OverviewPageProps) {
     // so beats a spinner that looks frozen.
     const slowTimer = setTimeout(() => setSlow(true), 3000)
     try {
-      const data = await listComments()
-      setItems(data.items)
+      setSummary(await getSummary())
       setState('ready')
     } catch {
       setState('error')
@@ -86,7 +57,8 @@ export function OverviewPage({ locale }: OverviewPageProps) {
     )
   }
 
-  const s = summarise(items)
+  if (!summary) return null
+  const s = summary
 
   return (
     <main className="dash-body">
@@ -98,7 +70,7 @@ export function OverviewPage({ locale }: OverviewPageProps) {
       <ul className="stat-row">
         {[
           { label: content.dashProcessed, value: s.processed },
-          { label: content.dashNeedReview, value: s.needReview, tone: 'amber' },
+          { label: content.dashNeedReview, value: s.need_review, tone: 'amber' },
           { label: content.dashReviewed, value: s.reviewed },
           { label: content.dashPending, value: s.pending, tone: 'amber' },
         ].map((stat) => (
@@ -113,14 +85,18 @@ export function OverviewPage({ locale }: OverviewPageProps) {
         <section className="dash-panel">
           <h2>{content.dashBreakdown}</h2>
           <ul className="reason-bars">
-            {s.reasons.map(([reason, count]) => (
-              <li key={reason}>
+            {s.reasons.map((row) => (
+              <li key={row.surfaced_reason}>
                 <span className="reason-name">
-                  {content.modReasons[reason as keyof typeof content.modReasons] ?? reason}
+                  {content.modReasons[
+                    row.surfaced_reason as keyof typeof content.modReasons
+                  ] ?? row.surfaced_reason}
                 </span>
-                <span aria-hidden="true" className="reason-bar" data-reason={reason}
-                      style={{ inlineSize: `${Math.round((count / Math.max(s.needReview, 1)) * 100)}%` }} />
-                <span className="reason-count">{count}</span>
+                <span aria-hidden="true" className="reason-bar" data-reason={row.surfaced_reason}
+                      style={{
+                        inlineSize: `${Math.round((row.count / Math.max(s.need_review, 1)) * 100)}%`,
+                      }} />
+                <span className="reason-count">{row.count}</span>
               </li>
             ))}
           </ul>
@@ -128,11 +104,11 @@ export function OverviewPage({ locale }: OverviewPageProps) {
 
         <section className="dash-panel">
           <h2>{content.dashOutcomes}</h2>
-          {s.hasOutcomes ? (
+          {s.reviewed > 0 ? (
             <ul className="outcome-list">
-              <li><span>{content.dashLeft}</span><strong>{s.outcomes.LEAVE}</strong></li>
-              <li><span>{content.dashHidden}</span><strong>{s.outcomes.HIDE}</strong></li>
-              <li><span>{content.dashUnhidden}</span><strong>{s.outcomes.UNHIDE}</strong></li>
+              <li><span>{content.dashLeft}</span><strong>{s.left_visible}</strong></li>
+              <li><span>{content.dashHidden}</span><strong>{s.hidden}</strong></li>
+              <li><span>{content.dashUnhidden}</span><strong>{s.unhidden}</strong></li>
             </ul>
           ) : (
             <p className="dash-empty">{content.dashNoOutcomes}</p>

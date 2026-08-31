@@ -547,3 +547,89 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .settings-facts dt { color: var(--muted); font-size: 0.84rem; }
 .settings-facts dd { margin: 0; color: var(--deep-ink); font-size: 0.9rem; font-weight: 700; }
 .settings-signout { display: inline-flex; margin-top: 1.5rem; padding-top: 1.2rem; border: none; border-top: 1px solid rgba(24, 48, 51, 0.12); width: 100%; background: none; color: #8a1c13; cursor: pointer; font-size: 0.9rem; }
+
+/* ==========================================================================
+   APPLICATION SCALE
+   The public site persuades; the dashboard is worked in for hours. It needs
+   density, not presence. These tokens apply only inside .dashboard and
+   .admin-shell so the landing page keeps its marketing scale.
+   ========================================================================== */
+.dashboard, .admin-shell {
+  --app-text: 0.8125rem;
+  --app-text-sm: 0.75rem;
+  --app-row: 2.25rem;
+  font-size: var(--app-text);
+}
+.dashboard .dash-body, .admin-shell .dash-body { width: min(100% - 2rem, 82rem); padding-block: 1.5rem 3rem; }
+.dashboard .dash-head h1, .admin-shell .dash-head h1 { font-size: 1.25rem; letter-spacing: -0.01em; }
+.dashboard .dash-head p, .admin-shell .dash-head p { font-size: var(--app-text); margin-top: 0.15rem; }
+.dashboard .dash-sidebar { width: 13.5rem; gap: 1.1rem; padding: 1.25rem 0.9rem; }
+.dashboard .brand { font-size: 0.95rem; }
+.dashboard .dash-nav-link { padding: 0.42rem 0.6rem; border-radius: 0.35rem; font-size: var(--app-text); }
+.dashboard { grid-template-columns: 13.5rem minmax(0, 1fr); }
+.dashboard .dash-workspace { font-size: 0.65rem; }
+.dashboard .dash-sandbox { padding: 0.55rem clamp(1rem, 2vw, 1.75rem); font-size: var(--app-text-sm); }
+.dashboard .dash-sandbox p { font-size: var(--app-text-sm); line-height: 1.45; }
+.dashboard .dash-user { font-size: var(--app-text-sm); }
+.dashboard .stat-row { grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 0.5rem; margin-top: 1.1rem; }
+.dashboard .stat { padding: 0.7rem 0.85rem; border-radius: 0.4rem; }
+.dashboard .stat-value { font-size: 1.35rem; }
+.dashboard .stat-label { margin-top: 0.15rem; font-size: 0.7rem; }
+.dashboard .dash-panels { gap: 0.5rem; margin-top: 0.5rem; }
+.dashboard .dash-panel { padding: 0.9rem 1rem; border-radius: 0.4rem; }
+.dashboard .dash-panel h2, .admin-shell .dash-panel h2 { margin-bottom: 0.7rem; font-size: 0.65rem; }
+.dashboard .reason-name, .dashboard .outcome-list li { font-size: var(--app-text-sm); }
+.dashboard .settings-card, .dashboard .team-member, .dashboard .conn-outcome { border-radius: 0.4rem; }
+.dashboard .settings-card { padding: 1rem 1.1rem; }
+.dashboard .team-member { padding: 0.6rem 0.85rem; }
+.dashboard .team-name { font-size: var(--app-text); }
+.dashboard .team-email, .dashboard .team-expiry { font-size: var(--app-text-sm); }
+.dashboard .work-chip, .admin-shell .work-chip { padding: 0.15rem 0.45rem; font-size: 0.68rem; }
+.dashboard .button-small, .admin-shell .button-small { min-height: 2rem; padding: 0.3rem 0.7rem; font-size: 0.76rem; box-shadow: none; }
+.dashboard .auth-field input, .dashboard .auth-field select,
+.dashboard .conn-form select, .dashboard .conn-form textarea { min-height: 2.25rem; padding: 0.4rem 0.6rem; font-size: var(--app-text); }
+.dashboard .auth-field label { font-size: var(--app-text-sm); }
+
+/* ---- Work list table ----------------------------------------------------- */
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.table-wrap { margin-top: 1.1rem; overflow-x: auto; border: 1px solid rgba(24, 48, 51, 0.14); border-radius: 0.4rem; background: var(--clean-white); }
+.work-table { width: 100%; border-collapse: collapse; font-size: var(--app-text); }
+.work-table thead th { position: sticky; top: 0; z-index: 1; padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(24, 48, 51, 0.16); background: #f7f9f8; color: var(--muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+.site[lang='km'] .work-table thead th { letter-spacing: 0; text-transform: none; }
+.work-row > td { padding: 0.42rem 0.7rem; border-bottom: 1px solid rgba(24, 48, 51, 0.08); vertical-align: middle; }
+.work-row:hover > td { background: #f7faf9; }
+.work-row { position: relative; }
+.work-row > td:first-child { border-left: 0.2rem solid transparent; }
+.work-row[data-reason='triage'] > td:first-child { border-left-color: var(--review-amber); }
+.work-row[data-reason='institution_sample'] > td:first-child { border-left-color: var(--mekong-teal); }
+.work-row[data-reason='novel_language'] > td:first-child,
+.work-row[data-reason='uncertainty'] > td:first-child { border-left-color: #7a5cc4; }
+.cell-comment { max-width: 26rem; }
+.row-open { display: block; width: 100%; padding: 0; border: none; background: none; color: var(--deep-ink); cursor: pointer; font: inherit; text-align: left; }
+.row-open span { display: block; overflow: hidden; font-family: 'Noto Sans Khmer Variable', sans-serif; line-height: 1.5; text-overflow: ellipsis; white-space: nowrap; }
+.row-open:hover span { text-decoration: underline; }
+.cell-muted { color: var(--muted); white-space: nowrap; }
+.cell-reason { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-actions { display: flex; gap: 0.35rem; justify-content: flex-end; white-space: nowrap; }
+.dot-status { display: inline-block; width: 0.4rem; height: 0.4rem; margin-right: 0.4rem; border-radius: 50%; vertical-align: middle; }
+.dot-status.is-pending { background: var(--review-amber); }
+.dot-status.is-done { background: var(--mekong-teal); }
+
+.work-detail > td { padding: 0.9rem 1rem 1.1rem 1.2rem; border-bottom: 1px solid rgba(24, 48, 51, 0.12); background: #f7f9f8; }
+.work-detail blockquote { margin: 0 0 0.75rem; font-family: 'Noto Sans Khmer Variable', sans-serif; font-size: 0.95rem; line-height: 1.85; }
+.detail-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.5rem 1.2rem; margin: 0 0 0.9rem; }
+.detail-facts dt { color: var(--muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+.site[lang='km'] .detail-facts dt { letter-spacing: 0; text-transform: none; }
+.detail-facts dd { margin: 0.1rem 0 0; color: var(--deep-ink); font-size: var(--app-text); }
+.detail-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: flex-start; }
+
+.pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 0.8rem; }
+.pager p { margin: 0; color: var(--muted); font-size: var(--app-text-sm); }
+.pager div { display: flex; gap: 0.4rem; }
+
+@media (max-width: 860px) {
+  /* Columns that repeat what the expanded row already says. */
+  .work-table thead th:nth-child(3), .work-row > td:nth-child(3),
+  .work-table thead th:nth-child(4), .work-row > td:nth-child(4) { display: none; }
+  .cell-comment { max-width: 12rem; }
+}

@@ -191,6 +191,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/comments/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Summary */
+        get: operations["getWorkspaceSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/comments/{comment_id}/actions": {
         parameters: {
             query?: never;
@@ -681,6 +698,13 @@ export interface components {
             /** Telegram Bot Username */
             telegram_bot_username: string | null;
         };
+        /** ReasonCount */
+        ReasonCount: {
+            /** Count */
+            count: number;
+            /** Surfaced Reason */
+            surfaced_reason: string;
+        };
         /** RenameSelf */
         RenameSelf: {
             /** Display Name */
@@ -732,6 +756,28 @@ export interface components {
             /** Password */
             password: string;
         };
+        /**
+         * Summary
+         * @description Counts computed across the whole workspace, not from one page.
+         */
+        Summary: {
+            /** Hidden */
+            hidden: number;
+            /** Left Visible */
+            left_visible: number;
+            /** Need Review */
+            need_review: number;
+            /** Pending */
+            pending: number;
+            /** Processed */
+            processed: number;
+            /** Reasons */
+            reasons: components["schemas"]["ReasonCount"][];
+            /** Reviewed */
+            reviewed: number;
+            /** Unhidden */
+            unhidden: number;
+        };
         /** Team */
         Team: {
             /** Invitations */
@@ -769,6 +815,10 @@ export interface components {
         WorkList: {
             /** Items */
             items: components["schemas"]["WorkListItem"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
             /** Total */
             total: number;
         };
@@ -1155,7 +1205,10 @@ export interface operations {
     };
     listComments: {
         parameters: {
-            query?: never;
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
             header?: {
                 authorization?: string | null;
             };
@@ -1171,6 +1224,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WorkList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getWorkspaceSummary: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Summary"];
                 };
             };
             /** @description Validation Error */

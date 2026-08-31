@@ -289,7 +289,16 @@ async function stubApi(
       return json({ token: 'test-token', user }, 201)
     }
     if (path.endsWith('/auth/me')) return json(user)
-    if (path.endsWith('/comments')) return json({ items: [], total: 0 })
+    if (path.endsWith('/comments/summary')) {
+      return json({
+        processed: 12, need_review: 10, reviewed: 0, pending: 10,
+        left_visible: 0, hidden: 0, unhidden: 0,
+        reasons: [{ surfaced_reason: 'triage', count: 10 }],
+      })
+    }
+    if (path.endsWith('/comments')) {
+      return json({ items: [], total: 0, limit: 25, offset: 0 })
+    }
     if (path.endsWith('/access-requests/mine')) return json(null)
     if (path.endsWith('/team')) {
       return json({

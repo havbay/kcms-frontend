@@ -84,8 +84,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (body ? JSON.parse(body) : undefined) as T
 }
 
-export function listComments(): Promise<WorkList> {
-  return request<WorkList>('/api/v1/comments')
+export type Summary = components['schemas']['Summary']
+
+export function listComments(limit = 25, offset = 0): Promise<WorkList> {
+  return request<WorkList>(`/api/v1/comments?limit=${limit}&offset=${offset}`)
+}
+
+export function getSummary(): Promise<Summary> {
+  return request<Summary>('/api/v1/comments/summary')
 }
 
 export function recordAction(commentId: string, kind: ActionKind): Promise<HistoryEntry[]> {
