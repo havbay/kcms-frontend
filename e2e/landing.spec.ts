@@ -153,8 +153,12 @@ test('service overview and FAQ work without horizontal overflow', async ({ page 
     await page.setViewportSize(viewport)
     await page.goto('/')
 
-    const overview = page.getByRole('region', { name: 'See KCMS in action.' })
-    await expect(overview.getByRole('link', { name: 'Open the interactive demo' })).toBeVisible()
+    const overview = page.getByRole('region', {
+      name: 'See one Facebook comment move through KCMS.',
+    })
+    await expect(overview.getByText('Hide confirmed on Facebook', { exact: true }).first()).toBeVisible()
+    await expect(overview.getByText('Unhide restores the comment', { exact: true }).first()).toBeVisible()
+    await expect(overview.getByRole('link', { name: 'Open the client workspace' })).toBeVisible()
 
     const faq = page.getByRole('region', { name: 'Questions before connecting a Page.' })
     const pricing = faq.getByRole('button', { name: 'How much does KCMS cost?' })

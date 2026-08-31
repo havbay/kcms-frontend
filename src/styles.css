@@ -141,16 +141,18 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .overview-browser-bar i:nth-child(2) { background: var(--review-amber); animation: overview-live 1.8s ease-in-out infinite; }
 .overview-loop-label { position: absolute; top: clamp(0.85rem, 2.4vw, 1.7rem); right: clamp(1rem, 2.6vw, 2rem); display: inline-flex; align-items: center; gap: 0.45rem; color: rgba(246, 244, 237, 0.68); font-size: clamp(0.52rem, 0.85vw, 0.67rem); font-weight: 750; letter-spacing: 0.04em; }
 .overview-loop-label i { width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--review-amber); box-shadow: 0 0 0 0.2rem rgba(194, 106, 10, 0.16); }
-.overview-comment { position: relative; align-self: center; max-width: 72%; padding: 0.8rem 1rem; border-left: 0.25rem solid var(--review-amber); border-radius: 0.35rem; background: rgba(255, 255, 255, 0.1); font-family: 'Noto Sans Khmer Variable', sans-serif; font-size: clamp(0.8rem, 1.5vw, 1.05rem); line-height: 1.8; animation: overview-comment 9s ease-in-out infinite; }
-.overview-scan { position: absolute; z-index: 2; top: 27%; bottom: 29%; left: 0; width: 0.16rem; opacity: 0; background: linear-gradient(transparent, var(--review-amber), transparent); box-shadow: 0 0 1.1rem rgba(226, 161, 58, 0.75); animation: overview-scan 9s ease-in-out infinite; }
-.overview-route { position: absolute; top: 22%; right: clamp(1rem, 3vw, 2.25rem); display: grid; width: min(35%, 12rem); gap: 0.55rem; }
-.overview-route i { display: flex; align-items: center; gap: 0.55rem; padding: 0.55rem 0.65rem; border: 1px solid rgba(246, 244, 237, 0.18); border-radius: 0.35rem; background: rgba(246, 244, 237, 0.08); font-size: clamp(0.55rem, 1vw, 0.72rem); font-style: normal; opacity: 0.58; transform: translateX(0.4rem); }
-.overview-route i:nth-child(1) { animation: overview-route-one 9s ease-in-out infinite; }
-.overview-route i:nth-child(2) { animation: overview-route-two 9s ease-in-out infinite; }
-.overview-route i:nth-child(3) { animation: overview-route-three 9s ease-in-out infinite; }
+.overview-comment { position: relative; align-self: center; max-width: 72%; padding: 0.8rem 1rem; border-left: 0.25rem solid var(--review-amber); border-radius: 0.35rem; background: rgba(255, 255, 255, 0.1); font-family: 'Noto Sans Khmer Variable', sans-serif; font-size: clamp(0.8rem, 1.5vw, 1.05rem); line-height: 1.8; animation: overview-comment 12s ease-in-out infinite; }
+.overview-scan { position: absolute; z-index: 2; top: 27%; bottom: 29%; left: 0; width: 0.16rem; opacity: 0; background: linear-gradient(transparent, var(--review-amber), transparent); box-shadow: 0 0 1.1rem rgba(226, 161, 58, 0.75); animation: overview-scan 12s ease-in-out infinite; }
+.overview-route { position: absolute; top: 15%; right: clamp(1rem, 3vw, 2.25rem); display: grid; width: min(39%, 14rem); gap: 0.32rem; }
+.overview-route i { display: flex; align-items: center; gap: 0.5rem; padding: 0.42rem 0.55rem; border: 1px solid rgba(246, 244, 237, 0.18); border-radius: 0.35rem; background: rgba(246, 244, 237, 0.08); font-size: clamp(0.48rem, 0.86vw, 0.66rem); font-style: normal; line-height: 1.25; opacity: 0.52; transform: translateX(0.4rem); }
+.overview-route i:nth-child(1) { animation: overview-route-one 12s ease-in-out infinite; }
+.overview-route i:nth-child(2) { animation: overview-route-two 12s ease-in-out infinite; }
+.overview-route i:nth-child(3) { animation: overview-route-three 12s ease-in-out infinite; }
+.overview-route i:nth-child(4) { animation: overview-route-four 12s ease-in-out infinite; }
+.overview-route i:nth-child(5) { animation: overview-route-five 12s ease-in-out infinite; }
 .overview-route b { color: var(--review-amber); font-size: 0.58rem; }
 .overview-progress { position: absolute; right: 0; bottom: 0; left: 0; height: 0.22rem; background: rgba(246, 244, 237, 0.1); }
-.overview-progress i { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--review-amber), #f0bd67); transform: scaleX(0); transform-origin: left; animation: overview-progress 9s linear infinite; }
+.overview-progress i { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--review-amber), #f0bd67); transform: scaleX(0); transform-origin: left; animation: overview-progress 12s linear infinite; }
 .overview-actions { display: flex; align-items: center; align-self: end; gap: 0.55rem; }
 .overview-play { display: inline-flex; align-items: center; gap: 0.7rem; padding: 0.65rem 0.9rem; border-radius: 999px; color: var(--deep-ink); background: var(--rice-paper); font-size: 0.76rem; font-weight: 800; text-decoration: none; }
 .overview-play i { display: inline-flex; align-items: center; justify-content: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; color: var(--clean-white); background: var(--mekong-teal); font-size: 0.62rem; font-style: normal; }
@@ -160,15 +162,17 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .overview-pause i { font-size: 0.7rem; font-style: normal; letter-spacing: -0.14em; }
 .overview-poster[data-paused='true'] .overview-animated,
 .overview-poster[data-paused='true'] .overview-animated * { animation-play-state: paused; }
-.overview-transcript { grid-column: 2; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; margin: -2.8rem 0 0; padding: 0; list-style: none; }
+.overview-transcript { grid-column: 2; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.7rem; margin: -2.8rem 0 0; padding: 0; list-style: none; }
 .overview-transcript li { padding-top: 0.75rem; border-top: 2px solid var(--mekong-teal); color: var(--muted); font-size: 0.76rem; font-weight: 750; }
 
 @keyframes overview-live { 0%, 100% { opacity: 0.45; box-shadow: 0 0 0 0 rgba(194, 106, 10, 0); } 50% { opacity: 1; box-shadow: 0 0 0 0.24rem rgba(194, 106, 10, 0.18); } }
 @keyframes overview-comment { 0%, 100% { opacity: 0.5; transform: translateY(0.35rem); } 8%, 92% { opacity: 1; transform: translateY(0); } }
 @keyframes overview-scan { 0%, 8%, 34%, 100% { left: 3%; opacity: 0; } 13% { opacity: 1; } 29% { left: 65%; opacity: 1; } }
-@keyframes overview-route-one { 0%, 8%, 35%, 100% { opacity: 0.58; transform: translateX(0.4rem); } 14%, 29% { border-color: rgba(226, 161, 58, 0.75); opacity: 1; background: rgba(194, 106, 10, 0.2); transform: translateX(0); } }
-@keyframes overview-route-two { 0%, 32%, 65%, 100% { opacity: 0.58; transform: translateX(0.4rem); } 40%, 58% { border-color: rgba(226, 161, 58, 0.75); opacity: 1; background: rgba(194, 106, 10, 0.2); transform: translateX(0); } }
-@keyframes overview-route-three { 0%, 60%, 94%, 100% { opacity: 0.58; transform: translateX(0.4rem); } 68%, 87% { border-color: rgba(107, 208, 193, 0.8); opacity: 1; background: rgba(11, 107, 99, 0.35); transform: translateX(0); } }
+@keyframes overview-route-one { 0%, 17% { border-color: rgba(226, 161, 58, 0.75); opacity: 1; background: rgba(194, 106, 10, 0.2); transform: translateX(0); } 22%, 100% { opacity: 0.52; transform: translateX(0.4rem); } }
+@keyframes overview-route-two { 0%, 17%, 42%, 100% { opacity: 0.52; transform: translateX(0.4rem); } 22%, 37% { border-color: rgba(226, 161, 58, 0.75); opacity: 1; background: rgba(194, 106, 10, 0.2); transform: translateX(0); } }
+@keyframes overview-route-three { 0%, 37%, 62%, 100% { opacity: 0.52; transform: translateX(0.4rem); } 42%, 57% { border-color: rgba(226, 161, 58, 0.75); opacity: 1; background: rgba(194, 106, 10, 0.2); transform: translateX(0); } }
+@keyframes overview-route-four { 0%, 57%, 82%, 100% { opacity: 0.52; transform: translateX(0.4rem); } 62%, 77% { border-color: rgba(107, 208, 193, 0.8); opacity: 1; background: rgba(11, 107, 99, 0.35); transform: translateX(0); } }
+@keyframes overview-route-five { 0%, 77%, 100% { opacity: 0.52; transform: translateX(0.4rem); } 82%, 97% { border-color: rgba(107, 208, 193, 0.8); opacity: 1; background: rgba(11, 107, 99, 0.35); transform: translateX(0); } }
 @keyframes overview-progress { to { transform: scaleX(1); } }
 
 .workflow-section { scroll-margin-top: 2rem; display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(28rem, 1fr); gap: clamp(2rem, 5vw, 5rem); width: min(100% - 3rem, 76rem); margin-inline: auto; padding-block: clamp(4.5rem, 8vw, 7rem); border-top: 1px solid rgba(24, 48, 51, 0.16); }

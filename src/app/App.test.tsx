@@ -107,7 +107,7 @@ describe('KCMS public landing page', () => {
     expect(pathway).toHaveTextContent('Pattern matching · v0.1')
     expect(pathway).toHaveTextContent('Needs human review')
     expect(pathway).toHaveTextContent('Your team decides')
-    expect(pathway).toHaveTextContent('No automatic moderation actions')
+    expect(pathway).toHaveTextContent('Automatic detection · Human-approved Page actions')
   })
 
   it('explains the public workflow without requiring Meta developer expertise', () => {
@@ -230,12 +230,16 @@ describe('KCMS public landing page', () => {
     const user = userEvent.setup()
     render(<App />, { wrapper: MemoryRouter })
 
-    const overview = screen.getByRole('region', { name: 'See KCMS in action.' })
+    const overview = screen.getByRole('region', {
+      name: 'See one Facebook comment move through KCMS.',
+    })
     expect(overview).toHaveAttribute('id', 'service-overview')
+    expect(overview).toHaveTextContent('Comment posted on Facebook')
     expect(overview).toHaveTextContent('Automatic detection')
     expect(overview).toHaveTextContent('Human review')
-    expect(overview).toHaveTextContent('Recorded correction')
-    expect(within(overview).getByRole('link', { name: 'Open the interactive demo' })).toHaveAttribute('href', '/app')
+    expect(overview).toHaveTextContent('Hide confirmed on Facebook')
+    expect(overview).toHaveTextContent('Unhide restores the comment')
+    expect(within(overview).getByRole('link', { name: 'Open the client workspace' })).toHaveAttribute('href', '/app')
     const pause = within(overview).getByRole('button', { name: 'Pause animation' })
     await user.click(pause)
     expect(within(overview).getByRole('button', { name: 'Play animation' })).toBeInTheDocument()
