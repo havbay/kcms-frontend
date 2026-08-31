@@ -199,3 +199,42 @@ export function decideAccessRequest(
     body: JSON.stringify({ decision, reason }),
   })
 }
+
+export type Team = components['schemas']['Team']
+export type Member = components['schemas']['Member']
+export type CreatedInvitation = components['schemas']['CreatedInvitation']
+export type InvitationPreview = components['schemas']['InvitationPreview']
+
+export function getTeam(): Promise<Team> {
+  return request<Team>('/api/v1/team')
+}
+
+export function createInvitation(role: 'owner' | 'member'): Promise<CreatedInvitation> {
+  return request<CreatedInvitation>('/api/v1/team/invitations', {
+    method: 'POST',
+    body: JSON.stringify({ role }),
+  })
+}
+
+export function revokeInvitation(tokenHash: string): Promise<void> {
+  return request<void>(`/api/v1/team/invitations/${encodeURIComponent(tokenHash)}`, {
+    method: 'DELETE',
+  })
+}
+
+export function previewInvitation(token: string): Promise<InvitationPreview> {
+  return request<InvitationPreview>(
+    `/api/v1/team/invitations/${encodeURIComponent(token)}/preview`,
+  )
+}
+
+export function acceptInvitation(token: string): Promise<{ workspace_name: string }> {
+  return request<{ workspace_name: string }>(
+    `/api/v1/team/invitations/${encodeURIComponent(token)}/accept`,
+    { method: 'POST' },
+  )
+}
+
+export function removeMember(userId: string): Promise<void> {
+  return request<void>(`/api/v1/team/members/${encodeURIComponent(userId)}`, { method: 'DELETE' })
+}

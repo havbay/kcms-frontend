@@ -5,9 +5,11 @@ import type { Locale } from './copy'
 import { AdminRequestsPage } from './AdminRequestsPage'
 import { ConnectPage } from './ConnectPage'
 import { DashboardLayout } from './DashboardLayout'
+import { JoinPage } from './JoinPage'
 import { LandingPage } from './LandingPage'
 import { ModeratePage } from './ModeratePage'
 import { NoticePage } from './NoticePage'
+import { TeamPage } from './TeamPage'
 import { RequireSession } from './RequireSession'
 import { SignInPage } from './SignInPage'
 import { OverviewPage } from './OverviewPage'
@@ -29,6 +31,8 @@ export function App() {
       <Route path="/app" element={dashboard(<OverviewPage locale={locale} />)} />
       <Route path="/app/moderate" element={dashboard(<ModeratePage locale={locale} />)} />
       <Route path="/app/connect" element={dashboard(<ConnectPage locale={locale} />)} />
+      <Route path="/app/team" element={dashboard(<TeamPage locale={locale} />)} />
+      <Route path="/join/:token" element={<JoinPage {...shared} />} />
       <Route path="/admin/requests" element={<AdminRequestsPage {...shared} />} />
 
       {/* Older shared links kept working. */}

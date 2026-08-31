@@ -267,7 +267,10 @@ test('sign-up says what a demo workspace is before asking for details', async ({
  * fixtures; only the boundary is simulated, and the shapes mirror the generated
  * OpenAPI types.
  */
-async function stubApi(page: Page, options: { isAdmin?: boolean } = {}) {
+async function stubApi(
+  page: Page,
+  options: { isAdmin?: boolean; role?: 'owner' | 'member' } = {},
+) {
   const user = {
     id: 'u1',
     display_name: 'Dara Sok',
@@ -288,6 +291,26 @@ async function stubApi(page: Page, options: { isAdmin?: boolean } = {}) {
     if (path.endsWith('/auth/me')) return json(user)
     if (path.endsWith('/comments')) return json({ items: [], total: 0 })
     if (path.endsWith('/access-requests/mine')) return json(null)
+    if (path.endsWith('/team')) {
+      return json({
+        workspace_id: 'w1',
+        workspace_name: 'Angkor Shop',
+        your_role: options.role ?? 'owner',
+        members: [
+          { user_id: 'u1', display_name: 'Dara Sok', email: 'dara@example.com',
+            role: 'owner', created_at: '2026-08-31T00:00:00Z' },
+          { user_id: 'u2', display_name: 'Sophea Kim', email: 'sophea@example.com',
+            role: 'member', created_at: '2026-08-31T01:00:00Z' },
+        ],
+        invitations: (options.role ?? 'owner') === 'owner'
+          ? [{ token_hash: 'h1', role: 'member',
+               expires_at: '2026-09-07T00:00:00Z', created_at: '2026-08-31T00:00:00Z' }]
+          : [],
+      })
+    }
+    if (path.endsWith('/team/invitations')) {
+      return json({ token: 'tok-123', role: 'member', expires_at: '2026-09-07T00:00:00Z' }, 201)
+    }
     if (path.endsWith('/admin/access-requests')) {
       return options.isAdmin ? json([]) : json({ detail: 'forbidden' }, 403)
     }
@@ -337,4 +360,31 @@ test('the page connection form is reachable and validates its required field', a
   await page.getByRole('button', { name: 'Request connection' }).click()
   await expect(page.locator('#conn-page-error')).toBeVisible()
   await expect(page.getByLabel('Facebook Page name or URL')).toHaveAttribute('aria-invalid', 'true')
+})
+
+
+test('an owner can see the team and create a shareable invitation link', async ({ page }) => {
+  await stubApi(page, { role: 'owner' })
+  await signUp(page)
+
+  await page.getByRole('link', { name: 'Team' }).click()
+  await expect(page).toHaveURL(/\/app\/team$/)
+  await expect(page.locator('.team-member')).toHaveCount(2)
+
+  await page.getByRole('button', { name: 'Create invitation link' }).click()
+  const link = page.locator('.team-link-row input')
+  await expect(link).toBeVisible()
+  // The link is shown once, so it must carry the token the owner has to share.
+  await expect(link).toHaveValue(/\/join\/tok-123$/)
+  await expect(page.getByText(/works once and expires/)).toBeVisible()
+})
+
+test('a member cannot invite or remove anyone', async ({ page }) => {
+  await stubApi(page, { role: 'member' })
+  await signUp(page)
+
+  await page.getByRole('link', { name: 'Team' }).click()
+  await expect(page.getByText('Only an owner can invite or remove people.')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Create invitation link' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Remove' })).toHaveCount(0)
 })

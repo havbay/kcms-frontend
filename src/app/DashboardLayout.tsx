@@ -20,8 +20,9 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
     { to: '/app', label: content.dashNavOverview, end: true },
     { to: '/app/moderate', label: content.dashNavModerate, end: false },
     { to: '/app/connect', label: content.dashNavPage, end: false },
+    { to: '/app/team', label: content.dashNavTeam, end: false },
   ]
-  const pending = [content.dashNavTeam, content.dashNavSettings]
+  const pending = [content.dashNavSettings]
 
   return (
     <div className="site dashboard" lang={locale === 'km' ? 'km' : 'en'}>
