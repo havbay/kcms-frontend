@@ -9,6 +9,7 @@ import { JoinPage } from './JoinPage'
 import { LandingPage } from './LandingPage'
 import { ModeratePage } from './ModeratePage'
 import { NoticePage } from './NoticePage'
+import { SettingsPage } from './SettingsPage'
 import { TeamPage } from './TeamPage'
 import { RequireSession } from './RequireSession'
 import { SignInPage } from './SignInPage'
@@ -32,6 +33,7 @@ export function App() {
       <Route path="/app/moderate" element={dashboard(<ModeratePage locale={locale} />)} />
       <Route path="/app/connect" element={dashboard(<ConnectPage locale={locale} />)} />
       <Route path="/app/team" element={dashboard(<TeamPage locale={locale} />)} />
+      <Route path="/app/settings" element={dashboard(<SettingsPage locale={locale} />)} />
       <Route path="/join/:token" element={<JoinPage {...shared} />} />
       <Route path="/admin/requests" element={<AdminRequestsPage {...shared} />} />
 

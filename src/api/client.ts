@@ -238,3 +238,23 @@ export function acceptInvitation(token: string): Promise<{ workspace_name: strin
 export function removeMember(userId: string): Promise<void> {
   return request<void>(`/api/v1/team/members/${encodeURIComponent(userId)}`, { method: 'DELETE' })
 }
+
+export type WorkspaceSettings = components['schemas']['WorkspaceSettings']
+
+export function getSettings(): Promise<WorkspaceSettings> {
+  return request<WorkspaceSettings>('/api/v1/settings')
+}
+
+export function renameWorkspace(name: string): Promise<WorkspaceSettings> {
+  return request<WorkspaceSettings>('/api/v1/settings/workspace', {
+    method: 'PATCH',
+    body: JSON.stringify({ name }),
+  })
+}
+
+export function renameSelf(displayName: string): Promise<WorkspaceSettings> {
+  return request<WorkspaceSettings>('/api/v1/settings/me', {
+    method: 'PATCH',
+    body: JSON.stringify({ display_name: displayName }),
+  })
+}

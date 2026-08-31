@@ -534,3 +534,16 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .team-invites { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
 .team-invites li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem; border: 1px solid rgba(24, 48, 51, 0.12); border-radius: 0.45rem; background: var(--clean-white); }
 .team-expiry { flex: 1; color: var(--muted); font-size: 0.83rem; }
+
+/* ---- Settings ----------------------------------------------------------- */
+.settings-card { max-width: 38rem; margin-top: 1.6rem; padding: 1.5rem 1.6rem; border: 1px solid rgba(24, 48, 51, 0.14); border-radius: 0.6rem; background: var(--clean-white); }
+.settings-card h2 { max-width: none; margin: 0 0 1.2rem; color: var(--muted); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.09em; line-height: 1.4; text-transform: uppercase; }
+.site[lang='km'] .settings-card h2 { letter-spacing: 0; text-transform: none; }
+.settings-form { display: grid; gap: 1rem; justify-items: start; }
+.settings-form .auth-field { width: 100%; }
+.settings-form input:disabled { color: var(--muted); background: #f4f6f5; cursor: not-allowed; }
+.settings-facts { display: grid; gap: 0.6rem; margin: 1.5rem 0 0; padding-top: 1.2rem; border-top: 1px solid rgba(24, 48, 51, 0.12); }
+.settings-facts div { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; justify-content: space-between; }
+.settings-facts dt { color: var(--muted); font-size: 0.84rem; }
+.settings-facts dd { margin: 0; color: var(--deep-ink); font-size: 0.9rem; font-weight: 700; }
+.settings-signout { display: inline-flex; margin-top: 1.5rem; padding-top: 1.2rem; border: none; border-top: 1px solid rgba(24, 48, 51, 0.12); width: 100%; background: none; color: #8a1c13; cursor: pointer; font-size: 0.9rem; }

@@ -308,6 +308,15 @@ async function stubApi(
           : [],
       })
     }
+    if (path.endsWith('/settings')) {
+      return json({
+        workspace_id: 'w1',
+        workspace_name: 'Angkor Shop',
+        is_sandbox: true,
+        your_role: options.role ?? 'owner',
+        display_name: 'Dara Sok',
+      })
+    }
     if (path.endsWith('/team/invitations')) {
       return json({ token: 'tok-123', role: 'member', expires_at: '2026-09-07T00:00:00Z' }, 201)
     }
@@ -387,4 +396,43 @@ test('a member cannot invite or remove anyone', async ({ page }) => {
   await expect(page.getByText('Only an owner can invite or remove people.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Create invitation link' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Remove' })).toHaveCount(0)
+})
+
+
+test('settings let an owner rename the workspace and anyone rename themselves', async ({ page }) => {
+  await stubApi(page, { role: 'owner' })
+  await signUp(page)
+
+  await page.getByRole('link', { name: 'Settings' }).click()
+  await expect(page).toHaveURL(/\/app\/settings$/)
+  await expect(page.getByLabel('Workspace name')).toHaveValue('Angkor Shop')
+  await expect(page.getByLabel('Workspace name')).toBeEnabled()
+  await expect(page.getByLabel('Your display name')).toHaveValue('Dara Sok')
+
+  // The rename is explained, so nobody expects it to rewrite history.
+  await expect(page.getByText(/Past actions keep the name you used/)).toBeVisible()
+})
+
+test('a member cannot rename the shared workspace', async ({ page }) => {
+  await stubApi(page, { role: 'member' })
+  await signUp(page)
+
+  await page.getByRole('link', { name: 'Settings' }).click()
+  await expect(page.getByLabel('Workspace name')).toBeDisabled()
+  await expect(page.getByText('Only an owner can rename the workspace.')).toBeVisible()
+  // But their own name is still theirs to change.
+  await expect(page.getByLabel('Your display name')).toBeEnabled()
+})
+
+test('the dashboard has no unbuilt placeholder sections left', async ({ page }) => {
+  await stubApi(page, { role: 'owner' })
+  await signUp(page)
+
+  await expect(page.locator('.dash-nav-link.is-pending')).toHaveCount(0)
+  await expect(page.getByText('Not in the prototype')).toHaveCount(0)
+  // Scoped to the sidebar: the sandbox banner also links to Page connection.
+  const nav = page.getByRole('navigation', { name: /workspace/i })
+  for (const label of ['Overview', 'Moderate', 'Page connection', 'Team', 'Settings']) {
+    await expect(nav.getByRole('link', { name: label, exact: true })).toBeVisible()
+  }
 })

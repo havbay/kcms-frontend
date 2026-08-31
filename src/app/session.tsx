@@ -14,6 +14,7 @@ type SessionState = {
   status: 'checking' | 'signed-in' | 'signed-out'
   signIn: (token: string, user: AuthUser) => void
   signOut: () => Promise<void>
+  refresh: () => Promise<void>
 }
 
 const SessionContext = createContext<SessionState | null>(null)
@@ -55,6 +56,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await apiSignOut()
         setUser(null)
         setStatus('signed-out')
+      },
+      refresh: async () => {
+        try {
+          setUser(await getCurrentUser())
+        } catch {
+          // A failed refresh must not sign anyone out; the session may be fine.
+        }
       },
     }),
     [user, status],
