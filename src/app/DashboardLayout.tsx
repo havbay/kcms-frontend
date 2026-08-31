@@ -75,10 +75,14 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
       </aside>
 
       <div className="dash-main">
-        <div className="dash-pagebar">
+        {/* Option C: signing up is open, connecting a real Page is gated. The
+            product has to say so, or "your workspace" is a claim it cannot keep. */}
+        <div className="dash-sandbox">
           <span aria-hidden="true" className="dash-dot" />
-          <strong>{content.dashPageStatus}</strong>
-          <span>{content.dashPageConnected}</span>
+          <p>
+            <strong>{content.sandboxTitle}</strong> {content.sandboxBody}
+          </p>
+          <a className="button button-small" href="/request-access">{content.sandboxCta}</a>
         </div>
         {children}
       </div>

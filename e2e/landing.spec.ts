@@ -231,3 +231,33 @@ test('the mobile drawer opens from the left and closes with Escape', async ({ pa
   expect((await drawer.boundingBox())!.x).toBeLessThan(0)
   expect(await page.evaluate(() => document.body.style.overflow)).toBe('')
 })
+
+test('sign-up validates each field inline and accessibly', async ({ page }) => {
+  await page.goto('/sign-in')
+  await page.getByRole('button', { name: /Need an account/ }).click()
+
+  // Validated on blur, not only on submit.
+  await page.getByLabel('Email').fill('not-an-email')
+  await page.getByLabel('Password').click()
+  await expect(page.locator('#auth-email-error')).toBeVisible()
+  await expect(page.getByLabel('Email')).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByLabel('Email')).toHaveAttribute('aria-describedby', 'auth-email-error')
+
+  // Submitting reveals every problem at once, not one per attempt.
+  await page.getByLabel('Email').fill('')
+  await page.getByRole('button', { name: 'Create account' }).click()
+  await expect(page.locator('.auth-field-error')).toHaveCount(3)
+
+  // Errors clear as the fields become valid.
+  await page.getByLabel('Your name').fill('Dara Sok')
+  await page.getByLabel('Email').fill('dara@example.com')
+  await page.getByLabel('Password').fill('a-long-enough-password')
+  await expect(page.locator('.auth-field-error')).toHaveCount(0)
+})
+
+test('sign-up says what a demo workspace is before asking for details', async ({ page }) => {
+  await page.goto('/sign-in')
+  await page.getByRole('button', { name: /Need an account/ }).click()
+  await expect(page.getByText(/demo workspace with sample Khmer comments/)).toBeVisible()
+  await expect(page.getByText(/Connecting your own Facebook Page needs approval/)).toBeVisible()
+})
