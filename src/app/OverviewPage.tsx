@@ -40,14 +40,20 @@ export function OverviewPage({ locale }: OverviewPageProps) {
   const content = copy[locale]
   const [items, setItems] = useState<WorkListItem[]>([])
   const [state, setState] = useState<LoadState>('loading')
+  const [slow, setSlow] = useState(false)
 
   const load = useCallback(async () => {
+    // The free backend plan sleeps when idle and takes 30-60s to wake. Saying
+    // so beats a spinner that looks frozen.
+    const slowTimer = setTimeout(() => setSlow(true), 3000)
     try {
       const data = await listComments()
       setItems(data.items)
       setState('ready')
     } catch {
       setState('error')
+    } finally {
+      clearTimeout(slowTimer)
     }
   }, [])
 
@@ -56,14 +62,23 @@ export function OverviewPage({ locale }: OverviewPageProps) {
     void load()
   }, [load])
 
-  if (state === 'loading') return <main className="dash-body"><p className="work-status" role="status">{content.modLoading}</p></main>
+  if (state === 'loading') {
+    return (
+      <main className="dash-body">
+        <p className="work-status" role="status">
+          <span aria-hidden="true" className="work-spinner" />
+          {slow ? content.modWaking : content.modLoading}
+        </p>
+      </main>
+    )
+  }
   if (state === 'error') {
     return (
       <main className="dash-body">
         <div className="work-error" role="alert">
           <strong>{content.modErrorTitle}</strong>
           <p>{content.modErrorBody}</p>
-          <button className="button" onClick={() => { setState('loading'); void load() }} type="button">
+          <button className="button" onClick={() => { setState('loading'); setSlow(false); void load() }} type="button">
             {content.modRetry}
           </button>
         </div>

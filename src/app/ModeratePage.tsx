@@ -21,7 +21,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
   // so the initial effect does not need to set it and cause a cascading render.
   const load = useCallback(async () => {
     // The free backend plan sleeps when idle. Say so rather than looking broken.
-    const slowTimer = setTimeout(() => setSlow(true), 4000)
+    const slowTimer = setTimeout(() => setSlow(true), 3000)
     try {
       const data = await listComments()
       setItems(data.items)
@@ -74,6 +74,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
     <main className="work-list">
         {state === 'loading' && (
           <p className="work-status" role="status">
+            <span aria-hidden="true" className="work-spinner" />
             {slow ? content.modWaking : content.modLoading}
           </p>
         )}

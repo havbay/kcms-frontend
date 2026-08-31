@@ -463,3 +463,8 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .dash-sandbox p { flex: 1 1 20rem; margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
 .dash-sandbox strong { color: #7b3e00; }
 .site[lang='km'] .dash-sandbox p { line-height: 1.85; }
+
+.work-status { display: flex; flex-direction: column; align-items: center; gap: 1rem; max-width: 30rem; margin-inline: auto; }
+.work-spinner { width: 1.6rem; height: 1.6rem; border: 2px solid rgba(11, 107, 99, 0.2); border-top-color: var(--mekong-teal); border-radius: 50%; animation: work-spin 720ms linear infinite; }
+@keyframes work-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .work-spinner { animation: none; border-top-color: rgba(11, 107, 99, 0.2); } }
