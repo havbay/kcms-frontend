@@ -15,5 +15,19 @@ decision D-017; OpenDesign remains optional. Do not hand-maintain API response t
 generated OpenAPI client owns them. Production entry points must not import test
 fixtures or sample customer data.
 
-Before ending, run the active part's frontend and live integration gates and update
-the canonical frontend and integration state files.
+## Before Ending Any Task
+
+Run the active part's frontend and live integration gates, then **update the
+canonical state files in the same task**, before reporting back:
+
+- `../kcms-planning/agent-memory/frontend-state.md` — screens, runtime evidence,
+  and anything that cost time to work out.
+- `../kcms-planning/agent-memory/integration-state.md` — when the contract or a
+  cross-repository behaviour changed.
+- `../kcms-planning/agent-memory/next-actions.md` — when what comes next changed.
+
+Delete claims the task invalidated. A stale state file is worse than none,
+because the next person trusts it.
+
+Check gate results by exit code. Piping a command to `tail` reports the exit
+code of `tail`, so a failing suite can look green.
