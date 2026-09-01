@@ -4,74 +4,6 @@
  */
 
 export interface paths {
-    "/api/v1/access-requests": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create Access Request */
-        post: operations["createAccessRequest"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/access-requests/mine": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get My Access Request */
-        get: operations["getMyAccessRequest"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/access-requests": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Access Requests */
-        get: operations["listAccessRequests"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/access-requests/{request_id}/decision": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Decide Access Request */
-        post: operations["decideAccessRequest"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/admin/pilot-requests": {
         parameters: {
             query?: never;
@@ -588,49 +520,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** AccessRequest */
-        AccessRequest: {
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Decided At */
-            decided_at: string | null;
-            /** Decision Reason */
-            decision_reason: string | null;
-            /** Id */
-            id: string;
-            /** Monthly Comments */
-            monthly_comments: string;
-            /** Note */
-            note: string | null;
-            /** Page Name */
-            page_name: string;
-            /** Status */
-            status: string;
-            /** Team Size */
-            team_size: string;
-            /** Workspace Id */
-            workspace_id: string;
-        };
-        /** AccessRequestCreate */
-        AccessRequestCreate: {
-            /**
-             * Monthly Comments
-             * @enum {string}
-             */
-            monthly_comments: "UNDER_1K" | "1K_TO_10K" | "10K_TO_50K" | "OVER_50K";
-            /** Note */
-            note?: string | null;
-            /** Page Name */
-            page_name: string;
-            /**
-             * Team Size
-             * @enum {string}
-             */
-            team_size: "JUST_ME" | "2_TO_5" | "6_TO_20" | "OVER_20";
-        };
         /** ActionRequest */
         ActionRequest: {
             /**
@@ -638,45 +527,6 @@ export interface components {
              * @enum {string}
              */
             kind: "LEAVE" | "HIDE" | "UNHIDE";
-        };
-        /**
-         * AdminAccessRequest
-         * @description Everything an administrator may see about a request.
-         *
-         *     Comment content is absent by construction. The product specification
-         *     forbids Platform Administrators from browsing customer comments through
-         *     ordinary administration views, and a test asserts this shape holds.
-         */
-        AdminAccessRequest: {
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Decided At */
-            decided_at: string | null;
-            /** Decision Reason */
-            decision_reason: string | null;
-            /** Id */
-            id: string;
-            /** Monthly Comments */
-            monthly_comments: string;
-            /** Note */
-            note: string | null;
-            /** Page Name */
-            page_name: string;
-            /** Requester Email */
-            requester_email: string | null;
-            /** Requester Name */
-            requester_name: string;
-            /** Status */
-            status: string;
-            /** Team Size */
-            team_size: string;
-            /** Workspace Id */
-            workspace_id: string;
-            /** Workspace Name */
-            workspace_name: string;
         };
         /** AdminPilotRequest */
         AdminPilotRequest: {
@@ -777,16 +627,6 @@ export interface components {
          * @enum {string}
          */
         DatabaseStatus: "REACHABLE" | "UNREACHABLE";
-        /** Decision */
-        Decision: {
-            /**
-             * Decision
-             * @enum {string}
-             */
-            decision: "APPROVED" | "DECLINED";
-            /** Reason */
-            reason?: string | null;
-        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1231,142 +1071,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    createAccessRequest: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccessRequestCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccessRequest"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    getMyAccessRequest: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccessRequest"] | null;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    listAccessRequests: {
-        parameters: {
-            query?: {
-                status?: ("PENDING" | "APPROVED" | "DECLINED") | null;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AdminAccessRequest"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    decideAccessRequest: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                request_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["Decision"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccessRequest"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     listPilotRequests: {
         parameters: {
             query?: {

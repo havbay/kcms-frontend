@@ -2,26 +2,19 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 
 import {
-  type AdminAccessRequest,
   type AdminPilotRequest,
   type PilotDecisionResult,
-  decideAccessRequest,
   decidePilotRequest,
-  listAccessRequests,
   listPilotRequests,
 } from '../api/client'
 import { copy, type Locale } from './copy'
 import { useSession } from './session'
 
 type Props = { locale: Locale; setLocale: (locale: Locale) => void }
-type Queue = 'pilots' | 'connections'
-
 export function AdminRequestsPage({ locale, setLocale }: Props) {
   const content = copy[locale]
   const session = useSession()
-  const [queue, setQueue] = useState<Queue>('pilots')
   const [pilotRows, setPilotRows] = useState<AdminPilotRequest[]>([])
-  const [connectionRows, setConnectionRows] = useState<AdminAccessRequest[]>([])
   const [pendingOnly, setPendingOnly] = useState(true)
   const [loaded, setLoaded] = useState(false)
   const [declining, setDeclining] = useState<string | null>(null)
@@ -29,17 +22,12 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
   const [busy, setBusy] = useState<string | null>(null)
   const [delivery, setDelivery] = useState<Record<string, PilotDecisionResult>>({})
 
-  const load = useCallback(async (selected: Queue, onlyPending: boolean) => {
+  const load = useCallback(async (onlyPending: boolean) => {
     setLoaded(false)
     try {
-      if (selected === 'pilots') {
-        setPilotRows(await listPilotRequests(onlyPending ? 'PENDING' : undefined))
-      } else {
-        setConnectionRows(await listAccessRequests(onlyPending ? 'PENDING' : undefined))
-      }
+      setPilotRows(await listPilotRequests(onlyPending ? 'PENDING' : undefined))
     } catch {
-      if (selected === 'pilots') setPilotRows([])
-      else setConnectionRows([])
+      setPilotRows([])
     } finally {
       setLoaded(true)
     }
@@ -48,8 +36,8 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
   const isAdmin = session.user?.is_platform_admin === true
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (isAdmin) void load(queue, pendingOnly)
-  }, [isAdmin, load, pendingOnly, queue])
+    if (isAdmin) void load(pendingOnly)
+  }, [isAdmin, load, pendingOnly])
 
   if (session.status === 'checking') return null
   if (session.status === 'signed-out') return <Navigate replace to="/sign-in" />
@@ -72,22 +60,6 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
     }
   }
 
-  async function decideConnection(id: string, decision: 'APPROVED' | 'DECLINED') {
-    setBusy(id)
-    try {
-      await decideAccessRequest(
-        id, decision, decision === 'DECLINED' ? reason.trim() : undefined,
-      )
-      setDeclining(null)
-      setReason('')
-      await load(queue, pendingOnly)
-    } finally {
-      setBusy(null)
-    }
-  }
-
-  const rows = queue === 'pilots' ? pilotRows : connectionRows
-
   return (
     <div className="site admin-shell" lang={locale === 'km' ? 'km' : 'en'}>
       <header className="app-header">
@@ -103,10 +75,6 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
 
       <main className="dash-body">
         <div className="admin-toolbar">
-          <div className="admin-filters" role="group" aria-label={locale === 'km' ? 'ប្រភេទសំណើ' : 'Request type'}>
-            <button aria-pressed={queue === 'pilots'} className="filter-chip" onClick={() => setQueue('pilots')} type="button">{locale === 'km' ? 'សាកល្បងថ្មី' : 'New pilots'}</button>
-            <button aria-pressed={queue === 'connections'} className="filter-chip" onClick={() => setQueue('connections')} type="button">{locale === 'km' ? 'ភ្ជាប់ទំព័រ' : 'Page connections'}</button>
-          </div>
           <div className="admin-filters" role="group" aria-label={content.adminTitle}>
             <button aria-pressed={pendingOnly} className="filter-chip" onClick={() => setPendingOnly(true)} type="button">{content.adminPending}</button>
             <button aria-pressed={!pendingOnly} className="filter-chip" onClick={() => setPendingOnly(false)} type="button">{content.adminAll}</button>
@@ -114,10 +82,9 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
         </div>
 
         {!loaded && <p className="work-status" role="status">{content.modLoading}</p>}
-        {loaded && rows.length === 0 && <p className="work-status">{content.adminEmpty}</p>}
+        {loaded && pilotRows.length === 0 && <p className="work-status">{content.adminEmpty}</p>}
 
-        {queue === 'pilots' ? (
-          <ul className="admin-list">
+        <ul className="admin-list">
             {pilotRows.map((row) => {
               const result = delivery[row.id]
               return (
@@ -149,28 +116,7 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
                 </li>
               )
             })}
-          </ul>
-        ) : (
-          <ul className="admin-list">
-            {connectionRows.map((row) => (
-              <li className="admin-card" data-status={row.status} key={row.id}>
-                <div className="admin-card-head"><h2>{row.workspace_name}</h2><span className={`work-chip status-${row.status}`}>{row.status}</span></div>
-                <p className="admin-requester">{row.requester_name}{row.requester_email && <> · {row.requester_email}</>}</p>
-                <p className="admin-page">{row.page_name}</p>
-                {row.note && <blockquote className="admin-note">{row.note}</blockquote>}
-                {row.status === 'PENDING' && declining !== row.id && (
-                  <div className="admin-actions">
-                    <button className="button button-small" disabled={busy === row.id} onClick={() => void decideConnection(row.id, 'APPROVED')} type="button">{content.adminApprove}</button>
-                    <button className="button button-small button-quiet" onClick={() => { setDeclining(row.id); setReason('') }} type="button">{content.adminDecline}</button>
-                  </div>
-                )}
-                {declining === row.id && (
-                  <DeclineBox busy={busy} content={content} id={row.id} onCancel={() => setDeclining(null)} onConfirm={() => void decideConnection(row.id, 'DECLINED')} onReason={setReason} reason={reason} />
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+        </ul>
       </main>
     </div>
   )

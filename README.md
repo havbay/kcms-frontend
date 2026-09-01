@@ -109,8 +109,9 @@ label Corrections remain distinct controls.
 
 The onboarding, Page Connection, and moderation-depth contract are deployed.
 The production Meta app is configured, but the live end-to-end authorization
-still needs to be exercised with the maintained demo account. Ordinary sandbox
-accounts remain behind the reviewed Page-connection approval flow.
+still needs to be exercised with an authorized Client account. Once KCMS has
+approved and created a Client workspace, that Client can connect its own Page
+directly; there is no second KCMS approval request.
 
 ## Deployment
 

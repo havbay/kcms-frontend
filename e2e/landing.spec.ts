@@ -353,7 +353,6 @@ async function stubApi(
         last_synced_at: null,
       }, 201)
     }
-    if (path.endsWith('/access-requests/mine')) return json(null)
     if (path.endsWith('/team')) {
       return json({
         workspace_id: 'w1',
@@ -382,9 +381,6 @@ async function stubApi(
     }
     if (path.endsWith('/team/invitations')) {
       return json({ token: 'tok-123', role: 'member', expires_at: '2026-09-07T00:00:00Z' }, 201)
-    }
-    if (path.endsWith('/admin/access-requests')) {
-      return options.isAdmin ? json([]) : json({ detail: 'forbidden' }, 403)
     }
     if (path.endsWith('/admin/pilot-requests')) {
       return options.isAdmin ? json([]) : json({ detail: 'forbidden' }, 403)

@@ -520,13 +520,6 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .connection-recommended { color: #075049; background: #ddf1ed; }
 .connection-option h2, .connection-status h2, .connection-chooser h2 { max-width: none; margin: 0.8rem 0 0; font-size: 1rem; }
 .connection-option p, .connection-chooser > p { margin: 0.35rem 0 1rem; color: var(--muted); font-size: var(--app-text); line-height: 1.55; }
-.connection-approval { display: grid; gap: 0.85rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(24, 48, 51, 0.12); }
-.connection-approval h3 { margin: 0; font-size: 1rem; }
-.connection-approval > p { margin: -0.35rem 0 0; }
-.connection-approval label { display: grid; gap: 0.35rem; color: var(--ink); font-size: 0.78rem; font-weight: 700; }
-.connection-approval input, .connection-approval select, .connection-approval textarea { width: 100%; border: 1px solid rgba(24, 48, 51, 0.25); border-radius: 0.4rem; background: #fff; color: var(--ink); font: inherit; font-weight: 400; padding: 0.7rem 0.75rem; }
-.connection-approval textarea { resize: vertical; min-height: 5rem; }
-.connection-approval input:focus-visible, .connection-approval select:focus-visible, .connection-approval textarea:focus-visible { outline: 3px solid rgba(11, 107, 99, 0.2); border-color: var(--mekong-teal); }
 .connection-option .conn-outcome { margin-top: 1rem; padding: 1rem; }
 .advanced-toggle { display: grid; width: 100%; gap: 0.2rem; padding: 0; border: 0; color: var(--deep-ink); background: none; cursor: pointer; font: inherit; text-align: left; }
 .advanced-toggle span { font-weight: 750; }

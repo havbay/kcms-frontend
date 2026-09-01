@@ -86,13 +86,12 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
       </aside>
 
       <div className="dash-main">
-        {/* The sandbox notice remains honest, while Page Connection itself is
-            the real client workflow for an approved workspace. */}
+        {/* Sample data and provider connection are independent states. */}
         <div className="dash-sandbox">
           <span aria-hidden="true" className="dash-dot" />
           <p>
             <strong>{content.sandboxTitle}</strong>{' '}
-            {session.user?.is_platform_admin ? content.sandboxAdminBody : content.sandboxBody}
+            {content.sandboxBody}
           </p>
           <Link className="button button-small" to="/app/connect">{content.sandboxCta}</Link>
         </div>

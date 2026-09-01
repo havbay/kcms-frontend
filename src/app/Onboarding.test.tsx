@@ -154,12 +154,12 @@ describe('pilot onboarding', () => {
         })
       }
       if (path.endsWith('/admin/pilot-requests')) return response([row])
-      if (path.endsWith('/admin/access-requests')) return response([])
       return response({}, 404)
     }))
     renderAt('/admin/requests')
 
     expect(await screen.findByRole('heading', { name: 'Angkor Shop' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Page connections' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Approve' }))
     expect(await screen.findByText('Email not sent—share this link manually.')).toBeVisible()
     expect(screen.getByDisplayValue('https://kcms.example/setup/one-time-token')).toBeVisible()
