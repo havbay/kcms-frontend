@@ -12,7 +12,7 @@ function renderPage() {
 describe('Facebook Page connection', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('presents Facebook Login as recommended and token entry as advanced', async () => {
+  it('offers the Page token as the supported route', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
         status: 200,
@@ -21,30 +21,30 @@ describe('Facebook Page connection', () => {
 
     renderPage()
 
-    expect(await screen.findByRole('button', { name: 'Continue with Facebook' })).toBeVisible()
+    // No toggle to find first: the working method is the one on screen.
+    expect(await screen.findByLabelText('Page access token')).toHaveAttribute('type', 'password')
     expect(screen.getByText('Recommended')).toBeVisible()
-    expect(screen.queryByLabelText('Page access token')).not.toBeInTheDocument()
-
-    await userEvent.click(screen.getByRole('button', { name: /Connect with Page token/ }))
-    expect(screen.getByLabelText('Page access token')).toHaveAttribute('type', 'password')
   })
 
-  it('explains when Facebook authorization is not configured', async () => {
-    const user = userEvent.setup()
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
+  it('does not offer Facebook Login while it is unfinished', async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(
         new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
           status: 200,
         }),
       )
-      .mockResolvedValueOnce(new Response(null, { status: 503 }))
 
     renderPage()
-    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
+    await screen.findByLabelText('Page access token')
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Facebook connection is not configured yet. Contact KCMS support.',
-    )
+    // Present and named, so nobody wonders where it went — but inert, because
+    // starting an authorization that cannot complete wastes the operator's time.
+    expect(screen.getByText('Under development')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Continue with Facebook' })).toBeDisabled()
+    expect(
+      fetchMock.mock.calls.some(([url]) => String(url).includes('/oauth/start')),
+    ).toBe(false)
   })
 
   it('never presents a second Page connection approval flow', async () => {
@@ -58,11 +58,10 @@ describe('Facebook Page connection', () => {
       .mockResolvedValueOnce(new Response(null, { status: 403 }))
 
     renderPage()
-    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
+    await user.type(await screen.findByLabelText('Page access token'), 'a-token')
+    await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'KCMS could not complete the connection. Check the authorization and try again.',
-    )
+    expect(await screen.findByRole('alert')).toBeVisible()
     expect(screen.queryByRole('heading', { name: 'Request Page connection approval' })).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Facebook Page name or URL')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Request approval' })).not.toBeInTheDocument()
@@ -94,8 +93,7 @@ describe('Facebook Page connection', () => {
       )
 
     renderPage()
-    await screen.findByRole('button', { name: 'Continue with Facebook' })
-    await user.click(screen.getByRole('button', { name: /Connect with Page token/ }))
+    await screen.findByLabelText('Page access token')
     await user.type(screen.getByLabelText('Page access token'), 'secret-page-token')
     await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
 
@@ -158,8 +156,7 @@ describe('page token refusals', () => {
       )
 
     renderPage()
-    await screen.findByRole('button', { name: 'Continue with Facebook' })
-    await user.click(screen.getByRole('button', { name: /Connect with Page token/ }))
+    await screen.findByLabelText('Page access token')
     await user.type(screen.getByLabelText('Page access token'), 'a-user-token')
     await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
 
@@ -179,8 +176,7 @@ describe('page token refusals', () => {
       .mockResolvedValueOnce(new Response(null, { status: 500 }))
 
     renderPage()
-    await screen.findByRole('button', { name: 'Continue with Facebook' })
-    await user.click(screen.getByRole('button', { name: /Connect with Page token/ }))
+    await screen.findByLabelText('Page access token')
     await user.type(screen.getByLabelText('Page access token'), 'a-token')
     await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
 

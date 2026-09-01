@@ -215,3 +215,52 @@ describe('syncing from the connected Page', () => {
     expect(await screen.findByText('Connect a Facebook Page first.')).toBeVisible()
   })
 })
+
+
+describe('source post link', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('links the source post when Meta gave a permalink', async () => {
+    const withLink = {
+      ...WORK_LIST,
+      total: 1,
+      items: [
+        {
+          ...WORK_LIST.items[0]!,
+          post_text: 'This is testing',
+          post_permalink: 'https://facebook.com/1350914224763068/posts/122095233513453649',
+        },
+      ],
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(withLink), { status: 200 }),
+    )
+
+    renderPage()
+
+    const link = await screen.findByRole('link', { name: /This is testing/ })
+    expect(link).toHaveAttribute(
+      'href',
+      'https://facebook.com/1350914224763068/posts/122095233513453649',
+    )
+    expect(link).toHaveAttribute('target', '_blank')
+    // Untrusted destination opened in a new tab must not reach window.opener.
+    expect(link).toHaveAttribute('rel', 'noreferrer')
+  })
+
+  it('leaves a seeded post as plain text rather than a dead link', async () => {
+    const noLink = {
+      ...WORK_LIST,
+      total: 1,
+      items: [{ ...WORK_LIST.items[0]!, post_permalink: null }],
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(noLink), { status: 200 }),
+    )
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(1))
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  })
+})

@@ -9,7 +9,6 @@ import {
   type PageChoice,
   type PageConnectionState,
   selectFacebookPage,
-  startFacebookAuthorization,
 } from '../api/client'
 import type { Locale } from './copy'
 
@@ -26,6 +25,10 @@ const text = {
     connected: 'Page connected', facebookMethod: 'Connected with Facebook', tokenMethod: 'Connected with Page token', ready: 'Ready to moderate',
     permissionWarning: 'Connected, but the token does not include a moderation task.', syncWaiting: 'Waiting for first synchronization', lastSync: 'Last synchronized',
     connectedAt: 'Connected', method: 'Connection method', capability: 'Moderation access', disconnect: 'Disconnect Page', disconnecting: 'Disconnecting…',
+    tokenTitle: 'Connect with a Page access token',
+    tokenLead: 'Paste a Page access token for the Page you want KCMS to moderate. KCMS confirms it with Meta, stores it encrypted, and never shows it again.',
+    underDevelopment: 'Under development',
+    facebookPending: 'One-click authorization is still being built. Use the Page access token above meanwhile.',
     retry: 'Try again', error: 'KCMS could not complete the connection. Check the authorization and try again.', facebookUnavailable: 'Facebook connection is not configured yet. Contact KCMS support.', noPages: 'Meta did not return an authorized Page for this account.',
   },
   km: {
@@ -37,6 +40,10 @@ const text = {
     connected: 'បានភ្ជាប់ Page', facebookMethod: 'បានភ្ជាប់ជាមួយ Facebook', tokenMethod: 'បានភ្ជាប់ដោយ Page token', ready: 'អាចគ្រប់គ្រងមតិយោបល់បាន',
     permissionWarning: 'បានភ្ជាប់ ប៉ុន្តែ token មិនមានសិទ្ធិគ្រប់គ្រងមតិយោបល់ទេ។', syncWaiting: 'កំពុងរង់ចាំសមកាលកម្មដំបូង', lastSync: 'សមកាលកម្មចុងក្រោយ',
     connectedAt: 'បានភ្ជាប់', method: 'វិធីភ្ជាប់', capability: 'សិទ្ធិគ្រប់គ្រង', disconnect: 'ផ្ដាច់ Page', disconnecting: 'កំពុងផ្ដាច់…',
+    tokenTitle: 'ភ្ជាប់ដោយ Page access token',
+    tokenLead: 'បញ្ចូល Page access token សម្រាប់ Page ដែលអ្នកចង់ឱ្យ KCMS គ្រប់គ្រង។ KCMS ផ្ទៀងផ្ទាត់ជាមួយ Meta រក្សាទុកជាកូដសម្ងាត់ ហើយមិនបង្ហាញវាម្ដងទៀតទេ។',
+    underDevelopment: 'កំពុងអភិវឌ្ឍ',
+    facebookPending: 'ការអនុញ្ញាតដោយចុចម្ដង នៅកំពុងសាងសង់។ សូមប្រើ Page access token ខាងលើជាមុនសិន។',
     retry: 'ព្យាយាមម្តងទៀត', error: 'KCMS មិនអាចបញ្ចប់ការភ្ជាប់បានទេ។ សូមពិនិត្យសិទ្ធិ ហើយព្យាយាមម្ដងទៀត។', facebookUnavailable: 'ការភ្ជាប់ Facebook មិនទាន់បានកំណត់ទេ។ សូមទាក់ទងជំនួយ KCMS។', noPages: 'Meta មិនបានផ្ដល់ Page ដែលមានសិទ្ធិសម្រាប់គណនីនេះទេ។',
   },
 } as const
@@ -45,12 +52,10 @@ export function ConnectPage({ locale }: ConnectPageProps) {
   const t = text[locale]
   const [connection, setConnection] = useState<PageConnectionState | null>(null)
   const [state, setState] = useState<LoadState>('loading')
-  const [advanced, setAdvanced] = useState(false)
   const [token, setToken] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(false)
   const [tokenError, setTokenError] = useState<string | null>(null)
-  const [facebookError, setFacebookError] = useState<string | null>(null)
   const [choices, setChoices] = useState<PageChoice[]>([])
   const [oauthState, setOauthState] = useState<string | null>(null)
   const [selectedPage, setSelectedPage] = useState('')
@@ -77,22 +82,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     void load()
   }, [load])
 
-  async function beginFacebook() {
-    setBusy(true)
-    setFacebookError(null)
-    try {
-      const result = await startFacebookAuthorization()
-      window.location.assign(result.authorization_url)
-    } catch (caught) {
-      setFacebookError(
-        caught instanceof ApiError && caught.status === 503
-          ? t.facebookUnavailable
-          : t.error,
-      )
-      setBusy(false)
-    }
-  }
-
   async function submitToken(event: React.FormEvent) {
     event.preventDefault()
     if (!token.trim()) return
@@ -102,7 +91,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     try {
       setConnection(await connectFacebookPageManually(token.trim()))
       setToken('')
-      setAdvanced(false)
     } catch (caught) {
       // Meta's refusal usually names the actual mistake — the wrong token
       // kind, an expired token — and a generic message hides it.
@@ -187,23 +175,24 @@ export function ConnectPage({ locale }: ConnectPageProps) {
         </section>
       ) : oauthState ? <p className="work-status">{t.noPages}</p> : (
         <div className="connection-options">
+          {/* Facebook Login is not finished. Leaving it enabled and recommended
+              sends people down a path that fails, so it is disabled and named
+              as unfinished, and the Page token becomes the supported route. */}
           <section className="connection-option is-recommended">
             <div className="connection-option-head"><span aria-hidden="true" className="connection-provider">f</span><span className="work-chip connection-recommended">{t.recommended}</span></div>
-            <h2>{t.facebook}</h2><p>{t.facebookHelp}</p>
-            {facebookError && <p className="auth-error" role="alert">{facebookError}</p>}
-            <button className="button" disabled={busy} onClick={() => void beginFacebook()} type="button">{busy ? t.connecting : t.facebook}</button>
-          </section>
-          <section className="connection-option is-advanced">
-            <button aria-expanded={advanced} className="advanced-toggle" onClick={() => setAdvanced((value) => !value)} type="button"><span>{t.advanced}</span><small>{t.advancedHelp}</small></button>
-            {advanced && (
-              <form className="advanced-token-form" onSubmit={submitToken}>
+            <h2>{t.tokenTitle}</h2><p>{t.tokenLead}</p>
+            <form className="advanced-token-form" onSubmit={submitToken}>
                 <label htmlFor="page-access-token">{t.token}</label>
                 <input autoComplete="off" id="page-access-token" onChange={(event) => setToken(event.target.value)} type="password" value={token} />
                 <p>{t.tokenHint}</p>
                 {tokenError && <p className="auth-error" role="alert">{tokenError}</p>}
-                <button className="button button-small" disabled={busy || !token.trim()} type="submit">{busy ? t.connecting : t.validate}</button>
-              </form>
-            )}
+              <button className="button" disabled={busy || !token.trim()} type="submit">{busy ? t.connecting : t.validate}</button>
+            </form>
+          </section>
+          <section className="connection-option is-advanced is-unavailable">
+            <div className="connection-option-head"><span aria-hidden="true" className="connection-provider">f</span><span className="work-chip connection-pending">{t.underDevelopment}</span></div>
+            <h2>{t.facebook}</h2><p>{t.facebookPending}</p>
+            <button className="button button-quiet" disabled type="button">{t.facebook}</button>
           </section>
         </div>
       )}

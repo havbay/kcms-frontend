@@ -23,6 +23,7 @@ const ui = {
     all: 'All', pending: 'Pending', actioned: 'Actioned', priority: 'Priority', newest: 'Newest', oldest: 'Oldest', apply: 'Apply filters', reset: 'Reset',
     source: 'Source post', type: 'Type', received: 'Received', details: 'Comment details', close: 'Close details', replyTo: 'Replying to',
     verdict: 'Automatic detection', context: 'Conversation context', action: 'Moderation action', correction: 'Label correction', video: 'Video', post: 'Post', openPost: 'Open source post',
+    untitledPost: 'Untitled post',
     sync: 'Sync from Facebook', syncing: 'Syncing…',
     syncImported: (n: number) => `Imported ${n} new comment${n === 1 ? '' : 's'}`,
     syncNone: 'No new comments on the connected Page',
@@ -34,6 +35,7 @@ const ui = {
     all: 'ទាំងអស់', pending: 'រង់ចាំ', actioned: 'បានធ្វើ', priority: 'អាទិភាព', newest: 'ថ្មីបំផុត', oldest: 'ចាស់បំផុត', apply: 'ប្រើតម្រង', reset: 'សម្អាត',
     source: 'ប្រភព Post', type: 'ប្រភេទ', received: 'ទទួលបាន', details: 'ព័ត៌មានមតិយោបល់', close: 'បិទព័ត៌មាន', replyTo: 'ឆ្លើយតបទៅ',
     verdict: 'ការរកឃើញស្វ័យប្រវត្តិ', context: 'បរិបទសន្ទនា', action: 'សកម្មភាពគ្រប់គ្រង', correction: 'ការកែស្លាក', video: 'វីដេអូ', post: 'Post', openPost: 'បើក Post ប្រភព',
+    untitledPost: 'Post គ្មានចំណងជើង',
     sync: 'ទាញមតិយោបល់ពី Facebook', syncing: 'កំពុងទាញ…',
     syncImported: (n: number) => `បាននាំចូលមតិយោបល់ថ្មី ${n}`,
     syncNone: 'គ្មានមតិយោបល់ថ្មីនៅលើ Page ដែលបានភ្ជាប់ទេ',
@@ -177,7 +179,18 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                 <tbody>{items.map((item) => (
                   <tr className={`work-row ${selectedId === item.comment_id ? 'is-selected' : ''}`} data-reason={item.surfaced_reason ?? 'cleared'} key={item.comment_id}>
                     <td className="cell-comment"><button aria-expanded={selectedId === item.comment_id} className="row-open" onClick={() => setSelectedId(item.comment_id)} type="button"><span lang="km">{item.text}</span></button></td>
-                    <td className="cell-source"><span className="source-kind">{item.post_kind === 'VIDEO' ? t.video : t.post}</span><span lang="km">{item.post_text || '—'}</span></td>
+                    <td className="cell-source">
+                      <span className="source-kind">{item.post_kind === 'VIDEO' ? t.video : t.post}</span>
+                      {/* stopPropagation: the row toggles the detail panel, and
+                          opening the post must not also expand the row. */}
+                      {item.post_permalink ? (
+                        <a className="source-link" href={item.post_permalink} onClick={(event) => event.stopPropagation()} rel="noreferrer" target="_blank" title={t.openPost}>
+                          <span lang="km">{item.post_text || t.untitledPost}</span>
+                        </a>
+                      ) : (
+                        <span lang="km">{item.post_text || '—'}</span>
+                      )}
+                    </td>
                     <td>{item.severity && <span className={`work-chip severity-${item.severity}`}>{content.modSeverity[item.severity as keyof typeof content.modSeverity]}</span>}</td>
                     <td className="cell-muted">{item.target && content.modTarget[item.target as keyof typeof content.modTarget]}</td>
                     <td className="cell-muted cell-reason">{content.modReasons[(item.surfaced_reason ?? 'cleared') as keyof typeof content.modReasons]}</td>

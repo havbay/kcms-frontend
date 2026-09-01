@@ -890,3 +890,8 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .settings-confirm { border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; }
 .settings-confirm p { margin: 0 0 0.6rem; font-size: var(--app-text-sm, 0.75rem); }
 .settings-confirm-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* The source post is a link when Meta gave us a permalink. Seeded samples have
+   none, so the cell stays plain text rather than a dead link. */
+.source-link { color: inherit; text-decoration: none; border-bottom: 1px solid var(--border); }
+.source-link:hover { color: var(--accent-ink, inherit); border-bottom-color: currentColor; }
