@@ -32,6 +32,7 @@ const ui = {
     all: 'All', pending: 'Pending', actioned: 'Actioned', priority: 'Priority', newest: 'Newest', oldest: 'Oldest', apply: 'Apply filters', reset: 'Reset',
     source: 'Source post', type: 'Type', received: 'Received', details: 'Comment details', close: 'Close details', replyTo: 'Replying to',
     verdict: 'Automatic detection', context: 'Conversation context', action: 'Moderation action', correction: 'Label correction', video: 'Video', post: 'Post', openPost: 'Open source post',
+    emptyConnected: 'No comments from your connected Page yet. Sync to fetch the latest ones.',
     from: 'From', unknownAuthor: 'Unknown commenter', actions: 'Actions',
     onFacebook: 'on Facebook', kcmsOnly: 'KCMS only',
     actionFailed: 'That action could not be completed. Please try again.',
@@ -49,6 +50,7 @@ const ui = {
     all: 'ទាំងអស់', pending: 'រង់ចាំ', actioned: 'បានធ្វើ', priority: 'អាទិភាព', newest: 'ថ្មីបំផុត', oldest: 'ចាស់បំផុត', apply: 'ប្រើតម្រង', reset: 'សម្អាត',
     source: 'ប្រភព Post', type: 'ប្រភេទ', received: 'ទទួលបាន', details: 'ព័ត៌មានមតិយោបល់', close: 'បិទព័ត៌មាន', replyTo: 'ឆ្លើយតបទៅ',
     verdict: 'ការរកឃើញស្វ័យប្រវត្តិ', context: 'បរិបទសន្ទនា', action: 'សកម្មភាពគ្រប់គ្រង', correction: 'ការកែស្លាក', video: 'វីដេអូ', post: 'Post', openPost: 'បើក Post ប្រភព',
+    emptyConnected: 'មិនទាន់មានមតិយោបល់ពី Page ដែលបានភ្ជាប់ទេ។ សូមទាញយកដើម្បីទទួលបានមតិយោបល់ថ្មី។',
     from: 'អ្នកផ្ដល់មតិ', unknownAuthor: 'មិនស្គាល់អ្នកផ្ដល់មតិ', actions: 'សកម្មភាព',
     onFacebook: 'នៅលើ Facebook', kcmsOnly: 'តែក្នុង KCMS',
     actionFailed: 'មិនអាចធ្វើសកម្មភាពនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។',
@@ -233,7 +235,21 @@ export function ModeratePage({ locale }: ModeratePageProps) {
         <div className="filter-actions"><button className="button button-small" type="submit">{t.apply}</button><button className="button button-small button-quiet" onClick={resetFilters} type="button">{t.reset}</button></div>
       </form>
 
-      {total === 0 ? <p className="work-status">{content.modEmpty}</p> : (
+      {total === 0 ? (
+        /* "Nothing needs review" reads as a cleared queue. After connecting a
+           Page nothing has been fetched yet, which is a different situation
+           and has a different next step. */
+        connected ? (
+          <div className="work-empty">
+            <p>{t.emptyConnected}</p>
+            <button className="button button-small" disabled={syncing} onClick={() => void sync(false)} type="button">
+              {syncing ? t.syncing : t.sync}
+            </button>
+          </div>
+        ) : (
+          <p className="work-status">{content.modEmpty}</p>
+        )
+      ) : (
         <div className={`moderation-workspace ${selected ? 'has-selection' : ''}`}>
           <div className="moderation-list">
             <div className="table-wrap">

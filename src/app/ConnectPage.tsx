@@ -120,9 +120,9 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             ? caught.detail
             : t.error,
       )
-    } finally {
-      // The state is single-use. Leaving it in the URL means a refresh retries
-      // a session Meta has already spent.
+      // Only a session that cannot be used again is cleared. Clearing it while
+      // the Page chooser is still waiting to be confirmed meant one refresh
+      // dropped the operator back to "connect" with the authorization lost.
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [t])
@@ -174,13 +174,18 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     if (!oauthState || !selectedPage) return
     setBusy(true)
     setError(false)
+    setFacebookError(null)
     try {
       setConnection(await selectFacebookPage(oauthState, selectedPage))
       setChoices([])
       setOauthState(null)
       window.history.replaceState({}, '', window.location.pathname)
-    } catch {
-      setError(true)
+    } catch (caught) {
+      // The last step of the flow. A bare "something went wrong" here left the
+      // operator believing the Page was connected when it was not.
+      setFacebookError(
+        caught instanceof ApiError && caught.detail ? caught.detail : t.error,
+      )
     } finally {
       setBusy(false)
     }
@@ -240,7 +245,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
               <span><strong>{page.page_name}</strong><small>{page.can_moderate ? t.ready : t.permissionWarning}</small></span>
             </label>
           ))}</div>
-          {error && <p className="auth-error" role="alert">{t.error}</p>}
+          {(facebookError || error) && <p className="auth-error" role="alert">{facebookError ?? t.error}</p>}
           <button className="button" disabled={busy || !selectedPage} onClick={() => void confirmPage()} type="button">{busy ? t.connecting : t.confirm}</button>
         </section>
       ) : oauthState ? <p className="work-status">{t.noPages}</p> : (

@@ -263,6 +263,44 @@ describe('returning from Facebook', () => {
     renderPage()
 
     expect(await screen.findByText('KCMS-Demo')).toBeVisible()
-    expect(window.location.search).toBe('')
+    // The session stays until the Page is actually connected: clearing it here
+    // meant one refresh lost the authorization and showed "connect" again.
+    expect(window.location.search).toBe('?facebook_session=abc123')
+  })
+
+  it('says why the Page could not be connected instead of failing silently', async () => {
+    const user = userEvent.setup()
+    window.history.replaceState({}, '', '/app/connect?facebook_session=abc123')
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            pages: [
+              { page_id: 'p-1', page_name: 'KCMS-Demo', tasks: ['MODERATE'], can_moderate: true },
+            ],
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            detail: 'This Facebook Page is already connected to another KCMS workspace.',
+          }),
+          { status: 409 },
+        ),
+      )
+
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Connect selected Page' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /already connected to another KCMS workspace/,
+    )
   })
 })
