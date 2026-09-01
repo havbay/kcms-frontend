@@ -29,6 +29,42 @@ describe('Facebook Page connection', () => {
     expect(screen.getByLabelText('Page access token')).toHaveAttribute('type', 'password')
   })
 
+  it('explains when Facebook authorization is not configured', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Facebook connection is not configured yet. Contact KCMS support.',
+    )
+  })
+
+  it('explains when the workspace must be approved first', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 403 }))
+
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'This workspace must be approved before it can connect a real Page.',
+    )
+  })
+
   it('connects a validated Page token without echoing the secret', async () => {
     const user = userEvent.setup()
     const fetchMock = vi
