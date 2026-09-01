@@ -872,3 +872,15 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 @media (max-width: 520px) {
   .dashboard .dash-sandbox .button { width: 100%; justify-content: center; }
 }
+
+/* Sync control sits beside the page title. The header only becomes a row when
+   it actually holds actions, so other dashboard headers keep their layout. */
+.dash-head:has(.dash-head-actions) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+.dash-head-actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.sync-note { font-size: var(--app-text-sm, 0.75rem); color: var(--muted); }

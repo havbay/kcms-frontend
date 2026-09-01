@@ -19,6 +19,7 @@ export type TargetLabel = CorrectionRequest['target']
 export type PageConnectionState = components['schemas']['PageConnectionState']
 export type PageConnection = components['schemas']['PageConnection']
 export type PageChoice = components['schemas']['PageChoice']
+export type SyncResult = components['schemas']['SyncResult']
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '')
 
@@ -250,6 +251,10 @@ export function selectFacebookPage(state: string, pageId: string): Promise<PageC
     `/api/v1/facebook/oauth/sessions/${encodeURIComponent(state)}/selection`,
     { method: 'POST', body: JSON.stringify({ page_id: pageId }) },
   )
+}
+
+export function syncFacebookComments(): Promise<SyncResult> {
+  return request<SyncResult>('/api/v1/facebook/sync', { method: 'POST' })
 }
 
 export function disconnectFacebookPage(): Promise<void> {

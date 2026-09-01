@@ -170,6 +170,11 @@ export interface paths {
          * Record Action
          * @description Records a moderation Action. Actions are append-only and reversible,
          *     and never become training labels.
+         *
+         *     When the comment came from a connected Facebook Page, HIDE and UNHIDE are
+         *     applied on Facebook as well. The Action row and the Facebook state are
+         *     written together: if Facebook refuses, the row is rolled back, because an
+         *     Action records what actually happened to the comment.
          */
         post: operations["recordAction"];
         delete?: never;
@@ -281,6 +286,29 @@ export interface paths {
         put?: never;
         /** Start Authorization */
         post: operations["startFacebookAuthorization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facebook/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync Comments
+         * @description Pull comments from the connected Page into this workspace.
+         *
+         *     Re-syncing is safe: the provider's comment id is the primary key, so an
+         *     already-imported comment keeps its verdict, actions and corrections.
+         */
+        post: operations["syncFacebookComments"];
         delete?: never;
         options?: never;
         head?: never;
@@ -949,6 +977,19 @@ export interface components {
             /** Unhidden */
             unhidden: number;
         };
+        /** SyncResult */
+        SyncResult: {
+            /** Fetched */
+            fetched: number;
+            /** Imported */
+            imported: number;
+            /** Last Synced At */
+            last_synced_at: string | null;
+            /** Page Id */
+            page_id: string;
+            /** Page Name */
+            page_name: string;
+        };
         /** Team */
         Team: {
             /** Invitations */
@@ -1615,6 +1656,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OAuthStart"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    syncFacebookComments: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncResult"];
                 };
             };
             /** @description Validation Error */

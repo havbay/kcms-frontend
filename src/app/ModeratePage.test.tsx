@@ -153,3 +153,65 @@ describe('moderation work list', () => {
     expect(screen.getByRole('button', { name: 'Try again' })).toBeVisible()
   })
 })
+
+describe('syncing from the connected Page', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('imports new comments and reloads the list so they appear', async () => {
+    const user = userEvent.setup()
+    const arrived = {
+      ...WORK_LIST,
+      total: 3,
+      items: [
+        {
+          ...WORK_LIST.items[0]!,
+          comment_id: 'fb-999',
+          text: 'មតិយោបល់ថ្មីពី Facebook',
+        },
+        ...WORK_LIST.items,
+      ],
+    }
+    const fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(WORK_LIST), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            fetched: 4, imported: 1, page_id: 'page-real',
+            page_name: 'Demo Page', last_synced_at: '2026-09-01T12:00:00Z',
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValue(new Response(JSON.stringify(arrived), { status: 200 }))
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+
+    await user.click(screen.getByRole('button', { name: 'Sync from Facebook' }))
+
+    expect(await screen.findByText('Imported 1 new comment')).toBeVisible()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(3))
+    expect(screen.getByText('មតិយោបល់ថ្មីពី Facebook')).toBeVisible()
+
+    const synced = fetchMock.mock.calls.find(([url]) => String(url).includes('/facebook/sync'))
+    expect(synced).toBeDefined()
+    expect((synced?.[1] as RequestInit).method).toBe('POST')
+  })
+
+  it('says to connect a Page rather than reporting a generic failure', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(WORK_LIST), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ detail: 'no Facebook Page is connected' }), { status: 409 }),
+      )
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+
+    await user.click(screen.getByRole('button', { name: 'Sync from Facebook' }))
+    expect(await screen.findByText('Connect a Facebook Page first.')).toBeVisible()
+  })
+})

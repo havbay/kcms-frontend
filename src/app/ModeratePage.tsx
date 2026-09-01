@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import {
+  ApiError,
   type ActionKind,
   type CommentFilters,
   listComments,
   recordAction,
+  syncFacebookComments,
   type WorkListItem,
 } from '../api/client'
 import { CorrectionForm } from './CorrectionForm'
@@ -21,12 +23,22 @@ const ui = {
     all: 'All', pending: 'Pending', actioned: 'Actioned', priority: 'Priority', newest: 'Newest', oldest: 'Oldest', apply: 'Apply filters', reset: 'Reset',
     source: 'Source post', type: 'Type', received: 'Received', details: 'Comment details', close: 'Close details', replyTo: 'Replying to',
     verdict: 'Automatic detection', context: 'Conversation context', action: 'Moderation action', correction: 'Label correction', video: 'Video', post: 'Post', openPost: 'Open source post',
+    sync: 'Sync from Facebook', syncing: 'Syncing…',
+    syncImported: (n: number) => `Imported ${n} new comment${n === 1 ? '' : 's'}`,
+    syncNone: 'No new comments on the connected Page',
+    syncNoPage: 'Connect a Facebook Page first.',
+    syncError: 'Facebook could not be reached. Try again.',
   },
   km: {
     search: 'ស្វែងរកមតិយោបល់', status: 'ស្ថានភាពពិនិត្យ', severity: 'កម្រិត', target: 'គោលដៅ', reason: 'ហេតុផលបង្ហាញ', sort: 'តម្រៀបតាម',
     all: 'ទាំងអស់', pending: 'រង់ចាំ', actioned: 'បានធ្វើ', priority: 'អាទិភាព', newest: 'ថ្មីបំផុត', oldest: 'ចាស់បំផុត', apply: 'ប្រើតម្រង', reset: 'សម្អាត',
     source: 'ប្រភព Post', type: 'ប្រភេទ', received: 'ទទួលបាន', details: 'ព័ត៌មានមតិយោបល់', close: 'បិទព័ត៌មាន', replyTo: 'ឆ្លើយតបទៅ',
     verdict: 'ការរកឃើញស្វ័យប្រវត្តិ', context: 'បរិបទសន្ទនា', action: 'សកម្មភាពគ្រប់គ្រង', correction: 'ការកែស្លាក', video: 'វីដេអូ', post: 'Post', openPost: 'បើក Post ប្រភព',
+    sync: 'ទាញមតិយោបល់ពី Facebook', syncing: 'កំពុងទាញ…',
+    syncImported: (n: number) => `បាននាំចូលមតិយោបល់ថ្មី ${n}`,
+    syncNone: 'គ្មានមតិយោបល់ថ្មីនៅលើ Page ដែលបានភ្ជាប់ទេ',
+    syncNoPage: 'សូមភ្ជាប់ Facebook Page ជាមុនសិន។',
+    syncError: 'មិនអាចទាក់ទង Facebook បានទេ។ សូមព្យាយាមម្ដងទៀត។',
   },
 } as const
 
@@ -47,6 +59,8 @@ export function ModeratePage({ locale }: ModeratePageProps) {
   const [reason, setReason] = useState('')
   const [sort, setSort] = useState<CommentFilters['sort']>('PRIORITY')
   const [filters, setFilters] = useState<CommentFilters>({ sort: 'PRIORITY' })
+  const [syncing, setSyncing] = useState(false)
+  const [syncNote, setSyncNote] = useState<string | null>(null)
 
   const load = useCallback(async (nextOffset: number, nextFilters: CommentFilters) => {
     const slowTimer = setTimeout(() => setSlow(true), 3000)
@@ -87,6 +101,25 @@ export function ModeratePage({ locale }: ModeratePageProps) {
     }
   }
 
+  async function sync() {
+    setSyncing(true)
+    setSyncNote(null)
+    try {
+      const result = await syncFacebookComments()
+      setSyncNote(result.imported > 0 ? t.syncImported(result.imported) : t.syncNone)
+      // Reload from the server rather than appending, so a newly imported
+      // comment lands in the right place under the active filters and sort.
+      if (result.imported > 0) await load(0, filters)
+      setOffset(0)
+    } catch (caught) {
+      setSyncNote(
+        caught instanceof ApiError && caught.status === 409 ? t.syncNoPage : t.syncError,
+      )
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   function applyFilters(event: React.FormEvent) {
     event.preventDefault()
     setOffset(0)
@@ -117,7 +150,13 @@ export function ModeratePage({ locale }: ModeratePageProps) {
 
   return (
     <main className="dash-body moderation-page">
-      <header className="dash-head"><h1>{content.modTitle}</h1><p>{content.modSubtitle}</p></header>
+      <header className="dash-head">
+        <div className="dash-head-text"><h1>{content.modTitle}</h1><p>{content.modSubtitle}</p></div>
+        <div className="dash-head-actions">
+          {syncNote && <span className="sync-note" role="status">{syncNote}</span>}
+          <button className="button button-small" disabled={syncing} onClick={() => void sync()} type="button">{syncing ? t.syncing : t.sync}</button>
+        </div>
+      </header>
 
       <form className="moderation-filters" onSubmit={applyFilters}>
         <label className="filter-search"><span>{t.search}</span><input onChange={(event) => setSearch(event.target.value)} placeholder={t.search} type="search" value={search} /></label>
