@@ -140,6 +140,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/comments/samples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove Sample Comments
+         * @description Clear the seeded sample comments from this workspace.
+         *
+         *     Only the samples are removed: the delete is scoped by the sample Page id,
+         *     so comments imported from a connected Facebook Page are never touched.
+         *     Emptying a shared workspace affects everyone in it, so it is an owner
+         *     action rather than something any member can do.
+         */
+        delete: operations["removeSampleComments"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/comments/summary": {
         parameters: {
             query?: never;
@@ -910,6 +935,11 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** SampleRemoval */
+        SampleRemoval: {
+            /** Removed */
+            removed: number;
+        };
         /** SelectPage */
         SelectPage: {
             /** Page Id */
@@ -1355,6 +1385,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WorkList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    removeSampleComments: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleRemoval"];
                 };
             };
             /** @description Validation Error */

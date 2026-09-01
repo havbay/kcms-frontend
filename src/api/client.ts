@@ -312,6 +312,10 @@ export function removeMember(userId: string): Promise<void> {
 
 export type WorkspaceSettings = components['schemas']['WorkspaceSettings']
 
+export function removeSampleComments(): Promise<{ removed: number }> {
+  return request<{ removed: number }>('/api/v1/comments/samples', { method: 'DELETE' })
+}
+
 export function getSettings(): Promise<WorkspaceSettings> {
   return request<WorkspaceSettings>('/api/v1/settings')
 }

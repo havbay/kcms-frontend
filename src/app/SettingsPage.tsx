@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import {
-  ApiError, getSettings, renameSelf, renameWorkspace, type WorkspaceSettings,
+  ApiError, getSettings, removeSampleComments, renameSelf, renameWorkspace,
+  type WorkspaceSettings,
 } from '../api/client'
 import { AuthField } from './AuthField'
 import { copy, type Locale } from './copy'
@@ -20,6 +21,9 @@ export function SettingsPage({ locale }: SettingsPageProps) {
   const [workspaceState, setWorkspaceState] = useState<SaveState>('idle')
   const [nameState, setNameState] = useState<SaveState>('idle')
   const [problem, setProblem] = useState<string | null>(null)
+  const [clearing, setClearing] = useState(false)
+  const [cleared, setCleared] = useState<number | null>(null)
+  const [confirmClear, setConfirmClear] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -47,6 +51,20 @@ export function SettingsPage({ locale }: SettingsPageProps) {
   }
 
   const isOwner = settings.your_role === 'owner'
+
+  async function clearSamples() {
+    setClearing(true)
+    try {
+      const result = await removeSampleComments()
+      setCleared(result.removed)
+      setConfirmClear(false)
+      setSettings((current) => current && { ...current, is_sandbox: false })
+    } catch {
+      setProblem(content.setSamplesError)
+    } finally {
+      setClearing(false)
+    }
+  }
 
   async function saveWorkspace(event: React.FormEvent) {
     event.preventDefault()
@@ -123,6 +141,35 @@ export function SettingsPage({ locale }: SettingsPageProps) {
           </div>
         </dl>
       </section>
+
+      {/* Kept mounted after the removal so the outcome is actually read:
+          clearing the samples turns is_sandbox off, which would otherwise
+          unmount this section the instant it has something to report. */}
+      {isOwner && (settings.is_sandbox || cleared !== null) && (
+        <section className="settings-card">
+          <h2>{content.setSamples}</h2>
+          <p className="settings-note">{content.setSamplesLead}</p>
+          {cleared === null ? confirmClear ? (
+            <div className="settings-confirm">
+              <p><strong>{content.setSamplesConfirm}</strong></p>
+              <div className="settings-confirm-actions">
+                <button className="button button-small button-danger" disabled={clearing} onClick={() => void clearSamples()} type="button">
+                  {clearing ? content.setSamplesClearing : content.setSamplesYes}
+                </button>
+                <button className="button button-small button-quiet" disabled={clearing} onClick={() => setConfirmClear(false)} type="button">
+                  {content.setSamplesCancel}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button className="button button-small" onClick={() => setConfirmClear(true)} type="button">
+              {content.setSamplesRemove}
+            </button>
+          ) : (
+            <p className="settings-note" role="status">{content.setSamplesDone(cleared)}</p>
+          )}
+        </section>
+      )}
 
       <section className="settings-card">
         <h2>{content.setYou}</h2>
