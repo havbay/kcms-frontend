@@ -231,19 +231,18 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/facebook/connection": {
+    "/api/v1/facebook/connections": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Connection */
-        get: operations["getFacebookConnection"];
+        /** List Connections */
+        get: operations["listFacebookConnections"];
         put?: never;
         post?: never;
-        /** Disconnect */
-        delete: operations["disconnectFacebookPage"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -260,6 +259,46 @@ export interface paths {
         put?: never;
         /** Connect Manually */
         post: operations["connectFacebookPageManually"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facebook/connections/{page_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Disconnect */
+        delete: operations["disconnectFacebookPage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facebook/connections/{page_id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync Comments
+         * @description Pull comments from the connected Page into this workspace.
+         *
+         *     Re-syncing is safe: the provider's comment id is the primary key, so an
+         *     already-imported comment keeps its verdict, actions and corrections.
+         */
+        post: operations["syncFacebookComments"];
         delete?: never;
         options?: never;
         head?: never;
@@ -311,29 +350,6 @@ export interface paths {
         put?: never;
         /** Start Authorization */
         post: operations["startFacebookAuthorization"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/facebook/sync": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sync Comments
-         * @description Pull comments from the connected Page into this workspace.
-         *
-         *     Re-syncing is safe: the provider's comment id is the primary key, so an
-         *     already-imported comment keeps its verdict, actions and corrections.
-         */
-        post: operations["syncFacebookComments"];
         delete?: never;
         options?: never;
         head?: never;
@@ -819,30 +835,17 @@ export interface components {
             /** Tasks */
             tasks: string[];
         };
-        /** PageConnectionState */
-        PageConnectionState: {
+        /** PageConnections */
+        PageConnections: {
+            /** Connections */
+            connections: components["schemas"]["PageConnection"][];
+            /** Page Limit */
+            page_limit: number;
             /**
-             * Can Moderate
-             * @default false
-             */
-            can_moderate: boolean;
-            /** Connected At */
-            connected_at?: string | null;
-            /** Last Synced At */
-            last_synced_at?: string | null;
-            /** Method */
-            method?: ("FACEBOOK_LOGIN" | "MANUAL_TOKEN") | null;
-            /** Page Id */
-            page_id?: string | null;
-            /** Page Name */
-            page_name?: string | null;
-            /**
-             * State
+             * Plan
              * @enum {string}
              */
-            state: "NOT_CONNECTED" | "CONNECTED";
-            /** Tasks */
-            tasks?: string[];
+            plan: "STARTER" | "GROWTH";
         };
         /** PilotDecision */
         PilotDecision: {
@@ -1538,7 +1541,7 @@ export interface operations {
             };
         };
     };
-    getFacebookConnection: {
+    listFacebookConnections: {
         parameters: {
             query?: never;
             header?: {
@@ -1555,37 +1558,8 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PageConnectionState"];
+                    "application/json": components["schemas"]["PageConnections"];
                 };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    disconnectFacebookPage: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -1620,6 +1594,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PageConnection"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disconnectFacebookPage: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                page_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    syncFacebookComments: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                page_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncResult"];
                 };
             };
             /** @description Validation Error */
@@ -1721,37 +1759,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OAuthStart"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    syncFacebookComments: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SyncResult"];
                 };
             };
             /** @description Validation Error */

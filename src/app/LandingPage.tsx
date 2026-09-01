@@ -253,24 +253,39 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             <p className="access-description">{content.accessDescription}</p>
           </div>
 
-          <article className="access-card">
-            <div aria-hidden="true" className="access-card-rail" />
-            <header className="access-card-header">
-              <h3>{content.planName}</h3>
-              <p className="access-badge">{content.planBadge}</p>
-            </header>
-            <p className="access-price">{content.planPrice}</p>
+          <div className="pricing-grid">
+            {content.pricingPlans.map((plan) => (
+              <article className="access-card" key={plan.id}>
+                <div aria-hidden="true" className="access-card-rail" />
+                  <header className="access-card-header">
+                    <h3>{plan.name}</h3>
+                  </header>
+                  <div className="access-price-wrapper">
+                    <p className="access-price">{plan.price}</p>
+                    {plan.priceDetail && <p className="access-price-detail">{plan.priceDetail}</p>}
+                  </div>
+                  <div className="access-pages-wrapper">
+                    <span className="access-pages-badge">{plan.pagesLabel}</span>
+                  </div>
 
-            <h4 className="access-features-label" id="access-features">{content.planFeaturesLabel}</h4>
-            <ul aria-labelledby="access-features" className="access-features">
-              {content.planFeatures.map((feature) => (
-                <li key={feature}><span aria-hidden="true" className="access-check">✓</span>{feature}</li>
-              ))}
-            </ul>
+                  <div className="access-features-block">
+                    <p className="access-features-label">{plan.featuresLabel}</p>
+                    <ul className="access-features-list">
+                      {plan.features.map((feature) => (
+                        <li key={feature}>
+                          <span aria-hidden="true" className="access-feature-check">✓</span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-            <a className="button button-block" href="/request-access">{content.planCta}<span aria-hidden="true">↗</span></a>
-            <p className="access-note">{content.planNote}</p>
-          </article>
+                  <a className="button button-block" href="/request-access">{plan.cta}<span aria-hidden="true">↗</span></a>
+                </article>
+            ))}
+          </div>
+          <p className="access-note">{content.pricingBillingNote}</p>
+          <p className="access-note">{content.pricingUpgradeNote}</p>
         </section>
 
         <section aria-labelledby="faq-heading" className="faq-section" id="faq">

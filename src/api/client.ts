@@ -16,7 +16,7 @@ export type CorrectionRequest = components['schemas']['CorrectionRequest']
 export type CorrectionResponse = components['schemas']['CorrectionResponse']
 export type SeverityLabel = CorrectionRequest['severity']
 export type TargetLabel = CorrectionRequest['target']
-export type PageConnectionState = components['schemas']['PageConnectionState']
+export type PageConnections = components['schemas']['PageConnections']
 export type PageConnection = components['schemas']['PageConnection']
 export type PageChoice = components['schemas']['PageChoice']
 export type SyncResult = components['schemas']['SyncResult']
@@ -233,8 +233,8 @@ export function acceptSetupInvitation(
   })
 }
 
-export function getFacebookConnection(): Promise<PageConnectionState> {
-  return request<PageConnectionState>('/api/v1/facebook/connection')
+export function listFacebookConnections(): Promise<PageConnections> {
+  return request<PageConnections>('/api/v1/facebook/connections')
 }
 
 export function connectFacebookPageManually(pageAccessToken: string): Promise<PageConnection> {
@@ -263,12 +263,17 @@ export function selectFacebookPage(state: string, pageId: string): Promise<PageC
   )
 }
 
-export function syncFacebookComments(): Promise<SyncResult> {
-  return request<SyncResult>('/api/v1/facebook/sync', { method: 'POST' })
+export function syncFacebookComments(pageId: string): Promise<SyncResult> {
+  return request<SyncResult>(
+    `/api/v1/facebook/connections/${encodeURIComponent(pageId)}/sync`,
+    { method: 'POST' },
+  )
 }
 
-export function disconnectFacebookPage(): Promise<void> {
-  return request<void>('/api/v1/facebook/connection', { method: 'DELETE' })
+export function disconnectFacebookPage(pageId: string): Promise<void> {
+  return request<void>(`/api/v1/facebook/connections/${encodeURIComponent(pageId)}`, {
+    method: 'DELETE',
+  })
 }
 
 export type Team = components['schemas']['Team']

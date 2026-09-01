@@ -5,7 +5,7 @@ import {
   type ActionKind,
   type CommentFilters,
   listComments,
-  getFacebookConnection,
+  listFacebookConnections,
   recordAction,
   syncFacebookComments,
   type WorkListItem,
@@ -138,22 +138,31 @@ export function ModeratePage({ locale }: ModeratePageProps) {
     setSyncing(true)
     if (!quiet) setSyncNote(null)
     try {
-      const result = await syncFacebookComments()
+      const { connections } = await listFacebookConnections()
+      if (connections.length === 0) {
+        setConnected(false)
+        if (!quiet) setSyncNote(t.syncNoPage)
+        return
+      }
       setConnected(true)
+      // A workspace can hold several connected Pages, so a sync pulls every
+      // one of them rather than assuming there is only ever one.
+      let imported = 0
+      for (const connection of connections) {
+        imported += (await syncFacebookComments(connection.page_id)).imported
+      }
       // A background tick that found nothing must not keep announcing itself.
-      if (!quiet || result.imported > 0) {
-        setSyncNote(result.imported > 0 ? t.syncImported(result.imported) : t.syncNone)
+      if (!quiet || imported > 0) {
+        setSyncNote(imported > 0 ? t.syncImported(imported) : t.syncNone)
       }
       // Reload from the server rather than appending, so a newly imported
       // comment lands in the right place under the active filters and sort.
-      if (result.imported > 0) {
+      if (imported > 0) {
         setOffset(0)
         await load(0, filters)
       }
-    } catch (caught) {
-      const noPage = caught instanceof ApiError && caught.status === 409
-      if (noPage) setConnected(false)
-      if (!quiet) setSyncNote(noPage ? t.syncNoPage : t.syncError)
+    } catch {
+      if (!quiet) setSyncNote(t.syncError)
     } finally {
       setSyncing(false)
     }
@@ -162,8 +171,8 @@ export function ModeratePage({ locale }: ModeratePageProps) {
   // Whether a Page is connected decides what an action can actually do, so it
   // is read on mount rather than inferred from the first sync attempt.
   useEffect(() => {
-    getFacebookConnection()
-      .then((found) => setConnected(found.state === 'CONNECTED'))
+    listFacebookConnections()
+      .then((found) => setConnected(found.connections.length > 0))
       .catch(() => setConnected(null))
   }, [])
 
