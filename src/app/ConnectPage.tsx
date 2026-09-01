@@ -49,6 +49,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
   const [token, setToken] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(false)
+  const [tokenError, setTokenError] = useState<string | null>(null)
   const [facebookError, setFacebookError] = useState<string | null>(null)
   const [choices, setChoices] = useState<PageChoice[]>([])
   const [oauthState, setOauthState] = useState<string | null>(null)
@@ -97,12 +98,15 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     if (!token.trim()) return
     setBusy(true)
     setError(false)
+    setTokenError(null)
     try {
       setConnection(await connectFacebookPageManually(token.trim()))
       setToken('')
       setAdvanced(false)
-    } catch {
-      setError(true)
+    } catch (caught) {
+      // Meta's refusal usually names the actual mistake — the wrong token
+      // kind, an expired token — and a generic message hides it.
+      setTokenError(caught instanceof ApiError && caught.detail ? caught.detail : t.error)
     } finally {
       setBusy(false)
     }
@@ -196,7 +200,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
                 <label htmlFor="page-access-token">{t.token}</label>
                 <input autoComplete="off" id="page-access-token" onChange={(event) => setToken(event.target.value)} type="password" value={token} />
                 <p>{t.tokenHint}</p>
-                {error && <p className="auth-error" role="alert">{t.error}</p>}
+                {tokenError && <p className="auth-error" role="alert">{tokenError}</p>}
                 <button className="button button-small" disabled={busy || !token.trim()} type="submit">{busy ? t.connecting : t.validate}</button>
               </form>
             )}

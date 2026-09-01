@@ -27,6 +27,9 @@ export class ApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    /** The API's own explanation, when it sent one. Some refusals are only
+     *  actionable if the reason reaches the person reading the screen. */
+    readonly detail?: string,
   ) {
     super(message)
     this.name = 'ApiError'
@@ -77,7 +80,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(0, 'unreachable')
   }
   if (!response.ok) {
-    throw new ApiError(response.status, `request failed with ${response.status}`)
+    let detail: string | undefined
+    try {
+      const failure = await response.json()
+      if (typeof failure?.detail === 'string') detail = failure.detail
+    } catch {
+      // Not every failure carries a JSON body; the status still stands.
+    }
+    throw new ApiError(response.status, `request failed with ${response.status}`, detail)
   }
   // 204 and other empty bodies must not be fed to json(): sign-out returns
   // No Content, and parsing it throws after the request already succeeded.

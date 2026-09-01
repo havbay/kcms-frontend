@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ConnectPage } from './ConnectPage'
 
@@ -130,5 +130,62 @@ describe('Facebook Page connection', () => {
     expect(screen.getAllByText('Connected with Facebook')).toHaveLength(2)
     expect(screen.getByText('Waiting for first synchronization')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Disconnect Page' })).toBeVisible()
+  })
+})
+
+describe('page token refusals', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('tells the operator a User token was pasted instead of a generic failure', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            detail:
+              'This is a User access token, not a Page access token. In Graph '
+              + "API Explorer open the 'User or Page' menu and choose your Page "
+              + 'under Page Access Tokens, then copy the token again.',
+          }),
+          { status: 422 },
+        ),
+      )
+
+    renderPage()
+    await screen.findByRole('button', { name: 'Continue with Facebook' })
+    await user.click(screen.getByRole('button', { name: /Connect with Page token/ }))
+    await user.type(screen.getByLabelText('Page access token'), 'a-user-token')
+    await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /This is a User access token, not a Page access token/,
+    )
+  })
+
+  it('falls back to the generic message when the API explains nothing', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 500 }))
+
+    renderPage()
+    await screen.findByRole('button', { name: 'Continue with Facebook' })
+    await user.click(screen.getByRole('button', { name: /Connect with Page token/ }))
+    await user.type(screen.getByLabelText('Page access token'), 'a-token')
+    await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'KCMS could not complete the connection. Check the authorization and try again.',
+    )
   })
 })
