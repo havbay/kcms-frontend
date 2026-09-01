@@ -1128,6 +1128,8 @@ export interface components {
             display_name: string;
             /** Is Sandbox */
             is_sandbox: boolean;
+            /** Sample Comments */
+            sample_comments: number;
             /** Workspace Id */
             workspace_id: string;
             /** Workspace Name */

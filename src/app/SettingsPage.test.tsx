@@ -12,6 +12,7 @@ const OWNER = {
   display_name: 'Dara Sok',
   your_role: 'owner',
   is_sandbox: true,
+  sample_comments: 12,
 }
 
 function renderPage() {
@@ -89,5 +90,31 @@ describe('removing the sample comments', () => {
     await waitFor(() =>
       expect(screen.queryByRole('button', { name: 'Remove sample comments' })).not.toBeInTheDocument(),
     )
+  })
+
+  it('is not offered once no samples remain', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ ...OWNER, sample_comments: 0 }), { status: 200 }),
+    )
+
+    renderPage()
+    await screen.findByDisplayValue('Angkor Shop')
+
+    // Gated on what is stored, not on the sandbox flag, so a workspace with no
+    // samples is not offered a removal that would do nothing.
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Remove sample comments' }),
+      ).not.toBeInTheDocument(),
+    )
+  })
+
+  it('says how many samples will go before removing them', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(OWNER), { status: 200 }),
+    )
+
+    renderPage()
+    expect(await screen.findByText('12 sample comments stored.')).toBeVisible()
   })
 })

@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 
+import { getSettings } from '../api/client'
 import { copy, type Locale } from './copy'
 import { useSession } from './session'
 
@@ -13,6 +14,13 @@ type DashboardLayoutProps = {
 export function DashboardLayout({ locale, setLocale, children }: DashboardLayoutProps) {
   const content = copy[locale]
   const session = useSession()
+  const [samples, setSamples] = useState(0)
+
+  useEffect(() => {
+    getSettings()
+      .then((found) => setSamples(found.sample_comments))
+      .catch(() => setSamples(0))
+  }, [])
 
   // Keep client navigation explicit so each implemented workflow remains
   // discoverable without exposing unfinished destinations.
@@ -86,15 +94,19 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
       </aside>
 
       <div className="dash-main">
-        {/* Sample data and provider connection are independent states. */}
-        <div className="dash-sandbox">
-          <span aria-hidden="true" className="dash-dot" />
-          <p>
-            <strong>{content.sandboxTitle}</strong>{' '}
-            {content.sandboxBody}
-          </p>
-          <Link className="button button-small" to="/app/connect">{content.sandboxCta}</Link>
-        </div>
+        {/* Only while samples are actually present. This rendered
+            unconditionally, so a workspace moderating real Facebook comments
+            was still told it was looking at sample data. */}
+        {samples > 0 && (
+          <div className="dash-sandbox">
+            <span aria-hidden="true" className="dash-dot" />
+            <p>
+              <strong>{content.sandboxTitle}</strong>{' '}
+              {content.sandboxBody}
+            </p>
+            <Link className="button button-small" to="/app/connect">{content.sandboxCta}</Link>
+          </div>
+        )}
         {children}
       </div>
     </div>

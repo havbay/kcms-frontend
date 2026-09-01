@@ -375,6 +375,9 @@ async function stubApi(
         workspace_id: 'w1',
         workspace_name: 'Angkor Shop',
         is_sandbox: true,
+        // The sample-data notice, and the Connect link inside it, appear only
+        // while samples are actually stored.
+        sample_comments: 12,
         your_role: options.role ?? 'owner',
         display_name: 'Dara Sok',
       })

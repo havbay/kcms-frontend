@@ -145,10 +145,14 @@ export function SettingsPage({ locale }: SettingsPageProps) {
       {/* Kept mounted after the removal so the outcome is actually read:
           clearing the samples turns is_sandbox off, which would otherwise
           unmount this section the instant it has something to report. */}
-      {isOwner && (settings.is_sandbox || cleared !== null) && (
+      {/* Gated on samples actually being stored, not on the sandbox flag:
+          a workspace whose flag had been cleared kept its samples with no
+          way to remove them. */}
+      {isOwner && (settings.sample_comments > 0 || cleared !== null) && (
         <section className="settings-card">
           <h2>{content.setSamples}</h2>
           <p className="settings-note">{content.setSamplesLead}</p>
+          {cleared === null && <p className="settings-note"><strong>{content.setSamplesCount(settings.sample_comments)}</strong></p>}
           {cleared === null ? confirmClear ? (
             <div className="settings-confirm">
               <p><strong>{content.setSamplesConfirm}</strong></p>
