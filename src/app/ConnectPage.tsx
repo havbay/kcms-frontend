@@ -4,21 +4,27 @@ import {
   ApiError,
   connectFacebookPageManually,
   disconnectFacebookPage,
-  getFacebookConnection,
+  listFacebookConnections,
   listFacebookPageChoices,
   type PageChoice,
-  type PageConnectionState,
+  type PageConnection,
+  type PageConnections,
   selectFacebookPage,
   startFacebookAuthorization,
 } from '../api/client'
-import type { Locale } from './copy'
+import { copy, type Locale } from './copy'
 
 type ConnectPageProps = { locale: Locale }
 type LoadState = 'loading' | 'ready' | 'error'
 
 const text = {
   en: {
-    title: 'Connect your Facebook Page', lead: 'Authorize one Page so KCMS can receive comments and carry out the actions you approve.',
+    title: 'Connect your Facebook Pages', lead: 'Authorize a Page so KCMS can receive comments and carry out the actions you approve.',
+    connectedPagesTitle: 'Connected Pages',
+    pagesUsage: (used: number, limit: number) => `${used} of ${limit} Pages connected`,
+    atCapTitle: 'You have reached your plan’s Page limit.',
+    atCapBody: 'Disconnect a Page below, or upgrade your plan to connect more.',
+    upgradeCta: 'View plans',
     recommended: 'Recommended', facebook: 'Continue with Facebook', facebookHelp: 'Sign in to Meta, choose an authorized Page, then confirm the connection.',
     advanced: 'Connect with Page token', advancedHelp: 'Advanced setup for testing or assisted connection.', token: 'Page access token',
     tokenHint: 'Sent securely to KCMS for validation. The full token is never shown again.', validate: 'Validate and connect', connecting: 'Connecting…',
@@ -41,6 +47,11 @@ const text = {
   },
   km: {
     title: 'ភ្ជាប់ Facebook Page របស់អ្នក', lead: 'អនុញ្ញាត Page មួយ ដើម្បីឱ្យ KCMS ទទួលមតិយោបល់ និងអនុវត្តសកម្មភាពដែលអ្នកយល់ព្រម។',
+    connectedPagesTitle: 'ទំព័រដែលបានភ្ជាប់',
+    pagesUsage: (used: number, limit: number) => `${used} នៃ ${limit} ទំព័របានភ្ជាប់`,
+    atCapTitle: 'អ្នកបានឈានដល់កម្រិតកំណត់ទំព័រនៃគម្រោងរបស់អ្នក។',
+    atCapBody: 'សូមផ្ដាច់ Page មួយខាងក្រោម ឬដំឡើងគម្រោងរបស់អ្នកដើម្បីភ្ជាប់ច្រើនទៀត។',
+    upgradeCta: 'មើលគម្រោង',
     recommended: 'បានណែនាំ', facebook: 'បន្តជាមួយ Facebook', facebookHelp: 'ចូល Meta ជ្រើស Page ដែលមានសិទ្ធិ រួចបញ្ជាក់ការភ្ជាប់។',
     advanced: 'ភ្ជាប់ដោយ Page token', advancedHelp: 'ការកំណត់កម្រិតខ្ពស់ សម្រាប់សាកល្បង ឬជំនួយពី KCMS។', token: 'Page access token',
     tokenHint: 'ផ្ញើដោយសុវត្ថិភាពទៅ KCMS ដើម្បីផ្ទៀងផ្ទាត់។ Token ពេញមិនត្រូវបង្ហាញម្តងទៀតទេ។', validate: 'ផ្ទៀងផ្ទាត់ និងភ្ជាប់', connecting: 'កំពុងភ្ជាប់…',
@@ -93,9 +104,24 @@ function FacebookGlyph() {
   )
 }
 
+/** Connecting a Page always upserts on the backend — reconnecting an
+ *  already-held Page never counts against the plan limit — so the local list
+ *  mirrors that: replace the matching row, or append when it is new. */
+function upsertConnection(data: PageConnections, connection: PageConnection): PageConnections {
+  const exists = data.connections.some((row) => row.page_id === connection.page_id)
+  return {
+    ...data,
+    connections: exists
+      ? data.connections.map((row) => (row.page_id === connection.page_id ? connection : row))
+      : [...data.connections, connection],
+  }
+}
+
 export function ConnectPage({ locale }: ConnectPageProps) {
   const t = text[locale]
-  const [connection, setConnection] = useState<PageConnectionState | null>(null)
+  const planName = (plan: string) =>
+    copy[locale].pricingPlans.find((candidate) => candidate.id === plan.toLowerCase())?.name ?? plan
+  const [data, setData] = useState<PageConnections | null>(null)
   const [state, setState] = useState<LoadState>('loading')
   const [token, setToken] = useState('')
   const [busy, setBusy] = useState(false)
@@ -107,10 +133,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
   const [selectedPage, setSelectedPage] = useState('')
 
   const load = useCallback(async () => {
-    let current: PageConnectionState
     try {
-      current = await getFacebookConnection()
-      setConnection(current)
+      setData(await listFacebookConnections())
       setState('ready')
     } catch {
       setState('error')
@@ -129,7 +153,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     }
 
     const callbackState = params.get('facebook_session')
-    if (current.state !== 'NOT_CONNECTED' || !callbackState) return
+    if (!callbackState) return
 
     // Returning from Meta is the end of the flow. A failure here must explain
     // itself rather than replacing the screen with a bare error, which left no
@@ -186,7 +210,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     setError(false)
     setTokenError(null)
     try {
-      setConnection(await connectFacebookPageManually(token.trim()))
+      const connection = await connectFacebookPageManually(token.trim())
+      setData((current) => (current ? upsertConnection(current, connection) : current))
       setToken('')
     } catch (caught) {
       // Meta's refusal usually names the actual mistake — the wrong token
@@ -203,7 +228,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     setError(false)
     setFacebookError(null)
     try {
-      setConnection(await selectFacebookPage(oauthState, selectedPage))
+      const connection = await selectFacebookPage(oauthState, selectedPage)
+      setData((current) => (current ? upsertConnection(current, connection) : current))
       setChoices([])
       setOauthState(null)
       window.history.replaceState({}, '', window.location.pathname)
@@ -218,12 +244,14 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     }
   }
 
-  async function disconnect() {
+  async function disconnect(pageId: string) {
     setBusy(true)
     setError(false)
     try {
-      await disconnectFacebookPage()
-      setConnection({ state: 'NOT_CONNECTED', can_moderate: false })
+      await disconnectFacebookPage(pageId)
+      setData((current) =>
+        current ? { ...current, connections: current.connections.filter((row) => row.page_id !== pageId) } : current,
+      )
     } catch {
       setError(true)
     } finally {
@@ -233,37 +261,55 @@ export function ConnectPage({ locale }: ConnectPageProps) {
 
   if (state === 'loading') return <main className="dash-body"><p className="work-status" role="status">Loading…</p></main>
 
-  if (state === 'error') {
+  if (state === 'error' || !data) {
     return <main className="dash-body"><div className="work-error" role="alert"><p>{t.error}</p><button className="button" onClick={() => { setState('loading'); void load() }} type="button">{t.retry}</button></div></main>
   }
 
-  if (connection?.state === 'CONNECTED') {
-    const method = connection.method === 'FACEBOOK_LOGIN' ? t.facebookMethod : t.tokenMethod
-    return (
-      <main className="dash-body">
-        <header className="dash-head"><h1>{t.connected}</h1><p>{method}</p></header>
-        <section className="connection-status" aria-label={t.connected}>
-          <div className="connection-status-head">
-            <div><span className="connection-kicker">Facebook Page</span><h2>{connection.page_name}</h2><p>ID {connection.page_id}</p></div>
-            <span className={`connection-capability ${connection.can_moderate ? 'is-ready' : 'is-warning'}`}>{connection.can_moderate ? t.ready : t.permissionWarning}</span>
-          </div>
-          <dl className="connection-facts">
-            <div><dt>{t.method}</dt><dd>{method}</dd></div>
-            <div><dt>{t.capability}</dt><dd>{connection.tasks?.join(', ') || '—'}</dd></div>
-            <div><dt>{t.lastSync}</dt><dd>{connection.last_synced_at ? new Date(connection.last_synced_at).toLocaleString() : t.syncWaiting}</dd></div>
-            <div><dt>{t.connectedAt}</dt><dd>{connection.connected_at ? new Date(connection.connected_at).toLocaleString() : '—'}</dd></div>
-          </dl>
-          {error && <p className="auth-error" role="alert">{t.error}</p>}
-          <button className="button button-danger button-small" disabled={busy} onClick={() => void disconnect()} type="button">{busy ? t.disconnecting : t.disconnect}</button>
-        </section>
-      </main>
-    )
-  }
+  const atCap = data.connections.length >= data.page_limit
 
   return (
     <main className="dash-body">
       <header className="dash-head"><h1>{t.title}</h1><p>{t.lead}</p></header>
-      {choices.length > 0 ? (
+
+      {data.connections.length > 0 && (
+        <section aria-label={t.connectedPagesTitle} className="connection-status">
+          <div className="connection-status-head">
+            <h2>{t.connectedPagesTitle}</h2>
+            <span className="connection-capability">
+              {t.pagesUsage(data.connections.length, data.page_limit)} · {planName(data.plan)}
+            </span>
+          </div>
+          <ul className="connected-pages-list">
+            {data.connections.map((page) => {
+              const method = page.method === 'FACEBOOK_LOGIN' ? t.facebookMethod : t.tokenMethod
+              return (
+                <li className="connected-page-card" key={page.page_id}>
+                  <div className="connection-status-head">
+                    <div><span className="connection-kicker">Facebook Page</span><h3>{page.page_name}</h3><p>ID {page.page_id}</p></div>
+                    <span className={`connection-capability ${page.can_moderate ? 'is-ready' : 'is-warning'}`}>{page.can_moderate ? t.ready : t.permissionWarning}</span>
+                  </div>
+                  <dl className="connection-facts">
+                    <div><dt>{t.method}</dt><dd>{method}</dd></div>
+                    <div><dt>{t.capability}</dt><dd>{page.tasks?.join(', ') || '—'}</dd></div>
+                    <div><dt>{t.lastSync}</dt><dd>{page.last_synced_at ? new Date(page.last_synced_at).toLocaleString() : t.syncWaiting}</dd></div>
+                    <div><dt>{t.connectedAt}</dt><dd>{page.connected_at ? new Date(page.connected_at).toLocaleString() : '—'}</dd></div>
+                  </dl>
+                  <button className="button button-danger button-small" disabled={busy} onClick={() => void disconnect(page.page_id)} type="button">{busy ? t.disconnecting : t.disconnect}</button>
+                </li>
+              )
+            })}
+          </ul>
+          {error && <p className="auth-error" role="alert">{t.error}</p>}
+        </section>
+      )}
+
+      {atCap ? (
+        <section className="connection-option">
+          <h2>{t.atCapTitle}</h2>
+          <p>{t.atCapBody}</p>
+          <a className="button button-small" href="/#early-access">{t.upgradeCta}</a>
+        </section>
+      ) : choices.length > 0 ? (
         <section className="connection-chooser">
           <h2>{t.choose}</h2><p>{t.chooseHelp}</p>
           <div className="page-choice-list">{choices.map((page) => (
