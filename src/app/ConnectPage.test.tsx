@@ -65,6 +65,44 @@ describe('Facebook Page connection', () => {
     )
   })
 
+  it('lets a sandbox client request Page connection approval', async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 403 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({
+          id: 'request-1',
+          workspace_id: 'workspace-1',
+          page_name: 'facebook.com/kcmstest',
+          monthly_comments: 'UNDER_1K',
+          team_size: 'JUST_ME',
+          note: null,
+          status: 'PENDING',
+          decision_reason: null,
+          decided_at: null,
+          created_at: '2026-09-01T10:00:00Z',
+        }), { status: 201 }),
+      )
+
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
+    await user.type(screen.getByLabelText('Facebook Page name or URL'), 'facebook.com/kcmstest')
+    await user.click(screen.getByRole('button', { name: 'Request approval' }))
+
+    expect(await screen.findByRole('heading', { name: 'Approval request sent' })).toBeVisible()
+    expect(fetchMock.mock.calls[2]?.[1]?.body).toBe(JSON.stringify({
+      page_name: 'facebook.com/kcmstest',
+      monthly_comments: 'UNDER_1K',
+      team_size: 'JUST_ME',
+      note: null,
+    }))
+  })
+
   it('connects a validated Page token without echoing the secret', async () => {
     const user = userEvent.setup()
     const fetchMock = vi

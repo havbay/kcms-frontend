@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 
 import {
-  ApiError, listAuthProviders, type Providers, signIn, signInWithTelegram, signUp,
+  ApiError, listAuthProviders, type Providers, signIn, signInWithTelegram,
 } from '../api/client'
 import { AuthField } from './AuthField'
 import { copy, type Locale } from './copy'
@@ -16,11 +16,8 @@ type SignInPageProps = {
 export function SignInPage({ locale, setLocale }: SignInPageProps) {
   const content = copy[locale]
   const session = useSession()
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
-  const [org, setOrg] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [busy, setBusy] = useState(false)
@@ -71,13 +68,8 @@ export function SignInPage({ locale, setLocale }: SignInPageProps) {
 
   // Validation lives here so the same rules drive blur, change and submit.
   const problems: Record<string, string | null> = {
-    name: mode === 'signup' && !name.trim() ? content.errName : null,
     email: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim()) ? null : content.errEmail,
-    password: !password
-      ? content.errPasswordRequired
-      : mode === 'signup' && password.length < 8
-        ? content.errPasswordShort
-        : null,
+    password: !password ? content.errPasswordRequired : null,
   }
   const shownProblem = (field: string) => (touched[field] ? problems[field] : null)
   const invalidFields = Object.entries(problems).filter(([, message]) => message)
@@ -86,22 +78,18 @@ export function SignInPage({ locale, setLocale }: SignInPageProps) {
     event.preventDefault()
     if (invalidFields.length > 0) {
       // Reveal every problem at once rather than one per attempt.
-      setTouched({ name: true, email: true, password: true })
+      setTouched({ email: true, password: true })
       return
     }
     setBusy(true)
     setError(null)
     try {
-      const created =
-        mode === 'signin'
-          ? await signIn(email.trim(), password)
-          : await signUp(email.trim(), password, name.trim(), org.trim())
+      const created = await signIn(email.trim(), password)
       session.signIn(created.token, created.user)
     } catch (caught) {
       const status = caught instanceof ApiError ? caught.status : 0
       setError(
-        status === 409 ? content.authTaken
-          : status === 401 || status === 422 ? content.authFailed
+        status === 401 || status === 422 ? content.authFailed
           : content.authUnreachable,
       )
     } finally {
@@ -129,26 +117,11 @@ export function SignInPage({ locale, setLocale }: SignInPageProps) {
       </header>
 
       <main className="auth">
-        <h1>{mode === 'signin' ? content.authSignInTitle : content.authSignUpTitle}</h1>
+        <h1>{content.authSignInTitle}</h1>
 
-        <p className="auth-lead">
-          {mode === 'signin' ? content.authSignInLead : content.authSignUpLead}
-        </p>
+        <p className="auth-lead">{content.authSignInLead}</p>
 
         <form className="auth-form" noValidate onSubmit={submit}>
-          {mode === 'signup' && (
-            <AuthField
-              autoComplete="name"
-              error={shownProblem('name')}
-              hint={content.authNameHint}
-              id="auth-name"
-              label={content.authName}
-              onBlur={() => setTouched((t) => ({ ...t, name: true }))}
-              onChange={(e) => setName(e.target.value)}
-              value={name}
-            />
-          )}
-
           <AuthField
             autoComplete="email"
             error={shownProblem('email')}
@@ -161,21 +134,9 @@ export function SignInPage({ locale, setLocale }: SignInPageProps) {
             value={email}
           />
 
-          {mode === 'signup' && (
-            <AuthField
-              autoComplete="organization"
-              hint={content.authOrgHint}
-              id="auth-org"
-              label={content.authOrg}
-              onChange={(e) => setOrg(e.target.value)}
-              value={org}
-            />
-          )}
-
           <AuthField
-            autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+            autoComplete="current-password"
             error={shownProblem('password')}
-            hint={mode === 'signup' ? content.authPasswordHint : undefined}
             id="auth-password"
             label={content.authPassword}
             onBlur={() => setTouched((t) => ({ ...t, password: true }))}
@@ -187,7 +148,7 @@ export function SignInPage({ locale, setLocale }: SignInPageProps) {
           {error && <p className="auth-error" role="alert">{error}</p>}
 
           <button className="button button-block" disabled={busy} type="submit">
-            {busy ? content.authWorking : mode === 'signin' ? content.authSignIn : content.authSignUp}
+            {busy ? content.authWorking : content.authSignIn}
           </button>
         </form>
 
@@ -198,17 +159,9 @@ export function SignInPage({ locale, setLocale }: SignInPageProps) {
           </>
         )}
 
-        <button
-          className="text-link auth-switch"
-          onClick={() => {
-            setMode(mode === 'signin' ? 'signup' : 'signin')
-            setError(null)
-            setTouched({})
-          }}
-          type="button"
-        >
-          {mode === 'signin' ? content.authSwitchToSignUp : content.authSwitchToSignIn}
-        </button>
+        <p className="auth-switch">
+          {content.authAccessPrompt} <Link className="text-link" to="/request-access">{content.requestAccess}</Link>
+        </p>
       </main>
     </div>
   )

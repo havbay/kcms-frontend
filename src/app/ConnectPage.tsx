@@ -3,13 +3,16 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   ApiError,
   connectFacebookPageManually,
+  createAccessRequest,
   disconnectFacebookPage,
   getFacebookConnection,
   listFacebookPageChoices,
+  type MonthlyComments,
   type PageChoice,
   type PageConnectionState,
   selectFacebookPage,
   startFacebookAuthorization,
+  type TeamSize,
 } from '../api/client'
 import type { Locale } from './copy'
 
@@ -27,6 +30,10 @@ const text = {
     permissionWarning: 'Connected, but the token does not include a moderation task.', syncWaiting: 'Waiting for first synchronization', lastSync: 'Last synchronized',
     connectedAt: 'Connected', method: 'Connection method', capability: 'Moderation access', disconnect: 'Disconnect Page', disconnecting: 'Disconnecting…',
     retry: 'Try again', error: 'KCMS could not complete the connection. Check the authorization and try again.', facebookUnavailable: 'Facebook connection is not configured yet. Contact KCMS support.', approvalRequired: 'This workspace must be approved before it can connect a real Page.', noPages: 'Meta did not return an authorized Page for this account.',
+    approvalTitle: 'Request Page connection approval', approvalHelp: 'Tell KCMS which Page you want to connect. A Platform Administrator will review this request.',
+    pageLabel: 'Facebook Page name or URL', monthlyLabel: 'Comments per month', teamLabel: 'People who will moderate', noteLabel: 'Anything we should know? (optional)',
+    requestApproval: 'Request approval', approvalSending: 'Sending request…', approvalSent: 'Approval request sent', approvalSentHelp: 'KCMS will review this workspace. After approval, return here and continue with Facebook.',
+    approvalError: 'KCMS could not send the approval request. Your details are still here—please try again.', under1k: 'Under 1,000', oneTo10k: '1,000–10,000', tenTo50k: '10,000–50,000', over50k: 'Over 50,000', justMe: 'Just me', twoToFive: '2–5', sixTo20: '6–20', over20: 'Over 20',
   },
   km: {
     title: 'ភ្ជាប់ Facebook Page របស់អ្នក', lead: 'អនុញ្ញាត Page មួយ ដើម្បីឱ្យ KCMS ទទួលមតិយោបល់ និងអនុវត្តសកម្មភាពដែលអ្នកយល់ព្រម។',
@@ -38,6 +45,10 @@ const text = {
     permissionWarning: 'បានភ្ជាប់ ប៉ុន្តែ token មិនមានសិទ្ធិគ្រប់គ្រងមតិយោបល់ទេ។', syncWaiting: 'កំពុងរង់ចាំសមកាលកម្មដំបូង', lastSync: 'សមកាលកម្មចុងក្រោយ',
     connectedAt: 'បានភ្ជាប់', method: 'វិធីភ្ជាប់', capability: 'សិទ្ធិគ្រប់គ្រង', disconnect: 'ផ្ដាច់ Page', disconnecting: 'កំពុងផ្ដាច់…',
     retry: 'ព្យាយាមម្តងទៀត', error: 'KCMS មិនអាចបញ្ចប់ការភ្ជាប់បានទេ។ សូមពិនិត្យសិទ្ធិ ហើយព្យាយាមម្ដងទៀត។', facebookUnavailable: 'ការភ្ជាប់ Facebook មិនទាន់បានកំណត់ទេ។ សូមទាក់ទងជំនួយ KCMS។', approvalRequired: 'Workspace នេះត្រូវតែទទួលបានការអនុម័ត មុននឹងអាចភ្ជាប់ Page ពិតបាន។', noPages: 'Meta មិនបានផ្ដល់ Page ដែលមានសិទ្ធិសម្រាប់គណនីនេះទេ។',
+    approvalTitle: 'ស្នើសុំការអនុម័តភ្ជាប់ Page', approvalHelp: 'ប្រាប់ KCMS អំពី Page ដែលអ្នកចង់ភ្ជាប់។ Platform Administrator នឹងពិនិត្យសំណើនេះ។',
+    pageLabel: 'ឈ្មោះ ឬ URL របស់ Facebook Page', monthlyLabel: 'ចំនួនមតិយោបល់ក្នុងមួយខែ', teamLabel: 'ចំនួនអ្នកគ្រប់គ្រងមតិយោបល់', noteLabel: 'ព័ត៌មានបន្ថែម (មិនបាច់បំពេញ)',
+    requestApproval: 'ស្នើសុំការអនុម័ត', approvalSending: 'កំពុងផ្ញើសំណើ…', approvalSent: 'បានផ្ញើសំណើអនុម័ត', approvalSentHelp: 'KCMS នឹងពិនិត្យ Workspace នេះ។ បន្ទាប់ពីអនុម័ត សូមត្រឡប់មកទីនេះ ហើយបន្តជាមួយ Facebook។',
+    approvalError: 'KCMS មិនអាចផ្ញើសំណើអនុម័តបានទេ។ ព័ត៌មានរបស់អ្នកនៅតែមាន សូមព្យាយាមម្ដងទៀត។', under1k: 'តិចជាង 1,000', oneTo10k: '1,000–10,000', tenTo50k: '10,000–50,000', over50k: 'លើស 50,000', justMe: 'តែខ្ញុំ', twoToFive: '2–5 នាក់', sixTo20: '6–20 នាក់', over20: 'លើស 20 នាក់',
   },
 } as const
 
@@ -50,6 +61,13 @@ export function ConnectPage({ locale }: ConnectPageProps) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(false)
   const [facebookError, setFacebookError] = useState<string | null>(null)
+  const [approvalRequired, setApprovalRequired] = useState(false)
+  const [approvalSent, setApprovalSent] = useState(false)
+  const [approvalError, setApprovalError] = useState(false)
+  const [pageName, setPageName] = useState('')
+  const [monthlyComments, setMonthlyComments] = useState<MonthlyComments>('UNDER_1K')
+  const [teamSize, setTeamSize] = useState<TeamSize>('JUST_ME')
+  const [note, setNote] = useState('')
   const [choices, setChoices] = useState<PageChoice[]>([])
   const [oauthState, setOauthState] = useState<string | null>(null)
   const [selectedPage, setSelectedPage] = useState('')
@@ -83,6 +101,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
       const result = await startFacebookAuthorization()
       window.location.assign(result.authorization_url)
     } catch (caught) {
+      const needsApproval = caught instanceof ApiError && caught.status === 403
+      setApprovalRequired(needsApproval)
       setFacebookError(
         caught instanceof ApiError && caught.status === 503
           ? t.facebookUnavailable
@@ -90,6 +110,27 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             ? t.approvalRequired
             : t.error,
       )
+      setBusy(false)
+    }
+  }
+
+  async function submitApproval(event: React.FormEvent) {
+    event.preventDefault()
+    if (!pageName.trim()) return
+    setBusy(true)
+    setApprovalError(false)
+    try {
+      await createAccessRequest({
+        page_name: pageName.trim(),
+        monthly_comments: monthlyComments,
+        team_size: teamSize,
+        note: note.trim() || null,
+      })
+      setApprovalSent(true)
+      setFacebookError(null)
+    } catch {
+      setApprovalError(true)
+    } finally {
       setBusy(false)
     }
   }
@@ -189,7 +230,25 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             <div className="connection-option-head"><span aria-hidden="true" className="connection-provider">f</span><span className="work-chip connection-recommended">{t.recommended}</span></div>
             <h2>{t.facebook}</h2><p>{t.facebookHelp}</p>
             {facebookError && <p className="auth-error" role="alert">{facebookError}</p>}
-            <button className="button" disabled={busy} onClick={() => void beginFacebook()} type="button">{busy ? t.connecting : t.facebook}</button>
+            {approvalRequired ? approvalSent ? (
+              <div className="conn-outcome is-pending" role="status">
+                <h3>{t.approvalSent}</h3>
+                <p>{t.approvalSentHelp}</p>
+              </div>
+            ) : (
+              <form className="connection-approval" onSubmit={submitApproval}>
+                <h3>{t.approvalTitle}</h3>
+                <p>{t.approvalHelp}</p>
+                <label><span>{t.pageLabel}</span><input onChange={(event) => setPageName(event.target.value)} required type="text" value={pageName} /></label>
+                <label><span>{t.monthlyLabel}</span><select onChange={(event) => setMonthlyComments(event.target.value as MonthlyComments)} value={monthlyComments}><option value="UNDER_1K">{t.under1k}</option><option value="1K_TO_10K">{t.oneTo10k}</option><option value="10K_TO_50K">{t.tenTo50k}</option><option value="OVER_50K">{t.over50k}</option></select></label>
+                <label><span>{t.teamLabel}</span><select onChange={(event) => setTeamSize(event.target.value as TeamSize)} value={teamSize}><option value="JUST_ME">{t.justMe}</option><option value="2_TO_5">{t.twoToFive}</option><option value="6_TO_20">{t.sixTo20}</option><option value="OVER_20">{t.over20}</option></select></label>
+                <label><span>{t.noteLabel}</span><textarea onChange={(event) => setNote(event.target.value)} rows={3} value={note} /></label>
+                {approvalError && <p className="auth-error" role="alert">{t.approvalError}</p>}
+                <button className="button button-small" disabled={busy || !pageName.trim()} type="submit">{busy ? t.approvalSending : t.requestApproval}</button>
+              </form>
+            ) : (
+              <button className="button" disabled={busy} onClick={() => void beginFacebook()} type="button">{busy ? t.connecting : t.facebook}</button>
+            )}
           </section>
           <section className="connection-option is-advanced">
             <button aria-expanded={advanced} className="advanced-toggle" onClick={() => setAdvanced((value) => !value)} type="button"><span>{t.advanced}</span><small>{t.advancedHelp}</small></button>

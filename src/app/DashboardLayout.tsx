@@ -91,7 +91,8 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
         <div className="dash-sandbox">
           <span aria-hidden="true" className="dash-dot" />
           <p>
-            <strong>{content.sandboxTitle}</strong> {content.sandboxBody}
+            <strong>{content.sandboxTitle}</strong>{' '}
+            {session.user?.is_platform_admin ? content.sandboxAdminBody : content.sandboxBody}
           </p>
           <Link className="button button-small" to="/app/connect">{content.sandboxCta}</Link>
         </div>

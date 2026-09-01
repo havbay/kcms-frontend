@@ -520,6 +520,14 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .connection-recommended { color: #075049; background: #ddf1ed; }
 .connection-option h2, .connection-status h2, .connection-chooser h2 { max-width: none; margin: 0.8rem 0 0; font-size: 1rem; }
 .connection-option p, .connection-chooser > p { margin: 0.35rem 0 1rem; color: var(--muted); font-size: var(--app-text); line-height: 1.55; }
+.connection-approval { display: grid; gap: 0.85rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(24, 48, 51, 0.12); }
+.connection-approval h3 { margin: 0; font-size: 1rem; }
+.connection-approval > p { margin: -0.35rem 0 0; }
+.connection-approval label { display: grid; gap: 0.35rem; color: var(--ink); font-size: 0.78rem; font-weight: 700; }
+.connection-approval input, .connection-approval select, .connection-approval textarea { width: 100%; border: 1px solid rgba(24, 48, 51, 0.25); border-radius: 0.4rem; background: #fff; color: var(--ink); font: inherit; font-weight: 400; padding: 0.7rem 0.75rem; }
+.connection-approval textarea { resize: vertical; min-height: 5rem; }
+.connection-approval input:focus-visible, .connection-approval select:focus-visible, .connection-approval textarea:focus-visible { outline: 3px solid rgba(11, 107, 99, 0.2); border-color: var(--mekong-teal); }
+.connection-option .conn-outcome { margin-top: 1rem; padding: 1rem; }
 .advanced-toggle { display: grid; width: 100%; gap: 0.2rem; padding: 0; border: 0; color: var(--deep-ink); background: none; cursor: pointer; font: inherit; text-align: left; }
 .advanced-toggle span { font-weight: 750; }
 .advanced-toggle small { color: var(--muted); font-size: var(--app-text-sm); line-height: 1.5; }
@@ -626,7 +634,8 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .auth-divider { display: flex; align-items: center; gap: 0.9rem; margin: 1.75rem 0 1.25rem; color: var(--muted); font-size: 0.78rem; }
 .auth-divider::before, .auth-divider::after { height: 1px; background: rgba(24, 48, 51, 0.18); content: ''; flex: 1; }
 .auth-telegram { display: flex; justify-content: center; min-height: 3rem; }
-.auth-switch { align-self: flex-start; margin-top: 1.75rem; border: none; background: none; color: var(--mekong-teal); cursor: pointer; }
+.auth-switch { align-self: flex-start; margin-top: 1.75rem; color: var(--muted); font-size: 0.9rem; }
+.auth-switch .text-link { margin-left: 0.2rem; }
 
 .dash-account { margin-top: auto; padding-top: 1.25rem; border-top: 1px solid rgba(24, 48, 51, 0.14); }
 .dash-user { margin: 0 0 0.5rem; font-size: 0.82rem; line-height: 1.45; }
@@ -661,7 +670,7 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .conn-form select, .conn-form textarea { min-height: 3rem; padding: 0.7rem 0.9rem; border: 1px solid rgba(24, 48, 51, 0.28); border-radius: 0.5rem; background: var(--clean-white); font: inherit; font-size: 0.95rem; }
 .conn-form textarea { min-height: 5rem; resize: vertical; }
 .conn-outcome { max-width: 34rem; margin-top: 1.9rem; padding: 1.5rem; border-radius: 0.6rem; border: 1px solid rgba(24, 48, 51, 0.14); background: var(--clean-white); }
-.conn-outcome h1, .conn-outcome h2 { max-width: none; margin: 0; font-size: 1.5rem; line-height: 1.25; }
+.conn-outcome h1, .conn-outcome h2, .conn-outcome h3 { max-width: none; margin: 0; font-size: 1.5rem; line-height: 1.25; }
 .conn-outcome p { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
 .conn-outcome.is-pending { border-color: rgba(194, 106, 10, 0.4); background: #fffaf1; }
 .conn-outcome.is-approved { border-color: rgba(11, 107, 99, 0.4); background: #f1faf8; }

@@ -276,9 +276,8 @@ test('the mobile drawer opens from the left and closes with Escape', async ({ pa
   expect(await page.evaluate(() => document.body.style.overflow)).toBe('')
 })
 
-test('sign-up validates each field inline and accessibly', async ({ page }) => {
+test('sign-in validates each field inline and accessibly', async ({ page }) => {
   await page.goto('/sign-in')
-  await page.getByRole('button', { name: /Need an account/ }).click()
 
   // Validated on blur, not only on submit.
   await page.getByLabel('Email').fill('not-an-email')
@@ -289,21 +288,21 @@ test('sign-up validates each field inline and accessibly', async ({ page }) => {
 
   // Submitting reveals every problem at once, not one per attempt.
   await page.getByLabel('Email').fill('')
-  await page.getByRole('button', { name: 'Create account' }).click()
-  await expect(page.locator('.auth-field-error')).toHaveCount(3)
+  await page.getByRole('button', { name: 'Sign in' }).click()
+  await expect(page.locator('.auth-field-error')).toHaveCount(2)
 
   // Errors clear as the fields become valid.
-  await page.getByLabel('Your name').fill('Dara Sok')
   await page.getByLabel('Email').fill('dara@example.com')
   await page.getByLabel('Password').fill('a-long-enough-password')
   await expect(page.locator('.auth-field-error')).toHaveCount(0)
 })
 
-test('sign-up says what a demo workspace is before asking for details', async ({ page }) => {
+test('sign-in sends new visitors through reviewed access instead of public signup', async ({ page }) => {
   await page.goto('/sign-in')
-  await page.getByRole('button', { name: /Need an account/ }).click()
-  await expect(page.getByText(/demo workspace with sample Khmer comments/)).toBeVisible()
-  await expect(page.getByText(/Connecting your own Facebook Page needs approval/)).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Request access' })).toHaveAttribute(
+    'href', '/request-access',
+  )
+  await expect(page.getByRole('button', { name: 'Create account' })).toHaveCount(0)
 })
 
 /**
@@ -329,8 +328,8 @@ async function stubApi(
     if (path.endsWith('/auth/providers')) {
       return json({ email: true, telegram: false, telegram_bot_username: null })
     }
-    if (path.endsWith('/auth/signup') || path.endsWith('/auth/signin')) {
-      return json({ token: 'test-token', user }, 201)
+    if (path.endsWith('/auth/signin')) {
+      return json({ token: 'test-token', user })
     }
     if (path.endsWith('/auth/me')) return json(user)
     if (path.endsWith('/comments/summary')) {
@@ -394,19 +393,17 @@ async function stubApi(
   })
 }
 
-async function signUp(page: Page) {
+async function signInDemo(page: Page) {
   await page.goto('/sign-in')
-  await page.getByRole('button', { name: /Need an account/ }).click()
-  await page.getByLabel('Your name').fill('Dara Sok')
   await page.getByLabel('Email').fill('dara@example.com')
   await page.getByLabel('Password').fill('a-long-enough-password')
-  await page.getByRole('button', { name: 'Create account' }).click()
+  await page.getByRole('button', { name: 'Sign in' }).click()
   await page.waitForURL(/\/app$/, { timeout: 20000 })
 }
 
 test('administration is unreachable without the platform role', async ({ page }) => {
   await stubApi(page, { isAdmin: false })
-  await signUp(page)
+  await signInDemo(page)
 
   // The navigation entry is absent...
   await expect(page.locator('.dash-nav-link.is-admin')).toHaveCount(0)
@@ -418,7 +415,7 @@ test('administration is unreachable without the platform role', async ({ page })
 
 test('an administrator sees the administration entry and can open it', async ({ page }) => {
   await stubApi(page, { isAdmin: true })
-  await signUp(page)
+  await signInDemo(page)
 
   await expect(page.locator('.dash-nav-link.is-admin')).toHaveCount(1)
   await page.getByRole('link', { name: 'Administration' }).click()
@@ -428,7 +425,7 @@ test('an administrator sees the administration entry and can open it', async ({ 
 
 test('the client Page connection offers Facebook Login and advanced token setup', async ({ page }) => {
   await stubApi(page)
-  await signUp(page)
+  await signInDemo(page)
 
   await page.getByRole('link', { name: 'Connect Facebook Page' }).click()
   await expect(page).toHaveURL(/\/app\/connect$/)
@@ -444,7 +441,7 @@ test('the client Page connection offers Facebook Login and advanced token setup'
 
 test('an owner can see the team and create a shareable invitation link', async ({ page }) => {
   await stubApi(page, { role: 'owner' })
-  await signUp(page)
+  await signInDemo(page)
 
   await page.getByRole('link', { name: 'Team' }).click()
   await expect(page).toHaveURL(/\/app\/team$/)
@@ -460,7 +457,7 @@ test('an owner can see the team and create a shareable invitation link', async (
 
 test('a member cannot invite or remove anyone', async ({ page }) => {
   await stubApi(page, { role: 'member' })
-  await signUp(page)
+  await signInDemo(page)
 
   await page.getByRole('link', { name: 'Team' }).click()
   await expect(page.getByText('Only an owner can invite or remove people.')).toBeVisible()
@@ -471,7 +468,7 @@ test('a member cannot invite or remove anyone', async ({ page }) => {
 
 test('settings let an owner rename the workspace and anyone rename themselves', async ({ page }) => {
   await stubApi(page, { role: 'owner' })
-  await signUp(page)
+  await signInDemo(page)
 
   await page.getByRole('link', { name: 'Settings' }).click()
   await expect(page).toHaveURL(/\/app\/settings$/)
@@ -485,7 +482,7 @@ test('settings let an owner rename the workspace and anyone rename themselves', 
 
 test('a member cannot rename the shared workspace', async ({ page }) => {
   await stubApi(page, { role: 'member' })
-  await signUp(page)
+  await signInDemo(page)
 
   await page.getByRole('link', { name: 'Settings' }).click()
   await expect(page.getByLabel('Workspace name')).toBeDisabled()
@@ -496,7 +493,7 @@ test('a member cannot rename the shared workspace', async ({ page }) => {
 
 test('the dashboard has no unbuilt placeholder sections left', async ({ page }) => {
   await stubApi(page, { role: 'owner' })
-  await signUp(page)
+  await signInDemo(page)
 
   await expect(page.locator('.dash-nav-link.is-pending')).toHaveCount(0)
   await expect(page.getByText('Not in the prototype')).toHaveCount(0)

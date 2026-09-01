@@ -54,7 +54,7 @@ The public-to-client onboarding flow is also implemented:
 /app ───────────▶ authenticated client workspace
 ```
 
-No password is emailed. When transactional email is not configured, the
+There is no public self-signup route. No password is emailed. When transactional email is not configured, the
 Platform Administrator receives a copyable one-time setup URL instead.
 
 Set `VITE_OVERVIEW_VIDEO_URL` to a public MP4/WebM URL to replace the overview
@@ -108,8 +108,9 @@ post/caption and open a complete context panel. Leave/hide/unhide Actions and
 label Corrections remain distinct controls.
 
 The onboarding, Page Connection, and moderation-depth contract are deployed.
-Live Meta authorization is still unconfigured, so the production integration
-fails closed rather than pretending that a Page is connected.
+The production Meta app is configured, but the live end-to-end authorization
+still needs to be exercised with the maintained demo account. Ordinary sandbox
+accounts remain behind the reviewed Page-connection approval flow.
 
 ## Deployment
 

@@ -33,6 +33,22 @@ afterEach(() => {
 
 
 describe('pilot onboarding', () => {
+  it('keeps account creation behind the reviewed access flow', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => response({
+      email: true,
+      telegram: false,
+      telegram_bot_username: null,
+    })))
+
+    renderAt('/sign-in')
+
+    expect(await screen.findByRole('heading', { name: 'Sign in to KCMS' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Request access' })).toHaveAttribute(
+      'href', '/request-access',
+    )
+    expect(screen.queryByText('Need an account? Create one')).not.toBeInTheDocument()
+  })
+
   it('submits a focused public request and keeps the visitor informed', async () => {
     const user = userEvent.setup()
     let submittedBody: unknown

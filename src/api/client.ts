@@ -150,23 +150,6 @@ export function listAuthProviders(): Promise<Providers> {
   return request<Providers>('/api/v1/auth/providers')
 }
 
-export function signUp(
-  email: string,
-  password: string,
-  displayName: string,
-  organization = '',
-): Promise<Session> {
-  return request<Session>('/api/v1/auth/signup', {
-    method: 'POST',
-    body: JSON.stringify({
-      email,
-      password,
-      display_name: displayName,
-      organization,
-    }),
-  })
-}
-
 export function signIn(email: string, password: string): Promise<Session> {
   return request<Session>('/api/v1/auth/signin', {
     method: 'POST',

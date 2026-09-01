@@ -174,23 +174,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/auth/signup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Sign Up */
-        post: operations["signUp"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/auth/telegram": {
         parameters: {
             query?: never;
@@ -1104,26 +1087,6 @@ export interface components {
             /** Password */
             password: string;
         };
-        /** SignUpRequest */
-        SignUpRequest: {
-            /**
-             * Display Name
-             * @default
-             */
-            display_name: string;
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-            /**
-             * Organization
-             * @default
-             */
-            organization: string;
-            /** Password */
-            password: string;
-        };
         /**
          * Summary
          * @description Counts computed across the whole workspace, not from one page.
@@ -1575,39 +1538,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    signUp: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignUpRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Session"];
-                };
             };
             /** @description Validation Error */
             422: {
