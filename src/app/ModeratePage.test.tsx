@@ -44,6 +44,33 @@ const WORK_LIST = {
   ],
 }
 
+
+/** Route by URL rather than call order: the page reads the Page connection on
+ *  mount as well as the work list, and ordered mocks break whenever a
+ *  component makes one more request than a test happened to anticipate. */
+function mockApi(routes: {
+  workList?: unknown
+  connection?: unknown
+  action?: { body: unknown; status?: number }
+  sync?: { body: unknown; status?: number }
+}) {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+    const url = String(input)
+    const json = (body: unknown, status: number) =>
+      Promise.resolve(new Response(JSON.stringify(body), { status }))
+    if (url.includes('/facebook/connection')) {
+      return json(routes.connection ?? { state: 'CONNECTED', can_moderate: true }, 200)
+    }
+    if (url.includes('/facebook/sync')) {
+      return json(routes.sync?.body ?? {}, routes.sync?.status ?? 200)
+    }
+    if (url.includes('/actions') && (init as RequestInit)?.method === 'POST') {
+      return json(routes.action?.body ?? [], routes.action?.status ?? 201)
+    }
+    return json(routes.workList ?? WORK_LIST, 200)
+  })
+}
+
 function renderPage() {
   return render(<ModeratePage locale="en" />, { wrapper: MemoryRouter })
 }
@@ -82,17 +109,11 @@ describe('moderation work list', () => {
 
   it('records a moderation action and reflects it back', async () => {
     const user = userEvent.setup()
-    const fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response(JSON.stringify(WORK_LIST), { status: 200 }))
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify([
-            { kind: 'HIDE', actor: 'demo-client', occurred_at: '2026-08-30T10:05:00Z' },
-          ]),
-          { status: 201 },
-        ),
-      )
+    const fetchMock = mockApi({
+      action: {
+        body: [{ kind: 'HIDE', actor: 'demo-client', occurred_at: '2026-08-30T10:05:00Z' }],
+      },
+    })
     renderPage()
 
     await user.click(await screen.findByRole('button', { name: /អ្នកនេះល្ងង់ណាស់/ }))
@@ -100,9 +121,12 @@ describe('moderation work list', () => {
     await user.click(within(panel).getByRole('button', { name: 'Hide' }))
 
     await waitFor(() => expect(within(panel).getByText(/HIDE/)).toBeVisible())
-    const actionCall = fetchMock.mock.calls[1]!
-    expect(String(actionCall[0])).toContain('/api/v1/comments/c-004/actions')
-    expect(actionCall[1]?.method).toBe('POST')
+    const actionCall = fetchMock.mock.calls.find(
+      ([url, init]) =>
+        String(url).includes('/comments/c-004/actions') &&
+        (init as RequestInit)?.method === 'POST',
+    )
+    expect(actionCall).toBeDefined()
   })
 
   it('shows compact source-post context in rows and full context in the detail panel', async () => {
@@ -114,7 +138,8 @@ describe('moderation work list', () => {
 
     expect((await screen.findAllByText('Video')).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/ស្វែងយល់ពីសេវាថ្មី/).length).toBeGreaterThan(0)
-    expect(screen.queryByRole('button', { name: 'Hide' })).not.toBeInTheDocument()
+    // Hide is on every row now, so moderating never requires opening detail.
+    expect(screen.getAllByRole('button', { name: 'Hide' })).toHaveLength(WORK_LIST.items.length)
 
     await user.click(screen.getByRole('button', { name: /អ្នកនេះល្ងង់ណាស់/ }))
     const panel = screen.getByRole('complementary', { name: 'Comment details' })
@@ -164,27 +189,25 @@ describe('syncing from the connected Page', () => {
       ...WORK_LIST,
       total: 3,
       items: [
-        {
-          ...WORK_LIST.items[0]!,
-          comment_id: 'fb-999',
-          text: 'មតិយោបល់ថ្មីពី Facebook',
-        },
+        { ...WORK_LIST.items[0]!, comment_id: 'fb-999', text: 'មតិយោបល់ថ្មីពី Facebook' },
         ...WORK_LIST.items,
       ],
     }
-    const fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response(JSON.stringify(WORK_LIST), { status: 200 }))
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            fetched: 4, imported: 1, page_id: 'page-real',
-            page_name: 'Demo Page', last_synced_at: '2026-09-01T12:00:00Z',
-          }),
-          { status: 200 },
-        ),
-      )
-      .mockResolvedValue(new Response(JSON.stringify(arrived), { status: 200 }))
+    let synced = false
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      const json = (body: unknown) =>
+        Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
+      if (url.includes('/facebook/connection')) return json({ state: 'CONNECTED' })
+      if (url.includes('/facebook/sync')) {
+        synced = true
+        return json({
+          fetched: 4, imported: 1, page_id: 'page-real',
+          page_name: 'Demo Page', last_synced_at: '2026-09-01T12:00:00Z',
+        })
+      }
+      return json(synced ? arrived : WORK_LIST)
+    })
 
     renderPage()
     await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
@@ -194,25 +217,52 @@ describe('syncing from the connected Page', () => {
     expect(await screen.findByText('Imported 1 new comment')).toBeVisible()
     await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(3))
     expect(screen.getByText('មតិយោបល់ថ្មីពី Facebook')).toBeVisible()
-
-    const synced = fetchMock.mock.calls.find(([url]) => String(url).includes('/facebook/sync'))
-    expect(synced).toBeDefined()
-    expect((synced?.[1] as RequestInit).method).toBe('POST')
+    expect(
+      fetchMock.mock.calls.some(
+        ([url, init]) =>
+          String(url).includes('/facebook/sync') && (init as RequestInit)?.method === 'POST',
+      ),
+    ).toBe(true)
   })
 
   it('says to connect a Page rather than reporting a generic failure', async () => {
     const user = userEvent.setup()
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response(JSON.stringify(WORK_LIST), { status: 200 }))
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ detail: 'no Facebook Page is connected' }), { status: 409 }),
-      )
+    mockApi({
+      connection: { state: 'NOT_CONNECTED' },
+      sync: { body: { detail: 'no Facebook Page is connected' }, status: 409 },
+    })
 
     renderPage()
     await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
 
     await user.click(screen.getByRole('button', { name: 'Sync from Facebook' }))
     expect(await screen.findByText('Connect a Facebook Page first.')).toBeVisible()
+  })
+
+  it('warns that actions stay in KCMS while no Page is connected', async () => {
+    mockApi({ connection: { state: 'NOT_CONNECTED' } })
+
+    renderPage()
+
+    expect(await screen.findByText('No Facebook Page connected.')).toBeVisible()
+    expect(
+      screen.getByText(/hiding one is recorded in KCMS and changes nothing on Facebook/),
+    ).toBeVisible()
+  })
+
+  it('shows an action failure on the row instead of destroying the list', async () => {
+    const user = userEvent.setup()
+    mockApi({
+      action: { body: { detail: 'A Page cannot hide its own comments.' }, status: 502 },
+    })
+
+    renderPage()
+    const rows = await screen.findAllByRole('row')
+    await user.click(screen.getAllByRole('button', { name: 'Hide' })[0]!)
+
+    expect(await screen.findByText('A Page cannot hide its own comments.')).toBeVisible()
+    // The queue survives: a refused action is about one comment, not the list.
+    expect(screen.getAllByRole('row')).toHaveLength(rows.length)
   })
 })
 

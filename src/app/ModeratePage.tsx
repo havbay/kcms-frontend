@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   ApiError,
   type ActionKind,
   type CommentFilters,
   listComments,
+  getFacebookConnection,
   recordAction,
   syncFacebookComments,
   type WorkListItem,
@@ -16,6 +17,14 @@ type ModeratePageProps = { locale: Locale }
 type LoadState = 'loading' | 'ready' | 'error'
 
 const PAGE_SIZE = 10
+const SYNC_INTERVAL_MS = 60_000
+
+/** Meta withholds `from` for commenters who have not authorized the app, and
+ *  the fetcher stores "fb:<comment id>" rather than inventing a name. That is
+ *  the right thing to keep, but it is not a name to show a moderator. */
+function authorName(authorRef: string, unknown: string): string {
+  return authorRef.startsWith('fb:') ? unknown : authorRef
+}
 
 const ui = {
   en: {
@@ -23,6 +32,11 @@ const ui = {
     all: 'All', pending: 'Pending', actioned: 'Actioned', priority: 'Priority', newest: 'Newest', oldest: 'Oldest', apply: 'Apply filters', reset: 'Reset',
     source: 'Source post', type: 'Type', received: 'Received', details: 'Comment details', close: 'Close details', replyTo: 'Replying to',
     verdict: 'Automatic detection', context: 'Conversation context', action: 'Moderation action', correction: 'Label correction', video: 'Video', post: 'Post', openPost: 'Open source post',
+    from: 'From', unknownAuthor: 'Unknown commenter', actions: 'Actions',
+    onFacebook: 'on Facebook', kcmsOnly: 'KCMS only',
+    actionFailed: 'That action could not be completed. Please try again.',
+    notConnectedTitle: 'No Facebook Page connected.',
+    notConnectedBody: 'These are sample comments — hiding one is recorded in KCMS and changes nothing on Facebook.',
     untitledPost: 'Untitled post',
     sync: 'Sync from Facebook', syncing: 'Syncing…',
     syncImported: (n: number) => `Imported ${n} new comment${n === 1 ? '' : 's'}`,
@@ -35,6 +49,11 @@ const ui = {
     all: 'ទាំងអស់', pending: 'រង់ចាំ', actioned: 'បានធ្វើ', priority: 'អាទិភាព', newest: 'ថ្មីបំផុត', oldest: 'ចាស់បំផុត', apply: 'ប្រើតម្រង', reset: 'សម្អាត',
     source: 'ប្រភព Post', type: 'ប្រភេទ', received: 'ទទួលបាន', details: 'ព័ត៌មានមតិយោបល់', close: 'បិទព័ត៌មាន', replyTo: 'ឆ្លើយតបទៅ',
     verdict: 'ការរកឃើញស្វ័យប្រវត្តិ', context: 'បរិបទសន្ទនា', action: 'សកម្មភាពគ្រប់គ្រង', correction: 'ការកែស្លាក', video: 'វីដេអូ', post: 'Post', openPost: 'បើក Post ប្រភព',
+    from: 'អ្នកផ្ដល់មតិ', unknownAuthor: 'មិនស្គាល់អ្នកផ្ដល់មតិ', actions: 'សកម្មភាព',
+    onFacebook: 'នៅលើ Facebook', kcmsOnly: 'តែក្នុង KCMS',
+    actionFailed: 'មិនអាចធ្វើសកម្មភាពនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។',
+    notConnectedTitle: 'មិនទាន់ភ្ជាប់ Facebook Page ទេ។',
+    notConnectedBody: 'ទាំងនេះជាមតិយោបល់គំរូ — ការលាក់ត្រូវបានកត់ត្រាក្នុង KCMS ប៉ុណ្ណោះ ហើយមិនប្ដូរអ្វីនៅលើ Facebook ទេ។',
     untitledPost: 'Post គ្មានចំណងជើង',
     sync: 'ទាញមតិយោបល់ពី Facebook', syncing: 'កំពុងទាញ…',
     syncImported: (n: number) => `បាននាំចូលមតិយោបល់ថ្មី ${n}`,
@@ -63,6 +82,8 @@ export function ModeratePage({ locale }: ModeratePageProps) {
   const [filters, setFilters] = useState<CommentFilters>({ sort: 'PRIORITY' })
   const [syncing, setSyncing] = useState(false)
   const [syncNote, setSyncNote] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<{ commentId: string; message: string } | null>(null)
+  const [connected, setConnected] = useState<boolean | null>(null)
 
   const load = useCallback(async (nextOffset: number, nextFilters: CommentFilters) => {
     const slowTimer = setTimeout(() => setSlow(true), 3000)
@@ -85,8 +106,10 @@ export function ModeratePage({ locale }: ModeratePageProps) {
     void load(offset, filters)
   }, [filters, load, offset])
 
+
   async function act(commentId: string, kind: ActionKind) {
     setPendingAction(commentId)
+    setActionError(null)
     try {
       const history = await recordAction(commentId, kind)
       const latest = history[0]
@@ -95,32 +118,67 @@ export function ModeratePage({ locale }: ModeratePageProps) {
         latest_action: latest?.kind ?? item.latest_action,
         latest_actor: latest?.actor ?? item.latest_actor,
         latest_action_at: latest?.occurred_at ?? item.latest_action_at,
+        latest_action_on_facebook: connected === true,
       } : item))
-    } catch {
-      setState('error')
+    } catch (caught) {
+      // A refused action is about one comment. Replacing the whole screen with
+      // an error discarded the queue and every other row with it.
+      setActionError({
+        commentId,
+        message: caught instanceof ApiError && caught.detail ? caught.detail : t.actionFailed,
+      })
     } finally {
       setPendingAction(null)
     }
   }
 
-  async function sync() {
+  const sync = useCallback(async (quiet = false) => {
     setSyncing(true)
-    setSyncNote(null)
+    if (!quiet) setSyncNote(null)
     try {
       const result = await syncFacebookComments()
-      setSyncNote(result.imported > 0 ? t.syncImported(result.imported) : t.syncNone)
+      setConnected(true)
+      // A background tick that found nothing must not keep announcing itself.
+      if (!quiet || result.imported > 0) {
+        setSyncNote(result.imported > 0 ? t.syncImported(result.imported) : t.syncNone)
+      }
       // Reload from the server rather than appending, so a newly imported
       // comment lands in the right place under the active filters and sort.
-      if (result.imported > 0) await load(0, filters)
-      setOffset(0)
+      if (result.imported > 0) {
+        setOffset(0)
+        await load(0, filters)
+      }
     } catch (caught) {
-      setSyncNote(
-        caught instanceof ApiError && caught.status === 409 ? t.syncNoPage : t.syncError,
-      )
+      const noPage = caught instanceof ApiError && caught.status === 409
+      if (noPage) setConnected(false)
+      if (!quiet) setSyncNote(noPage ? t.syncNoPage : t.syncError)
     } finally {
       setSyncing(false)
     }
-  }
+  }, [filters, load, t])
+
+  // Whether a Page is connected decides what an action can actually do, so it
+  // is read on mount rather than inferred from the first sync attempt.
+  useEffect(() => {
+    getFacebookConnection()
+      .then((found) => setConnected(found.state === 'CONNECTED'))
+      .catch(() => setConnected(null))
+  }, [])
+
+  const syncingRef = useRef(false)
+  useEffect(() => {
+    syncingRef.current = syncing
+  }, [syncing])
+  // Poll for new comments while this screen is open. A hidden tab is skipped
+  // so a forgotten background tab does not spend the Page's Graph quota, and
+  // an in-flight sync suppresses the next tick rather than stacking calls.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.visibilityState !== 'visible' || syncingRef.current) return
+      void sync(true)
+    }, SYNC_INTERVAL_MS)
+    return () => clearInterval(timer)
+  }, [sync])
 
   function applyFilters(event: React.FormEvent) {
     event.preventDefault()
@@ -152,11 +210,16 @@ export function ModeratePage({ locale }: ModeratePageProps) {
 
   return (
     <main className="dash-body moderation-page">
+      {connected === false && (
+        <p className="work-banner" role="status">
+          <strong>{t.notConnectedTitle}</strong> {t.notConnectedBody}
+        </p>
+      )}
       <header className="dash-head">
         <div className="dash-head-text"><h1>{content.modTitle}</h1><p>{content.modSubtitle}</p></div>
         <div className="dash-head-actions">
           {syncNote && <span className="sync-note" role="status">{syncNote}</span>}
-          <button className="button button-small" disabled={syncing} onClick={() => void sync()} type="button">{syncing ? t.syncing : t.sync}</button>
+          <button className="button button-small" disabled={syncing} onClick={() => void sync(false)} type="button">{syncing ? t.syncing : t.sync}</button>
         </div>
       </header>
 
@@ -175,10 +238,11 @@ export function ModeratePage({ locale }: ModeratePageProps) {
           <div className="moderation-list">
             <div className="table-wrap">
               <table className="work-table moderation-table">
-                <thead><tr><th scope="col">{content.colComment}</th><th scope="col">{t.source}</th><th scope="col">{content.colSeverity}</th><th scope="col">{content.colTarget}</th><th scope="col">{content.colReason}</th><th scope="col">{content.colStatus}</th><th scope="col">{t.received}</th></tr></thead>
+                <thead><tr><th scope="col">{content.colComment}</th><th scope="col">{t.from}</th><th scope="col">{t.source}</th><th scope="col">{content.colSeverity}</th><th scope="col">{content.colTarget}</th><th scope="col">{content.colReason}</th><th scope="col">{content.colStatus}</th><th scope="col">{t.received}</th><th scope="col">{t.actions}</th></tr></thead>
                 <tbody>{items.map((item) => (
                   <tr className={`work-row ${selectedId === item.comment_id ? 'is-selected' : ''}`} data-reason={item.surfaced_reason ?? 'cleared'} key={item.comment_id}>
                     <td className="cell-comment"><button aria-expanded={selectedId === item.comment_id} className="row-open" onClick={() => setSelectedId(item.comment_id)} type="button"><span lang="km">{item.text}</span></button></td>
+                    <td className="cell-author">{authorName(item.author_ref, t.unknownAuthor)}</td>
                     <td className="cell-source">
                       <span className="source-kind">{item.post_kind === 'VIDEO' ? t.video : t.post}</span>
                       {/* stopPropagation: the row toggles the detail panel, and
@@ -194,8 +258,28 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                     <td>{item.severity && <span className={`work-chip severity-${item.severity}`}>{content.modSeverity[item.severity as keyof typeof content.modSeverity]}</span>}</td>
                     <td className="cell-muted">{item.target && content.modTarget[item.target as keyof typeof content.modTarget]}</td>
                     <td className="cell-muted cell-reason">{content.modReasons[(item.surfaced_reason ?? 'cleared') as keyof typeof content.modReasons]}</td>
-                    <td><span className={`dot-status ${item.latest_action ? 'is-done' : 'is-pending'}`} />{item.latest_action ?? content.statusPending}</td>
+                    <td className="cell-status">
+                      <span className={`dot-status ${item.latest_action ? 'is-done' : 'is-pending'}`} />
+                      {item.latest_action ?? content.statusPending}
+                      {/* A hide that never reached Facebook is not the same
+                          outcome, and showing one status for both let a sample
+                          hide read as a real moderation. */}
+                      {item.latest_action && item.latest_action !== 'LEAVE' && (
+                        <small className={item.latest_action_on_facebook ? 'reach-yes' : 'reach-no'}>
+                          {item.latest_action_on_facebook ? t.onFacebook : t.kcmsOnly}
+                        </small>
+                      )}
+                    </td>
                     <td className="cell-muted cell-date">{new Date(item.posted_at).toLocaleDateString()}</td>
+                    <td className="cell-actions" onClick={(event) => event.stopPropagation()}>
+                      <div className="row-actions">
+                        <button className="button button-small" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'HIDE')} type="button">{content.modHide}</button>
+                        <button className="button button-small button-quiet" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'UNHIDE')} type="button">{content.modUnhide}</button>
+                      </div>
+                      {actionError?.commentId === item.comment_id && (
+                        <p className="row-action-error" role="alert">{actionError.message}</p>
+                      )}
+                    </td>
                   </tr>
                 ))}</tbody>
               </table>

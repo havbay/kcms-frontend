@@ -895,3 +895,19 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
    none, so the cell stays plain text rather than a dead link. */
 .source-link { color: inherit; text-decoration: none; border-bottom: 1px solid var(--border); }
 .source-link:hover { color: var(--accent-ink, inherit); border-bottom-color: currentColor; }
+
+/* Moderation row: who commented, whether the action reached Facebook, and
+   the actions themselves, without opening the detail panel. */
+.cell-author { max-width: 12ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-status small { display: block; font-size: 0.6875rem; line-height: 1.3; }
+.reach-yes { color: #1a7f52; }
+/* An action that never reached Facebook must not read as a success. */
+.reach-no { color: #8a6100; }
+.row-actions { display: flex; gap: 0.35rem; }
+.cell-actions { white-space: nowrap; }
+.row-action-error { margin: 0.35rem 0 0; font-size: 0.6875rem; color: #8a1c13; white-space: normal; max-width: 26ch; }
+.work-banner {
+  margin: 0 0 0.9rem; padding: 0.6rem 0.8rem; border-radius: 8px;
+  border: 1px solid rgba(138, 97, 0, 0.3); background: rgba(255, 214, 102, 0.14);
+  font-size: var(--app-text-sm, 0.75rem); color: inherit;
+}

@@ -1086,6 +1086,8 @@ export interface components {
             latest_action: string | null;
             /** Latest Action At */
             latest_action_at: string | null;
+            /** Latest Action On Facebook */
+            latest_action_on_facebook: boolean | null;
             /** Latest Actor */
             latest_actor: string | null;
             /** Model Version */
