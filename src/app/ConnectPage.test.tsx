@@ -26,25 +26,51 @@ describe('Facebook Page connection', () => {
     expect(screen.getByText('Recommended')).toBeVisible()
   })
 
-  it('does not offer Facebook Login while it is unfinished', async () => {
-    const fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(
+  it('starts Facebook authorization and hands off to Meta', async () => {
+    const user = userEvent.setup()
+    const assign = vi.fn()
+    vi.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      search: '',
+      assign,
+    } as unknown as Location)
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
         new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
           status: 200,
         }),
       )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ authorization_url: 'https://www.facebook.com/v26.0/dialog/oauth?x=1' }),
+          { status: 201 },
+        ),
+      )
 
     renderPage()
-    await screen.findByLabelText('Page access token')
+    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
 
-    // Present and named, so nobody wonders where it went — but inert, because
-    // starting an authorization that cannot complete wastes the operator's time.
-    expect(screen.getByText('Under development')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Continue with Facebook' })).toBeDisabled()
-    expect(
-      fetchMock.mock.calls.some(([url]) => String(url).includes('/oauth/start')),
-    ).toBe(false)
+    await waitFor(() =>
+      expect(assign).toHaveBeenCalledWith('https://www.facebook.com/v26.0/dialog/oauth?x=1'),
+    )
+  })
+
+  it('says Facebook Login is unconfigured rather than blaming the operator', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Facebook connection is not configured yet. Contact KCMS support.',
+    )
   })
 
   it('never presents a second Page connection approval flow', async () => {

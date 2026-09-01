@@ -419,17 +419,15 @@ test('an administrator sees the administration entry and can open it', async ({ 
   await expect(page.getByRole('button', { name: 'Pending' })).toBeVisible()
 })
 
-test('the client connects a Page with a token, and Facebook Login is marked unfinished', async ({ page }) => {
+test('the client can connect a Page by token or start Facebook authorization', async ({ page }) => {
   await stubApi(page)
   await signInDemo(page)
 
   await page.getByRole('link', { name: 'Connect Facebook Page' }).click()
   await expect(page).toHaveURL(/\/app\/connect$/)
 
-  // Facebook Login is shown but inert while it is being built, so nobody
-  // starts an authorization that cannot finish.
-  await expect(page.getByText('Under development')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Continue with Facebook' })).toBeDisabled()
+  // Both routes are offered: one-click authorization and the Page token.
+  await expect(page.getByRole('button', { name: 'Continue with Facebook' })).toBeEnabled()
 
   await page.getByLabel('Page access token').fill('test-page-token')
   await page.getByRole('button', { name: 'Validate and connect' }).click()
