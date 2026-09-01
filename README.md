@@ -107,8 +107,9 @@ surfacing-reason, review-status and sort controls. Rows summarize the source
 post/caption and open a complete context panel. Leave/hide/unhide Actions and
 label Corrections remain distinct controls.
 
-The new pilot-onboarding changes are currently local and must not be described
-as live until the approved branches are pushed and both deployments are checked.
+The onboarding, Page Connection, and moderation-depth contract are deployed.
+Live Meta authorization is still unconfigured, so the production integration
+fails closed rather than pretending that a Page is connected.
 
 ## Deployment
 
