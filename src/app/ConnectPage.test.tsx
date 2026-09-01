@@ -304,3 +304,55 @@ describe('returning from Facebook', () => {
     )
   })
 })
+
+describe('a refused authorization', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('reports the reason Meta gave rather than showing the plain connect screen', async () => {
+    window.history.replaceState({}, '', '/app/connect?facebook_error=exchange_failed')
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+        status: 200,
+      }),
+    )
+
+    renderPage()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /Facebook rejected the authorization/,
+    )
+    expect(window.location.search).toBe('')
+  })
+
+  it('treats a cancelled authorization as ordinary, not as a fault', async () => {
+    window.history.replaceState({}, '', '/app/connect?facebook_error=denied')
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+        status: 200,
+      }),
+    )
+
+    renderPage()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/was cancelled/)
+    // Both routes remain available to try again.
+    expect(screen.getByLabelText('Page access token')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Continue with Facebook' })).toBeEnabled()
+  })
+
+  it('names the account problem when Facebook returns no Pages', async () => {
+    window.history.replaceState({}, '', '/app/connect?facebook_error=no_pages')
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+        status: 200,
+      }),
+    )
+
+    renderPage()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /does not administer any Page/,
+    )
+  })
+})

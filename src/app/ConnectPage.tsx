@@ -28,6 +28,14 @@ const text = {
     connectedAt: 'Connected', method: 'Connection method', capability: 'Moderation access', disconnect: 'Disconnect Page', disconnecting: 'Disconnecting…',
     tokenTitle: 'Connect with a Page access token',
     tokenLead: 'Paste a Page access token for the Page you want KCMS to moderate. KCMS confirms it with Meta, stores it encrypted, and never shows it again.',
+    oauthErrors: {
+      denied: 'The Facebook authorization was cancelled, so no Page was connected.',
+      incomplete: 'Facebook did not complete the authorization. Please try again.',
+      state_invalid: 'That authorization did not match this session. Start again from this page.',
+      state_expired: 'The authorization took too long and expired. Please try again.',
+      exchange_failed: 'Facebook rejected the authorization. Check that this account has a role on the KCMS app, then try again.',
+      no_pages: 'That Facebook account does not administer any Page. Sign in with an account that manages the Page you want KCMS to moderate.',
+    },
     sessionExpired: 'That Facebook authorization has expired or was already used. Start again with Continue with Facebook.',
     retry: 'Try again', error: 'KCMS could not complete the connection. Check the authorization and try again.', facebookUnavailable: 'Facebook connection is not configured yet. Contact KCMS support.', noPages: 'Meta did not return an authorized Page for this account.',
   },
@@ -42,6 +50,14 @@ const text = {
     connectedAt: 'បានភ្ជាប់', method: 'វិធីភ្ជាប់', capability: 'សិទ្ធិគ្រប់គ្រង', disconnect: 'ផ្ដាច់ Page', disconnecting: 'កំពុងផ្ដាច់…',
     tokenTitle: 'ភ្ជាប់ដោយ Page access token',
     tokenLead: 'បញ្ចូល Page access token សម្រាប់ Page ដែលអ្នកចង់ឱ្យ KCMS គ្រប់គ្រង។ KCMS ផ្ទៀងផ្ទាត់ជាមួយ Meta រក្សាទុកជាកូដសម្ងាត់ ហើយមិនបង្ហាញវាម្ដងទៀតទេ។',
+    oauthErrors: {
+      denied: 'ការអនុញ្ញាត Facebook ត្រូវបានបោះបង់ ដូច្នេះមិនមាន Page ត្រូវបានភ្ជាប់ទេ។',
+      incomplete: 'Facebook មិនបានបញ្ចប់ការអនុញ្ញាតទេ។ សូមព្យាយាមម្ដងទៀត។',
+      state_invalid: 'ការអនុញ្ញាតនេះមិនត្រូវនឹងវេនប្រើប្រាស់នេះទេ។ សូមចាប់ផ្ដើមពីទំព័រនេះម្ដងទៀត។',
+      state_expired: 'ការអនុញ្ញាតយូរពេក ហើយផុតកំណត់។ សូមព្យាយាមម្ដងទៀត។',
+      exchange_failed: 'Facebook បានបដិសេធការអនុញ្ញាត។ សូមពិនិត្យថាគណនីនេះមានតួនាទីលើកម្មវិធី KCMS ហើយព្យាយាមម្ដងទៀត។',
+      no_pages: 'គណនី Facebook នេះមិនគ្រប់គ្រង Page ណាមួយទេ។ សូមចូលដោយគណនីដែលគ្រប់គ្រង Page ដែលអ្នកចង់ឱ្យ KCMS គ្រប់គ្រង។',
+    },
     sessionExpired: 'ការអនុញ្ញាត Facebook នេះផុតកំណត់ ឬបានប្រើរួចហើយ។ សូមចាប់ផ្ដើមម្ដងទៀតដោយចុច Continue with Facebook។',
     retry: 'ព្យាយាមម្តងទៀត', error: 'KCMS មិនអាចបញ្ចប់ការភ្ជាប់បានទេ។ សូមពិនិត្យសិទ្ធិ ហើយព្យាយាមម្ដងទៀត។', facebookUnavailable: 'ការភ្ជាប់ Facebook មិនទាន់បានកំណត់ទេ។ សូមទាក់ទងជំនួយ KCMS។', noPages: 'Meta មិនបានផ្ដល់ Page ដែលមានសិទ្ធិសម្រាប់គណនីនេះទេ។',
   },
@@ -101,7 +117,18 @@ export function ConnectPage({ locale }: ConnectPageProps) {
       return
     }
 
-    const callbackState = new URLSearchParams(window.location.search).get('facebook_session')
+    const params = new URLSearchParams(window.location.search)
+
+    // Meta's own refusals arrive as a code from the callback rather than as a
+    // failed request, so they are read here before anything else.
+    const failed = params.get('facebook_error')
+    if (failed) {
+      setFacebookError(t.oauthErrors[failed as keyof typeof t.oauthErrors] ?? t.error)
+      window.history.replaceState({}, '', window.location.pathname)
+      return
+    }
+
+    const callbackState = params.get('facebook_session')
     if (current.state !== 'NOT_CONNECTED' || !callbackState) return
 
     // Returning from Meta is the end of the flow. A failure here must explain
