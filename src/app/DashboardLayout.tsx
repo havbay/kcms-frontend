@@ -14,8 +14,8 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
   const content = copy[locale]
   const session = useSession()
 
-  // Only Overview and Moderate are built. The rest are shown so the shape of
-  // the product is legible, and marked so nobody mistakes them for working.
+  // Keep client navigation explicit so each implemented workflow remains
+  // discoverable without exposing unfinished destinations.
   const built = [
     { to: '/app', label: content.dashNavOverview, end: true },
     { to: '/app/moderate', label: content.dashNavModerate, end: false },
@@ -86,8 +86,8 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
       </aside>
 
       <div className="dash-main">
-        {/* Option C: signing up is open, connecting a real Page is gated. The
-            product has to say so, or "your workspace" is a claim it cannot keep. */}
+        {/* The sandbox notice remains honest, while Page Connection itself is
+            the real client workflow for an approved workspace. */}
         <div className="dash-sandbox">
           <span aria-hidden="true" className="dash-dot" />
           <p>

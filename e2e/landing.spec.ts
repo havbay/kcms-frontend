@@ -343,6 +343,17 @@ async function stubApi(
     if (path.endsWith('/comments')) {
       return json({ items: [], total: 0, limit: 25, offset: 0 })
     }
+    if (path.endsWith('/facebook/connection')) {
+      return json({ state: 'NOT_CONNECTED', can_moderate: false })
+    }
+    if (path.endsWith('/facebook/connections/manual')) {
+      return json({
+        state: 'CONNECTED', method: 'MANUAL_TOKEN', page_id: 'page-123',
+        page_name: 'Angkor Shop', tasks: ['PROFILE_PLUS_MODERATE'],
+        can_moderate: true, connected_at: '2026-09-01T08:00:00Z',
+        last_synced_at: null,
+      }, 201)
+    }
     if (path.endsWith('/access-requests/mine')) return json(null)
     if (path.endsWith('/team')) {
       return json({
@@ -415,16 +426,19 @@ test('an administrator sees the administration entry and can open it', async ({ 
   await expect(page.getByRole('button', { name: 'Pending' })).toBeVisible()
 })
 
-test('the page connection form is reachable and validates its required field', async ({ page }) => {
+test('the client Page connection offers Facebook Login and advanced token setup', async ({ page }) => {
   await stubApi(page)
   await signUp(page)
 
-  await page.getByRole('link', { name: 'Request Page connection' }).click()
+  await page.getByRole('link', { name: 'Connect Facebook Page' }).click()
   await expect(page).toHaveURL(/\/app\/connect$/)
-
-  await page.getByRole('button', { name: 'Request connection' }).click()
-  await expect(page.locator('#conn-page-error')).toBeVisible()
-  await expect(page.getByLabel('Facebook Page name or URL')).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByRole('button', { name: 'Continue with Facebook' })).toBeVisible()
+  await expect(page.getByText('Recommended')).toBeVisible()
+  await page.getByRole('button', { name: /Connect with Page token/ }).click()
+  await page.getByLabel('Page access token').fill('test-page-token')
+  await page.getByRole('button', { name: 'Validate and connect' }).click()
+  await expect(page.getByText('Angkor Shop')).toBeVisible()
+  await expect(page.getByText('Ready to moderate')).toBeVisible()
 })
 
 

@@ -95,9 +95,17 @@ Claims on the public site must stay true as automation grows:
 
 The API lives at https://kcms-backend.onrender.com and is CORS-allowed for this
 origin. Authentication, isolated workspaces, overview, moderation, corrections,
-public pilot requests, invitation setup, Page connection requests, team
-management, settings, and request administration are connected to the backend
-contract.
+public pilot requests, invitation setup, Page connection, team management,
+settings, and request administration are connected to the backend contract.
+
+The current local Page Connection screen offers **Continue with Facebook** as
+the recommended flow and an advanced Page-token flow. Both converge on one
+backend connection record; stored credentials never return to the frontend.
+
+Moderation is a compact server-paginated table with search, severity, target,
+surfacing-reason, review-status and sort controls. Rows summarize the source
+post/caption and open a complete context panel. Leave/hide/unhide Actions and
+label Corrections remain distinct controls.
 
 The new pilot-onboarding changes are currently local and must not be described
 as live until the approved branches are pushed and both deployments are checked.
@@ -109,6 +117,7 @@ Framework Vite, output `dist`.
 
 ## Not yet built
 
-Real Facebook ingestion, full comment context/history, workspace switching,
-Platform Administration beyond request review, and the trained Khmer model.
+Live Facebook verification and ingestion, provider-side hide/unhide, full
+moderation history, workspace switching, Platform Administration beyond request
+review, and the trained Khmer model.
 `/contact` and `/privacy` still use the application's explanatory fallback.

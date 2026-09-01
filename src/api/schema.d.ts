@@ -286,6 +286,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/facebook/connection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Connection */
+        get: operations["getFacebookConnection"];
+        put?: never;
+        post?: never;
+        /** Disconnect */
+        delete: operations["disconnectFacebookPage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facebook/connections/manual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Connect Manually */
+        post: operations["connectFacebookPageManually"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facebook/oauth/sessions/{state}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Page Choices */
+        get: operations["listFacebookPageChoices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facebook/oauth/sessions/{state}/selection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Select Page */
+        post: operations["selectFacebookPage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/facebook/oauth/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Authorization */
+        post: operations["startFacebookAuthorization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -786,6 +872,11 @@ export interface components {
             /** Workspace Name */
             workspace_name: string;
         };
+        /** ManualPageConnection */
+        ManualPageConnection: {
+            /** Page Access Token */
+            page_access_token: string;
+        };
         /** Member */
         Member: {
             /**
@@ -801,6 +892,81 @@ export interface components {
             role: string;
             /** User Id */
             user_id: string;
+        };
+        /** OAuthStart */
+        OAuthStart: {
+            /** Authorization Url */
+            authorization_url: string;
+        };
+        /** PageChoice */
+        PageChoice: {
+            /** Can Moderate */
+            can_moderate: boolean;
+            /** Page Id */
+            page_id: string;
+            /** Page Name */
+            page_name: string;
+            /** Tasks */
+            tasks: string[];
+        };
+        /** PageChoices */
+        PageChoices: {
+            /** Pages */
+            pages: components["schemas"]["PageChoice"][];
+        };
+        /** PageConnection */
+        PageConnection: {
+            /** Can Moderate */
+            can_moderate: boolean;
+            /**
+             * Connected At
+             * Format: date-time
+             */
+            connected_at: string;
+            /** Last Synced At */
+            last_synced_at: string | null;
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "FACEBOOK_LOGIN" | "MANUAL_TOKEN";
+            /** Page Id */
+            page_id: string;
+            /** Page Name */
+            page_name: string;
+            /**
+             * State
+             * @default CONNECTED
+             * @constant
+             */
+            state: "CONNECTED";
+            /** Tasks */
+            tasks: string[];
+        };
+        /** PageConnectionState */
+        PageConnectionState: {
+            /**
+             * Can Moderate
+             * @default false
+             */
+            can_moderate: boolean;
+            /** Connected At */
+            connected_at?: string | null;
+            /** Last Synced At */
+            last_synced_at?: string | null;
+            /** Method */
+            method?: ("FACEBOOK_LOGIN" | "MANUAL_TOKEN") | null;
+            /** Page Id */
+            page_id?: string | null;
+            /** Page Name */
+            page_name?: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "NOT_CONNECTED" | "CONNECTED";
+            /** Tasks */
+            tasks?: string[];
         };
         /** PilotDecision */
         PilotDecision: {
@@ -892,6 +1058,11 @@ export interface components {
         RenameWorkspace: {
             /** Name */
             name: string;
+        };
+        /** SelectPage */
+        SelectPage: {
+            /** Page Id */
+            page_id: string;
         };
         /**
          * ServiceStatus
@@ -1035,6 +1206,8 @@ export interface components {
             corrected_severity: string | null;
             /** Corrected Target */
             corrected_target: string | null;
+            /** Is Reply */
+            is_reply: boolean;
             /** Latest Action */
             latest_action: string | null;
             /** Latest Action At */
@@ -1043,6 +1216,16 @@ export interface components {
             latest_actor: string | null;
             /** Model Version */
             model_version: string | null;
+            /** Page Id */
+            page_id: string;
+            /** Parent Text */
+            parent_text: string | null;
+            /** Post Kind */
+            post_kind: string;
+            /** Post Permalink */
+            post_permalink: string | null;
+            /** Post Text */
+            post_text: string | null;
             /**
              * Posted At
              * Format: date-time
@@ -1475,6 +1658,12 @@ export interface operations {
             query?: {
                 limit?: number;
                 offset?: number;
+                query?: string | null;
+                severity?: ("SAFE" | "OFFENSIVE" | "HARMFUL") | null;
+                target?: ("PERSON" | "INSTITUTION" | "NEITHER") | null;
+                surfaced_reason?: ("triage" | "institution_sample" | "novel_language" | "uncertainty" | "cleared") | null;
+                review_status?: ("PENDING" | "ACTIONED") | null;
+                sort?: "PRIORITY" | "NEWEST" | "OLDEST";
             };
             header?: {
                 authorization?: string | null;
@@ -1596,6 +1785,202 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CorrectionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getFacebookConnection: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageConnectionState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disconnectFacebookPage: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    connectFacebookPageManually: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualPageConnection"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageConnection"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listFacebookPageChoices: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                state: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageChoices"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    selectFacebookPage: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                state: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SelectPage"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageConnection"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    startFacebookAuthorization: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OAuthStart"];
                 };
             };
             /** @description Validation Error */

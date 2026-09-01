@@ -16,6 +16,9 @@ export type CorrectionRequest = components['schemas']['CorrectionRequest']
 export type CorrectionResponse = components['schemas']['CorrectionResponse']
 export type SeverityLabel = CorrectionRequest['severity']
 export type TargetLabel = CorrectionRequest['target']
+export type PageConnectionState = components['schemas']['PageConnectionState']
+export type PageConnection = components['schemas']['PageConnection']
+export type PageChoice = components['schemas']['PageChoice']
 
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '')
 
@@ -86,8 +89,29 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export type Summary = components['schemas']['Summary']
 
-export function listComments(limit = 25, offset = 0): Promise<WorkList> {
-  return request<WorkList>(`/api/v1/comments?limit=${limit}&offset=${offset}`)
+export type CommentFilters = {
+  limit?: number
+  offset?: number
+  query?: string
+  severity?: 'SAFE' | 'OFFENSIVE' | 'HARMFUL'
+  target?: 'PERSON' | 'INSTITUTION' | 'NEITHER'
+  surfacedReason?: 'triage' | 'institution_sample' | 'novel_language' | 'uncertainty' | 'cleared'
+  reviewStatus?: 'PENDING' | 'ACTIONED'
+  sort?: 'PRIORITY' | 'NEWEST' | 'OLDEST'
+}
+
+export function listComments(filters: CommentFilters = {}): Promise<WorkList> {
+  const params = new URLSearchParams({
+    limit: String(filters.limit ?? 25),
+    offset: String(filters.offset ?? 0),
+  })
+  if (filters.query) params.set('query', filters.query)
+  if (filters.severity) params.set('severity', filters.severity)
+  if (filters.target) params.set('target', filters.target)
+  if (filters.surfacedReason) params.set('surfaced_reason', filters.surfacedReason)
+  if (filters.reviewStatus) params.set('review_status', filters.reviewStatus)
+  if (filters.sort) params.set('sort', filters.sort)
+  return request<WorkList>(`/api/v1/comments?${params.toString()}`)
 }
 
 export function getSummary(): Promise<Summary> {
@@ -250,6 +274,40 @@ export function acceptSetupInvitation(
     method: 'POST',
     body: JSON.stringify({ display_name: displayName, password }),
   })
+}
+
+export function getFacebookConnection(): Promise<PageConnectionState> {
+  return request<PageConnectionState>('/api/v1/facebook/connection')
+}
+
+export function connectFacebookPageManually(pageAccessToken: string): Promise<PageConnection> {
+  return request<PageConnection>('/api/v1/facebook/connections/manual', {
+    method: 'POST',
+    body: JSON.stringify({ page_access_token: pageAccessToken }),
+  })
+}
+
+export function startFacebookAuthorization(): Promise<{ authorization_url: string }> {
+  return request<{ authorization_url: string }>('/api/v1/facebook/oauth/start', {
+    method: 'POST',
+  })
+}
+
+export function listFacebookPageChoices(state: string): Promise<{ pages: PageChoice[] }> {
+  return request<{ pages: PageChoice[] }>(
+    `/api/v1/facebook/oauth/sessions/${encodeURIComponent(state)}`,
+  )
+}
+
+export function selectFacebookPage(state: string, pageId: string): Promise<PageConnection> {
+  return request<PageConnection>(
+    `/api/v1/facebook/oauth/sessions/${encodeURIComponent(state)}/selection`,
+    { method: 'POST', body: JSON.stringify({ page_id: pageId }) },
+  )
+}
+
+export function disconnectFacebookPage(): Promise<void> {
+  return request<void>('/api/v1/facebook/connection', { method: 'DELETE' })
 }
 
 export type Team = components['schemas']['Team']
