@@ -516,7 +516,9 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .connection-option { padding: 1.15rem; }
 .connection-option.is-recommended { border-top: 0.22rem solid var(--mekong-teal); }
 .connection-option-head, .connection-status-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
-.connection-provider { display: grid; width: 1.9rem; height: 1.9rem; place-items: center; border-radius: 0.35rem; color: #fff; background: #1877f2; font-size: 1.2rem; font-weight: 800; }
+/* The mark carries Facebook's own colours, so it needs no plate behind it. */
+.provider-mark { width: 1.9rem; height: 1.9rem; display: block; }
+.connection-option-head { display: flex; align-items: center; gap: 0.5rem; }
 .connection-recommended { color: #075049; background: #ddf1ed; }
 .connection-option h2, .connection-status h2, .connection-chooser h2 { max-width: none; margin: 0.8rem 0 0; font-size: 1rem; }
 .connection-option p, .connection-chooser > p { margin: 0.35rem 0 1rem; color: var(--muted); font-size: var(--app-text); line-height: 1.55; }
@@ -911,3 +913,13 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   border: 1px solid rgba(138, 97, 0, 0.3); background: rgba(255, 214, 102, 0.14);
   font-size: var(--app-text-sm, 0.75rem); color: inherit;
 }
+
+/* Facebook's own button treatment, so the flow it starts is recognisable. */
+.button-facebook {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: #1877f2; border-color: #1877f2; color: #fff;
+  box-shadow: 0 0.28rem 0 rgba(11, 74, 158, 0.35);
+}
+.button-facebook:hover:not(:disabled) { background: #166fe5; border-color: #166fe5; }
+.button-facebook:disabled { opacity: 0.6; }
+.provider-glyph { width: 1.05rem; height: 1.05rem; flex: none; }

@@ -28,6 +28,7 @@ const text = {
     connectedAt: 'Connected', method: 'Connection method', capability: 'Moderation access', disconnect: 'Disconnect Page', disconnecting: 'Disconnecting…',
     tokenTitle: 'Connect with a Page access token',
     tokenLead: 'Paste a Page access token for the Page you want KCMS to moderate. KCMS confirms it with Meta, stores it encrypted, and never shows it again.',
+    sessionExpired: 'That Facebook authorization has expired or was already used. Start again with Continue with Facebook.',
     retry: 'Try again', error: 'KCMS could not complete the connection. Check the authorization and try again.', facebookUnavailable: 'Facebook connection is not configured yet. Contact KCMS support.', noPages: 'Meta did not return an authorized Page for this account.',
   },
   km: {
@@ -41,9 +42,40 @@ const text = {
     connectedAt: 'បានភ្ជាប់', method: 'វិធីភ្ជាប់', capability: 'សិទ្ធិគ្រប់គ្រង', disconnect: 'ផ្ដាច់ Page', disconnecting: 'កំពុងផ្ដាច់…',
     tokenTitle: 'ភ្ជាប់ដោយ Page access token',
     tokenLead: 'បញ្ចូល Page access token សម្រាប់ Page ដែលអ្នកចង់ឱ្យ KCMS គ្រប់គ្រង។ KCMS ផ្ទៀងផ្ទាត់ជាមួយ Meta រក្សាទុកជាកូដសម្ងាត់ ហើយមិនបង្ហាញវាម្ដងទៀតទេ។',
+    sessionExpired: 'ការអនុញ្ញាត Facebook នេះផុតកំណត់ ឬបានប្រើរួចហើយ។ សូមចាប់ផ្ដើមម្ដងទៀតដោយចុច Continue with Facebook។',
     retry: 'ព្យាយាមម្តងទៀត', error: 'KCMS មិនអាចបញ្ចប់ការភ្ជាប់បានទេ។ សូមពិនិត្យសិទ្ធិ ហើយព្យាយាមម្ដងទៀត។', facebookUnavailable: 'ការភ្ជាប់ Facebook មិនទាន់បានកំណត់ទេ។ សូមទាក់ទងជំនួយ KCMS។', noPages: 'Meta មិនបានផ្ដល់ Page ដែលមានសិទ្ធិសម្រាប់គណនីនេះទេ។',
   },
 } as const
+
+/** Facebook's own mark, inlined as SVG. A styled letter "f" only resembled it
+ *  at a glance and rendered differently on machines lacking the font. */
+function FacebookMark() {
+  return (
+    <svg aria-hidden="true" className="provider-mark" focusable="false" viewBox="0 0 24 24">
+      <path
+        d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 3.925 23.094 9.101 24v-8.437H6.627v-2.49h2.474V9.9c0-2.457 1.457-3.813 3.678-3.813 1.066 0 2.18.19 2.18.19v2.4h-1.229c-1.21 0-1.587.755-1.587 1.53v1.837h2.7l-.431 2.49h-2.269V24C20.075 23.094 24 18.1 24 12.073z"
+        fill="#1877F2"
+      />
+      <path
+        d="M16.671 15.543 17.102 13.053h-2.7v-1.837c0-.775.377-1.53 1.587-1.53h1.229v-2.4s-1.114-.19-2.18-.19c-2.221 0-3.678 1.356-3.678 3.813v2.144H8.886v2.49h2.474V24a9.71 9.71 0 0 0 3.042 0v-8.457h2.269z"
+        fill="#fff"
+      />
+    </svg>
+  )
+}
+
+/** The same mark in a single colour, for use on Facebook's blue button where
+ *  the two-tone version would put white on white. */
+function FacebookGlyph() {
+  return (
+    <svg aria-hidden="true" className="provider-glyph" focusable="false" viewBox="0 0 24 24">
+      <path
+        d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 3.925 23.094 9.101 24v-8.437H6.627v-2.49h2.474V9.9c0-2.457 1.457-3.813 3.678-3.813 1.066 0 2.18.19 2.18.19v2.4h-1.229c-1.21 0-1.587.755-1.587 1.53v1.837h2.7l-.431 2.49h-2.269V24C20.075 23.094 24 18.1 24 12.073z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
 
 export function ConnectPage({ locale }: ConnectPageProps) {
   const t = text[locale]
@@ -59,21 +91,41 @@ export function ConnectPage({ locale }: ConnectPageProps) {
   const [selectedPage, setSelectedPage] = useState('')
 
   const load = useCallback(async () => {
+    let current: PageConnectionState
     try {
-      const current = await getFacebookConnection()
+      current = await getFacebookConnection()
       setConnection(current)
       setState('ready')
-      const callbackState = new URLSearchParams(window.location.search).get('facebook_session')
-      if (current.state === 'NOT_CONNECTED' && callbackState) {
-        const available = await listFacebookPageChoices(callbackState)
-        setOauthState(callbackState)
-        setChoices(available.pages)
-        setSelectedPage(available.pages[0]?.page_id ?? '')
-      }
     } catch {
       setState('error')
+      return
     }
-  }, [])
+
+    const callbackState = new URLSearchParams(window.location.search).get('facebook_session')
+    if (current.state !== 'NOT_CONNECTED' || !callbackState) return
+
+    // Returning from Meta is the end of the flow. A failure here must explain
+    // itself rather than replacing the screen with a bare error, which left no
+    // way to see what went wrong or to start again.
+    try {
+      const available = await listFacebookPageChoices(callbackState)
+      setOauthState(callbackState)
+      setChoices(available.pages)
+      setSelectedPage(available.pages[0]?.page_id ?? '')
+    } catch (caught) {
+      setFacebookError(
+        caught instanceof ApiError && caught.status === 404
+          ? t.sessionExpired
+          : caught instanceof ApiError && caught.detail
+            ? caught.detail
+            : t.error,
+      )
+    } finally {
+      // The state is single-use. Leaving it in the URL means a refresh retries
+      // a session Meta has already spent.
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [t])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -197,7 +249,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
               sends people down a path that fails, so it is disabled and named
               as unfinished, and the Page token becomes the supported route. */}
           <section className="connection-option is-recommended">
-            <div className="connection-option-head"><span aria-hidden="true" className="connection-provider">f</span><span className="work-chip connection-recommended">{t.recommended}</span></div>
+            <div className="connection-option-head"><FacebookMark /><span className="work-chip connection-recommended">{t.recommended}</span></div>
             <h2>{t.tokenTitle}</h2><p>{t.tokenLead}</p>
             <form className="advanced-token-form" onSubmit={submitToken}>
                 <label htmlFor="page-access-token">{t.token}</label>
@@ -208,10 +260,10 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             </form>
           </section>
           <section className="connection-option is-advanced">
-            <div className="connection-option-head"><span aria-hidden="true" className="connection-provider">f</span></div>
+            <div className="connection-option-head"><FacebookMark /></div>
             <h2>{t.facebook}</h2><p>{t.facebookHelp}</p>
             {facebookError && <p className="auth-error" role="alert">{facebookError}</p>}
-            <button className="button button-quiet" disabled={busy} onClick={() => void beginFacebook()} type="button">{busy ? t.connecting : t.facebook}</button>
+            <button className="button button-facebook" disabled={busy} onClick={() => void beginFacebook()} type="button"><FacebookGlyph />{busy ? t.connecting : t.facebook}</button>
           </section>
         </div>
       )}

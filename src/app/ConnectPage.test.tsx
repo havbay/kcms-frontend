@@ -211,3 +211,58 @@ describe('page token refusals', () => {
     )
   })
 })
+
+describe('returning from Facebook', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('explains a spent authorization instead of blanking the screen', async () => {
+    window.history.replaceState({}, '', '/app/connect?facebook_session=abc123')
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ detail: 'authorization session not found' }), {
+          status: 404,
+        }),
+      )
+
+    renderPage()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /That Facebook authorization has expired or was already used/,
+    )
+    // The page still works: the token form is there to fall back on.
+    expect(screen.getByLabelText('Page access token')).toBeVisible()
+    // The spent state is cleared, so a refresh does not retry it.
+    expect(window.location.search).toBe('')
+  })
+
+  it('offers the authorized Pages to choose from', async () => {
+    window.history.replaceState({}, '', '/app/connect?facebook_session=abc123')
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            pages: [
+              { page_id: 'p-1', page_name: 'KCMS-Demo', tasks: ['MODERATE'], can_moderate: true },
+            ],
+          }),
+          { status: 200 },
+        ),
+      )
+
+    renderPage()
+
+    expect(await screen.findByText('KCMS-Demo')).toBeVisible()
+    expect(window.location.search).toBe('')
+  })
+})
