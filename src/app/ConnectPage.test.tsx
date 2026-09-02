@@ -5,6 +5,33 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ConnectPage } from './ConnectPage'
 
+/** The merged screen loads Pages and the team together, so ordering mocks by
+ *  call number is brittle. Route them by URL and let the page ask in any
+ *  order; `then` supplies the response for the action the test is about. */
+function routeFetch(options: {
+  connections?: unknown
+  team?: unknown
+  session?: () => Response | Promise<Response>
+  selection?: () => Response | Promise<Response>
+  then?: () => Response | Promise<Response>
+}) {
+  const team = options.team ?? { your_role: 'owner', members: [], invitations: [] }
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const url = String(input)
+    if (url.includes('/team')) return new Response(JSON.stringify(team), { status: 200 })
+    if (url.includes('/facebook/connections')) {
+      return new Response(
+        JSON.stringify(options.connections ?? { state: 'NOT_CONNECTED', can_moderate: false }),
+        { status: 200 },
+      )
+    }
+    if (options.selection && url.includes('/selection')) return options.selection()
+    if (options.session && url.includes('/oauth/sessions/')) return options.session()
+    if (options.then) return options.then()
+    return new Response(JSON.stringify({}), { status: 200 })
+  })
+}
+
 function renderPage() {
   return render(<ConnectPage locale="en" />, { wrapper: MemoryRouter })
 }
@@ -12,7 +39,7 @@ function renderPage() {
 describe('Facebook Page connection', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('offers the Page token as the supported route', async () => {
+  it('offers Add Page as the only connection route', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
         status: 200,
@@ -21,9 +48,9 @@ describe('Facebook Page connection', () => {
 
     renderPage()
 
-    // No toggle to find first: the working method is the one on screen.
-    expect(await screen.findByLabelText('Page access token')).toHaveAttribute('type', 'password')
-    expect(screen.getByText('Recommended')).toBeVisible()
+    expect(await screen.findByRole('button', { name: 'Add Page' })).toBeVisible()
+    // The provider's branding belongs on the sign-in screen, not in here.
+    expect(screen.queryByRole('button', { name: 'Continue with Facebook' })).toBeNull()
   })
 
   it('starts Facebook authorization and hands off to Meta', async () => {
@@ -34,21 +61,16 @@ describe('Facebook Page connection', () => {
       search: '',
       assign,
     } as unknown as Location)
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(
+    routeFetch({
+      then: () =>
         new Response(
           JSON.stringify({ authorization_url: 'https://www.facebook.com/v26.0/dialog/oauth?x=1' }),
           { status: 201 },
         ),
-      )
+    })
 
     renderPage()
-    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
+    await user.click(await screen.findByRole('button', { name: 'Add Page' }))
 
     await waitFor(() =>
       expect(assign).toHaveBeenCalledWith('https://www.facebook.com/v26.0/dialog/oauth?x=1'),
@@ -57,77 +79,13 @@ describe('Facebook Page connection', () => {
 
   it('says Facebook Login is unconfigured rather than blaming the operator', async () => {
     const user = userEvent.setup()
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+    routeFetch({ then: () => new Response(null, { status: 503 }) })
 
     renderPage()
-    await user.click(await screen.findByRole('button', { name: 'Continue with Facebook' }))
+    await user.click(await screen.findByRole('button', { name: 'Add Page' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Facebook connection is not configured yet. Contact KCMS support.',
-    )
-  })
-
-  it('never presents a second Page connection approval flow', async () => {
-    const user = userEvent.setup()
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(new Response(null, { status: 403 }))
-
-    renderPage()
-    await user.type(await screen.findByLabelText('Page access token'), 'a-token')
-    await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
-
-    expect(await screen.findByRole('alert')).toBeVisible()
-    expect(screen.queryByRole('heading', { name: 'Request Page connection approval' })).not.toBeInTheDocument()
-    expect(screen.queryByLabelText('Facebook Page name or URL')).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Request approval' })).not.toBeInTheDocument()
-  })
-
-  it('connects a validated Page token without echoing the secret', async () => {
-    const user = userEvent.setup()
-    const fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            state: 'CONNECTED',
-            method: 'MANUAL_TOKEN',
-            page_id: 'page-123',
-            page_name: 'KCMS Test Page',
-            tasks: ['PROFILE_PLUS_MODERATE'],
-            can_moderate: true,
-            connected_at: '2026-09-01T08:00:00Z',
-            last_synced_at: null,
-          }),
-          { status: 201 },
-        ),
-      )
-
-    renderPage()
-    await screen.findByLabelText('Page access token')
-    await user.type(screen.getByLabelText('Page access token'), 'secret-page-token')
-    await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
-
-    expect(await screen.findByText('KCMS Test Page')).toBeVisible()
-    expect(screen.getByText('Ready to moderate')).toBeVisible()
-    expect(screen.queryByText('secret-page-token')).not.toBeInTheDocument()
-    expect(fetchMock.mock.calls[1]?.[1]?.body).toBe(
-      JSON.stringify({ page_access_token: 'secret-page-token' }),
     )
   })
 
@@ -135,14 +93,20 @@ describe('Facebook Page connection', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(
         JSON.stringify({
-          state: 'CONNECTED',
-          method: 'FACEBOOK_LOGIN',
-          page_id: 'page-456',
-          page_name: 'Community Page',
-          tasks: ['PROFILE_PLUS_MODERATE'],
-          can_moderate: true,
-          connected_at: '2026-09-01T08:00:00Z',
-          last_synced_at: null,
+          connections: [
+            {
+              state: 'CONNECTED',
+              method: 'FACEBOOK_LOGIN',
+              page_id: 'page-456',
+              page_name: 'Community Page',
+              tasks: ['PROFILE_PLUS_MODERATE'],
+              can_moderate: true,
+              connected_at: '2026-09-01T08:00:00Z',
+              last_synced_at: null,
+            },
+          ],
+          page_limit: 3,
+          plan: 'STARTER',
         }),
         { status: 200 },
       ),
@@ -150,65 +114,9 @@ describe('Facebook Page connection', () => {
 
     renderPage()
 
-    await waitFor(() => expect(screen.getByText('Community Page')).toBeVisible())
-    expect(screen.getAllByText('Connected with Facebook')).toHaveLength(2)
-    expect(screen.getByText('Waiting for first synchronization')).toBeVisible()
+    await waitFor(() => expect(screen.getAllByText('Community Page').length).toBeGreaterThan(0))
+    expect(screen.getByText('Ready to moderate')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Disconnect Page' })).toBeVisible()
-  })
-})
-
-describe('page token refusals', () => {
-  beforeEach(() => vi.restoreAllMocks())
-  afterEach(() => vi.restoreAllMocks())
-
-  it('tells the operator a User token was pasted instead of a generic failure', async () => {
-    const user = userEvent.setup()
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            detail:
-              'This is a User access token, not a Page access token. In Graph '
-              + "API Explorer open the 'User or Page' menu and choose your Page "
-              + 'under Page Access Tokens, then copy the token again.',
-          }),
-          { status: 422 },
-        ),
-      )
-
-    renderPage()
-    await screen.findByLabelText('Page access token')
-    await user.type(screen.getByLabelText('Page access token'), 'a-user-token')
-    await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      /This is a User access token, not a Page access token/,
-    )
-  })
-
-  it('falls back to the generic message when the API explains nothing', async () => {
-    const user = userEvent.setup()
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(new Response(null, { status: 500 }))
-
-    renderPage()
-    await screen.findByLabelText('Page access token')
-    await user.type(screen.getByLabelText('Page access token'), 'a-token')
-    await user.click(screen.getByRole('button', { name: 'Validate and connect' }))
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'KCMS could not complete the connection. Check the authorization and try again.',
-    )
   })
 })
 
@@ -218,38 +126,25 @@ describe('returning from Facebook', () => {
 
   it('explains a spent authorization instead of blanking the screen', async () => {
     window.history.replaceState({}, '', '/app/connect?facebook_session=abc123')
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(
+    routeFetch({
+      session: () =>
         new Response(JSON.stringify({ detail: 'authorization session not found' }), {
           status: 404,
         }),
-      )
+    })
 
     renderPage()
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /That Facebook authorization has expired or was already used/,
     )
-    // The page still works: the token form is there to fall back on.
-    expect(screen.getByLabelText('Page access token')).toBeVisible()
-    // The spent state is cleared, so a refresh does not retry it.
     expect(window.location.search).toBe('')
   })
 
   it('offers the authorized Pages to choose from', async () => {
     window.history.replaceState({}, '', '/app/connect?facebook_session=abc123')
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(
+    routeFetch({
+      session: () =>
         new Response(
           JSON.stringify({
             pages: [
@@ -258,26 +153,19 @@ describe('returning from Facebook', () => {
           }),
           { status: 200 },
         ),
-      )
+    })
 
     renderPage()
 
     expect(await screen.findByText('KCMS-Demo')).toBeVisible()
-    // The session stays until the Page is actually connected: clearing it here
-    // meant one refresh lost the authorization and showed "connect" again.
     expect(window.location.search).toBe('?facebook_session=abc123')
   })
 
   it('says why the Page could not be connected instead of failing silently', async () => {
     const user = userEvent.setup()
     window.history.replaceState({}, '', '/app/connect?facebook_session=abc123')
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ state: 'NOT_CONNECTED', can_moderate: false }), {
-          status: 200,
-        }),
-      )
-      .mockResolvedValueOnce(
+    routeFetch({
+      session: () =>
         new Response(
           JSON.stringify({
             pages: [
@@ -286,15 +174,14 @@ describe('returning from Facebook', () => {
           }),
           { status: 200 },
         ),
-      )
-      .mockResolvedValueOnce(
+      selection: () =>
         new Response(
           JSON.stringify({
             detail: 'This Facebook Page is already connected to another KCMS workspace.',
           }),
           { status: 409 },
         ),
-      )
+    })
 
     renderPage()
     await user.click(await screen.findByRole('button', { name: 'Connect selected Page' }))
@@ -336,9 +223,7 @@ describe('a refused authorization', () => {
     renderPage()
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/was cancelled/)
-    // Both routes remain available to try again.
-    expect(screen.getByLabelText('Page access token')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Continue with Facebook' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Add Page' })).toBeEnabled()
   })
 
   it('names the account problem when Facebook returns no Pages', async () => {
@@ -354,5 +239,42 @@ describe('a refused authorization', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /does not administer any Page/,
     )
+  })
+})
+
+describe('Workspace Team Management in unified view', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('switches to the team tab and displays team members', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ connections: [], page_limit: 3, plan: 'STARTER' }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            your_role: 'owner',
+            members: [
+              {
+                user_id: 'u-1',
+                display_name: 'Admin User',
+                email: 'admin@kcms.local',
+                role: 'owner',
+              },
+            ],
+            invitations: [],
+          }),
+          { status: 200 },
+        ),
+      )
+
+    renderPage()
+
+    expect(await screen.findByText('Admin User')).toBeVisible()
+    expect(screen.getByText('admin@kcms.local')).toBeVisible()
+    expect(screen.getByText('Invite a Team Member')).toBeVisible()
   })
 })

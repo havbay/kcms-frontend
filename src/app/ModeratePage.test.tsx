@@ -114,16 +114,16 @@ describe('moderation work list', () => {
     const user = userEvent.setup()
     const fetchMock = mockApi({
       action: {
-        body: [{ kind: 'HIDE', actor: 'demo-client', occurred_at: '2026-08-30T10:05:00Z' }],
+        body: [{ kind: 'DELETE', actor: 'demo-client', occurred_at: '2026-08-30T10:05:00Z' }],
       },
     })
     renderPage()
 
     await user.click(await screen.findByRole('button', { name: /អ្នកនេះល្ងង់ណាស់/ }))
     const panel = screen.getByRole('complementary', { name: 'Comment details' })
-    await user.click(within(panel).getByRole('button', { name: 'Hide' }))
+    await user.click(within(panel).getByRole('button', { name: 'Delete' }))
 
-    await waitFor(() => expect(within(panel).getByText(/HIDE/)).toBeVisible())
+    await waitFor(() => expect(within(panel).getByText(/DELETE/)).toBeVisible())
     const actionCall = fetchMock.mock.calls.find(
       ([url, init]) =>
         String(url).includes('/comments/c-004/actions') &&
@@ -142,13 +142,13 @@ describe('moderation work list', () => {
     await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
     expect(screen.getAllByText(/ស្វែងយល់ពីសេវាថ្មី/).length).toBeGreaterThan(0)
     // Hide is on every row now, so moderating never requires opening detail.
-    expect(screen.getAllByRole('button', { name: 'Hide' })).toHaveLength(WORK_LIST.items.length)
+    expect(screen.getAllByRole('button', { name: 'Delete' })).toHaveLength(WORK_LIST.items.length)
 
     await user.click(screen.getByRole('button', { name: /អ្នកនេះល្ងង់ណាស់/ }))
     const panel = screen.getByRole('complementary', { name: 'Comment details' })
     expect(within(panel).getByText('Source post')).toBeVisible()
     expect(within(panel).getByText(/តើអ្នកគិតយ៉ាងណា/)).toBeVisible()
-    expect(within(panel).getByRole('button', { name: 'Hide' })).toBeVisible()
+    expect(within(panel).getByRole('button', { name: 'Delete' })).toBeVisible()
   })
 
   it('sends search and review filters to server pagination', async () => {
@@ -256,7 +256,7 @@ describe('syncing from the connected Page', () => {
 
     expect(await screen.findByText('No Facebook Page connected.')).toBeVisible()
     expect(
-      screen.getByText(/hiding one is recorded in KCMS and changes nothing on Facebook/),
+      screen.getByText(/deleting one is recorded in KCMS and changes nothing on Facebook/),
     ).toBeVisible()
   })
 
@@ -268,7 +268,7 @@ describe('syncing from the connected Page', () => {
 
     renderPage()
     const rows = await screen.findAllByRole('row')
-    await user.click(screen.getAllByRole('button', { name: 'Hide' })[0]!)
+    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]!)
 
     expect(await screen.findByText('A Page cannot hide its own comments.')).toBeVisible()
     // The queue survives: a refused action is about one comment, not the list.

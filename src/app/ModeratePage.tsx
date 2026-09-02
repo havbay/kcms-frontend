@@ -101,7 +101,7 @@ const ui = {
     onFacebook: 'on Facebook', kcmsOnly: 'KCMS only',
     actionFailed: 'That action could not be completed. Please try again.',
     notConnectedTitle: 'No Facebook Page connected.',
-    notConnectedBody: 'These are sample comments — hiding one is recorded in KCMS and changes nothing on Facebook.',
+    notConnectedBody: 'These are sample comments — deleting one is recorded in KCMS and changes nothing on Facebook.',
     untitledPost: 'Untitled post',
     sync: 'Sync from Facebook', syncing: 'Syncing…',
     syncImported: (n: number) => `Imported ${n} new comment${n === 1 ? '' : 's'}`,
@@ -124,7 +124,7 @@ const ui = {
     onFacebook: 'នៅលើ Facebook', kcmsOnly: 'តែក្នុង KCMS',
     actionFailed: 'មិនអាចធ្វើសកម្មភាពនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។',
     notConnectedTitle: 'មិនទាន់ភ្ជាប់ Facebook Page ទេ។',
-    notConnectedBody: 'ទាំងនេះជាមតិយោបល់គំរូ — ការលាក់ត្រូវបានកត់ត្រាក្នុង KCMS ប៉ុណ្ណោះ ហើយមិនប្ដូរអ្វីនៅលើ Facebook ទេ។',
+    notConnectedBody: 'ទាំងនេះជាមតិយោបល់គំរូ — ការលុបត្រូវបានកត់ត្រាក្នុង KCMS ប៉ុណ្ណោះ ហើយមិនប្ដូរអ្វីនៅលើ Facebook ទេ។',
     untitledPost: 'Post គ្មានចំណងជើង',
     sync: 'ទាញមតិយោបល់ពី Facebook', syncing: 'កំពុងទាញ…',
     syncImported: (n: number) => `បាននាំចូលមតិយោបល់ថ្មី ${n}`,
@@ -683,9 +683,9 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                           <span className="status-pill-dot" />
                           <span>{item.latest_action ?? content.statusPending}</span>
                         </div>
-                        {/* A hide that never reached Facebook is not the same
+                        {/* A delete that never reached Facebook is not the same
                             outcome, and showing one status for both let a sample
-                            hide read as a real moderation. */}
+                            delete read as a real moderation. */}
                         {item.latest_action && item.latest_action !== 'LEAVE' && (
                           <small className={item.latest_action_on_facebook ? 'reach-yes' : 'reach-no'}>
                             {item.latest_action_on_facebook ? t.onFacebook : t.kcmsOnly}
@@ -694,8 +694,8 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                       </td>
                       <td className="cell-actions" onClick={(event) => event.stopPropagation()}>
                         <div className="row-actions">
-                          <button className="button button-small button-action-hide" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'HIDE')} type="button">{content.modHide}</button>
-                          <button className="button button-small button-quiet button-action-unhide" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'UNHIDE')} type="button">{content.modUnhide}</button>
+                          <button className="button button-small button-action-delete" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'DELETE')} type="button">{content.modDelete}</button>
+                          <button className="button button-small button-quiet" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'LEAVE')} type="button">{content.modLeave}</button>
                         </div>
                         {actionError?.commentId === item.comment_id && (
                           <p className="row-action-error" role="alert">{actionError.message}</p>
@@ -784,7 +784,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
               <section className="detail-section"><h2>{content.colComment}</h2><blockquote lang="km">{selected.text}</blockquote></section>
               <section className="detail-section"><h2>{t.context}</h2><dl className="detail-facts"><div><dt>{t.source}</dt><dd lang="km">{formatPostCaption(selected.post_text, '—')}</dd></div><div><dt>{t.type}</dt><dd>{selected.post_kind === 'VIDEO' ? t.video : t.post}</dd></div>{selected.parent_text && <div><dt>{t.replyTo}</dt><dd lang="km">{selected.parent_text}</dd></div>}</dl>{selected.post_permalink && <a className="detail-link" href={selected.post_permalink} rel="noreferrer" target="_blank">{t.openPost}</a>}</section>
               <section className="detail-section"><h2>{t.verdict}</h2><dl className="detail-facts"><div><dt>{content.colSeverity}</dt><dd>{selected.severity ? content.modSeverity[selected.severity as keyof typeof content.modSeverity] : '—'} · {Math.round((selected.severity_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.colTarget}</dt><dd>{selected.target ? content.modTarget[selected.target as keyof typeof content.modTarget] : '—'} · {Math.round((selected.target_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.pattern}</dt><dd>{selected.model_version}</dd></div>{selected.rationale && <div><dt>{content.modWhySurfaced}</dt><dd>{selected.rationale}</dd></div>}{selected.corrected_severity && <div><dt>{content.modCorrected}</dt><dd>{content.modSeverity[selected.corrected_severity as keyof typeof content.modSeverity]} · {content.modTarget[selected.corrected_target as keyof typeof content.modTarget]}</dd></div>}{selected.latest_action && <div><dt>{content.modActioned}</dt><dd>{selected.latest_action} {content.modBy} {selected.latest_actor}</dd></div>}</dl></section>
-              <section className="detail-section"><h2>{t.action}</h2><div className="moderation-actions"><button className="button button-small" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'HIDE')} type="button">{content.modHide}</button><button className="button button-small button-quiet" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'LEAVE')} type="button">{content.modLeave}</button><button className="button button-small button-quiet" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'UNHIDE')} type="button">{content.modUnhide}</button></div></section>
+              <section className="detail-section"><h2>{t.action}</h2><div className="moderation-actions"><button className="button button-small button-action-delete" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'DELETE')} type="button">{content.modDelete}</button><button className="button button-small button-quiet" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'LEAVE')} type="button">{content.modLeave}</button></div></section>
               <section className="detail-section"><h2>{t.correction}</h2><CorrectionForm commentId={selected.comment_id} currentSeverity={selected.severity} currentTarget={selected.target} locale={locale} onSaved={(newSeverity, newTarget) => setItems((current) => current.map((row) => row.comment_id === selected.comment_id ? { ...row, corrected_severity: newSeverity, corrected_target: newTarget, corrected_by: 'you' } : row))} /></section>
             </aside>
           )}

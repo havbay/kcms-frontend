@@ -11,7 +11,14 @@ type DashboardLayoutProps = {
   children: ReactNode
 }
 
-function NavIcon({ type }: { type: 'overview' | 'moderate' | 'connect' | 'team' | 'settings' | 'admin' }) {
+function NavIcon({ type }: { type: 'overview' | 'moderate' | 'connect' | 'rules' | 'team' | 'settings' | 'admin' | 'chevron' }) {
+  if (type === 'chevron') {
+    return (
+      <svg aria-hidden="true" className="dash-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m9 18 6-6-6-6" />
+      </svg>
+    )
+  }
   if (type === 'overview') {
     return (
       <svg aria-hidden="true" className="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -35,6 +42,14 @@ function NavIcon({ type }: { type: 'overview' | 'moderate' | 'connect' | 'team' 
       <svg aria-hidden="true" className="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+      </svg>
+    )
+  }
+  if (type === 'rules') {
+    return (
+      <svg aria-hidden="true" className="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m4.9 4.9 14.2 14.2" />
       </svg>
     )
   }
@@ -93,7 +108,7 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
     { to: '/app', label: content.dashNavOverview, icon: 'overview' as const, end: true },
     { to: '/app/moderate', label: content.dashNavModerate, icon: 'moderate' as const, end: false },
     { to: '/app/connect', label: content.dashNavPage, icon: 'connect' as const, end: false },
-    { to: '/app/team', label: content.dashNavTeam, icon: 'team' as const, end: false },
+    { to: '/app/rules', label: content.dashNavRules, icon: 'rules' as const, end: false },
     { to: '/app/settings', label: content.dashNavSettings, icon: 'settings' as const, end: false },
   ]
   const pending: string[] = []
@@ -182,7 +197,12 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
 
         <div className="dash-account-card">
           {session.user && (
-            <div className="dash-user-profile">
+            <NavLink
+              className={({ isActive }) => `dash-user-profile${isActive ? ' is-active' : ''}`}
+              onClick={() => setMobileNavOpen(false)}
+              title={content.dashNavProfile}
+              to="/app/profile"
+            >
               <div className="dash-user-avatar">
                 {getInitials(session.user.display_name)}
               </div>
@@ -194,7 +214,8 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
                   {session.user.is_platform_admin ? 'Admin' : 'Owner'}
                 </span>
               </div>
-            </div>
+              <NavIcon type="chevron" />
+            </NavLink>
           )}
 
           <div className="dash-account-actions">

@@ -2,49 +2,65 @@ import { useCallback, useEffect, useState } from 'react'
 
 import {
   ApiError,
-  connectFacebookPageManually,
+  createInvitation,
   disconnectFacebookPage,
+  getTeam,
   listFacebookConnections,
   listFacebookPageChoices,
   type PageChoice,
   type PageConnection,
   type PageConnections,
+  removeMember,
+  revokeInvitation,
   selectFacebookPage,
   startFacebookAuthorization,
+  type CreatedInvitation,
+  type Team,
 } from '../api/client'
 import { copy, type Locale } from './copy'
+import { useSession } from './session'
+import {
+  Avatar, Badge, Banner, Card, EmptyState, Icon, Meter, Page, PageHead, PageState,
+  SelectField,
+} from './ui'
 
 type ConnectPageProps = { locale: Locale }
+
 type LoadState = 'loading' | 'ready' | 'error'
 
 const text = {
   en: {
-    title: 'Connect your Facebook Pages', lead: 'Authorize a Page so KCMS can receive comments and carry out the actions you approve.',
+    title: 'Management',
+    lead: 'Connected Facebook Pages, plan capacity, and the people who moderate them.',
+    tabPages: 'Facebook Pages',
+    tabTeam: 'Team Members',
     connectedPagesTitle: 'Connected Pages',
+    connectedPagesLead: 'Every Page below sends its comments into the moderation queue.',
     pagesUsage: (used: number, limit: number) => `${used} of ${limit} Pages connected`,
     atCapTitle: 'You have reached your plan’s Page limit.',
     atCapBody: 'Disconnect a Page below, or upgrade your plan to connect more.',
     upgradeCta: 'View plans',
-    recommended: 'Recommended', facebook: 'Continue with Facebook', facebookHelp: 'Sign in to Meta, choose an authorized Page, then confirm the connection.',
-    advanced: 'Connect with Page token', advancedHelp: 'Advanced setup for testing or assisted connection.', token: 'Page access token',
-    tokenHint: 'Sent securely to KCMS for validation. The full token is never shown again.', validate: 'Validate and connect', connecting: 'Connecting…',
-    choose: 'Choose the Facebook Page to connect', chooseHelp: 'Only Pages returned by your Meta authorization are available.', confirm: 'Connect selected Page',
-    connected: 'Page connected', facebookMethod: 'Connected with Facebook', tokenMethod: 'Connected with Page token', ready: 'Ready to moderate',
-    permissionWarning: 'Connected, but the token does not include a moderation task.', syncWaiting: 'Waiting for first synchronization', lastSync: 'Last synchronized',
-    connectedAt: 'Connected', method: 'Connection method', capability: 'Moderation access', disconnect: 'Disconnect Page', disconnecting: 'Disconnecting…',
-    tokenTitle: 'Connect with a Page access token',
-    tokenLead: 'Paste a Page access token for the Page you want KCMS to moderate. KCMS confirms it with Meta, stores it encrypted, and never shows it again.',
-    planCapacityTitle: 'Workspace Capacity & Plan',
-    planSubtitle: (plan: string, used: number, limit: number) => `${plan} tier · ${used} of ${limit} slots in use`,
-    starterBadge: 'Starter Plan · 3 Pages',
-    growthBadge: 'Growth Plan · 10 Pages',
-    starterSubtitle: 'Up to 3 Facebook Page connections included in your workspace.',
-    growthSubtitle: 'Up to 10 Facebook Page connections with priority moderation.',
-    upgradeToGrowthCta: 'Upgrade to Growth (10 Pages)',
+    recommended: 'Recommended',
+    facebook: 'Continue with Facebook',
+    facebookHelp: 'Sign in to Meta, choose an authorized Page, then confirm the connection.',
+    connecting: 'Opening Facebook…',
+    choose: 'Choose the Facebook Page to connect',
+    chooseHelp: 'Only Pages returned by your Meta authorization are available.',
+    confirm: 'Connect selected Page',
+    facebookMethod: 'Connected with Facebook',
+    ready: 'Ready to moderate',
+    permissionShort: 'Limited access',
+    permissionWarning: 'Connected, but the token does not include a moderation task.',
+    disconnect: 'Disconnect Page',
+    planCapacityTitle: 'Workspace capacity',
+    starterBadge: 'Starter · 3 Pages',
+    growthBadge: 'Growth · 10 Pages',
+    starterSubtitle: 'Up to 3 Facebook Page connections are included in this workspace.',
+    growthSubtitle: 'Up to 10 Facebook Page connections, with priority moderation.',
+    upgradeToGrowthCta: 'Upgrade to Growth',
     addConnectionTitle: 'Connect a Facebook Page',
-    slotsLeft: (count: number) => `${count} page slot${count === 1 ? '' : 's'} remaining on your plan`,
-    availableSlot: 'Available Page Slot',
-    availableSlotDesc: 'Ready to connect another Facebook Page to your workspace moderation pool.',
+    slotsLeft: (count: number) => `${count} slot${count === 1 ? '' : 's'} left`,
+    availableSlot: 'Available',
     directOAuth: 'Direct Meta Login',
     oauthFeature1: 'Direct authentication through Meta',
     oauthFeature2: 'Automatic Page discovery and permissions',
@@ -58,35 +74,54 @@ const text = {
       no_pages: 'That Facebook account does not administer any Page. Sign in with an account that manages the Page you want KCMS to moderate.',
     },
     sessionExpired: 'That Facebook authorization has expired or was already used. Start again with Continue with Facebook.',
-    retry: 'Try again', error: 'KCMS could not complete the connection. Check the authorization and try again.', facebookUnavailable: 'Facebook connection is not configured yet. Contact KCMS support.', noPages: 'Meta did not return an authorized Page for this account.',
+    retry: 'Try again',
+    error: 'KCMS could not complete the connection. Check the authorization and try again.',
+    facebookUnavailable: 'Facebook connection is not configured yet. Contact KCMS support.',
+    teamTitle: 'Workspace Team',
+    teamLead: 'Members who can review comments and take moderation actions.',
+    teamInviteTitle: 'Invite a Team Member',
+    teamInviteSubtitle: 'Create a one-time invitation link for a teammate to join this workspace.',
+    teamMembersCount: (count: number) => `${count} member${count === 1 ? '' : 's'}`,
+    trustLockTitle: 'Encrypted at rest',
+    trustLockBody: 'Tokens are encrypted at rest and never shown in plain text.',
+    trustScopeTitle: 'Meta Graph API',
+    trustScopeBody: 'KCMS uses only the Page permissions granted through Meta.',
+    trustSyncTitle: 'Periodic synchronization',
+    trustSyncBody: 'New comments are collected while the moderation screen is open.',
+    loading: 'Loading…',
   },
   km: {
-    title: 'ភ្ជាប់ Facebook Page របស់អ្នក', lead: 'អនុញ្ញាត Page មួយ ដើម្បីឱ្យ KCMS ទទួលមតិយោបល់ និងអនុវត្តសកម្មភាពដែលអ្នកយល់ព្រម។',
+    title: 'ការគ្រប់គ្រង',
+    lead: 'ទំព័រ Facebook ដែលបានភ្ជាប់ សមត្ថភាពគម្រោង និងអ្នកដែលគ្រប់គ្រងពួកវា។',
+    tabPages: 'ទំព័រ Facebook',
+    tabTeam: 'សមាជិកក្រុម',
     connectedPagesTitle: 'ទំព័រដែលបានភ្ជាប់',
+    connectedPagesLead: 'ទំព័រនីមួយៗខាងក្រោមផ្ញើមតិយោបល់ចូលទៅក្នុងជួរត្រួតពិនិត្យ។',
     pagesUsage: (used: number, limit: number) => `${used} នៃ ${limit} ទំព័របានភ្ជាប់`,
     atCapTitle: 'អ្នកបានឈានដល់កម្រិតកំណត់ទំព័រនៃគម្រោងរបស់អ្នក។',
     atCapBody: 'សូមផ្ដាច់ Page មួយខាងក្រោម ឬដំឡើងគម្រោងរបស់អ្នកដើម្បីភ្ជាប់ច្រើនទៀត។',
     upgradeCta: 'មើលគម្រោង',
-    recommended: 'បានណែនាំ', facebook: 'បន្តជាមួយ Facebook', facebookHelp: 'ចូល Meta ជ្រើស Page ដែលមានសិទ្ធិ រួចបញ្ជាក់ការភ្ជាប់។',
-    advanced: 'ភ្ជាប់ដោយ Page token', advancedHelp: 'ការកំណត់កម្រិតខ្ពស់ សម្រាប់សាកល្បង ឬជំនួយពី KCMS។', token: 'Page access token',
-    tokenHint: 'ផ្ញើដោយសុវត្ថិភាពទៅ KCMS ដើម្បីផ្ទៀងផ្ទាត់។ Token ពេញមិនត្រូវបង្ហាញម្តងទៀតទេ។', validate: 'ផ្ទៀងផ្ទាត់ និងភ្ជាប់', connecting: 'កំពុងភ្ជាប់…',
-    choose: 'ជ្រើស Facebook Page ដើម្បីភ្ជាប់', chooseHelp: 'មានតែ Page ដែល Meta អនុញ្ញាតឱ្យអ្នកប៉ុណ្ណោះ។', confirm: 'ភ្ជាប់ Page ដែលបានជ្រើស',
-    connected: 'បានភ្ជាប់ Page', facebookMethod: 'បានភ្ជាប់ជាមួយ Facebook', tokenMethod: 'បានភ្ជាប់ដោយ Page token', ready: 'អាចគ្រប់គ្រងមតិយោបល់បាន',
-    permissionWarning: 'បានភ្ជាប់ ប៉ុន្តែ token មិនមានសិទ្ធិគ្រប់គ្រងមតិយោបល់ទេ។', syncWaiting: 'កំពុងរង់ចាំសមកាលកម្មដំបូង', lastSync: 'សមកាលកម្មចុងក្រោយ',
-    connectedAt: 'បានភ្ជាប់', method: 'វិធីភ្ជាប់', capability: 'សិទ្ធិគ្រប់គ្រង', disconnect: 'ផ្ដាច់ Page', disconnecting: 'កំពុងផ្ដាច់…',
-    tokenTitle: 'ភ្ជាប់ដោយ Page access token',
-    tokenLead: 'បញ្ចូល Page access token សម្រាប់ Page ដែលអ្នកចង់ឱ្យ KCMS គ្រប់គ្រង។ KCMS ផ្ទៀងផ្ទាត់ជាមួយ Meta រក្សាទុកជាកូដសម្ងាត់ ហើយមិនបង្ហាញវាម្ដងទៀតទេ។',
-    planCapacityTitle: 'សមត្ថភាពកន្លែងធ្វើការ & គម្រោង',
-    planSubtitle: (plan: string, used: number, limit: number) => `គម្រោង ${plan} · ប្រើប្រាស់ ${used} នៃ ${limit} ចំនួនទំព័រ`,
-    starterBadge: 'គម្រោង Starter · ៣ ទំព័រ',
-    growthBadge: 'គម្រោង Growth · ១០ ទំព័រ',
-    starterSubtitle: 'រួមបញ្ចូលការភ្ជាប់រហូតដល់ ៣ Facebook Pages សម្រាប់គ្រប់គ្រងមតិយោបល់។',
+    recommended: 'បានណែនាំ',
+    facebook: 'បន្តជាមួយ Facebook',
+    facebookHelp: 'ចូល Meta ជ្រើស Page ដែលមានសិទ្ធិ រួចបញ្ជាក់ការភ្ជាប់។',
+    connecting: 'កំពុងបើក Facebook…',
+    choose: 'ជ្រើស Facebook Page ដើម្បីភ្ជាប់',
+    chooseHelp: 'មានតែ Page ដែល Meta អនុញ្ញាតឱ្យអ្នកប៉ុណ្ណោះ។',
+    confirm: 'ភ្ជាប់ Page ដែលបានជ្រើស',
+    facebookMethod: 'បានភ្ជាប់ជាមួយ Facebook',
+    ready: 'អាចគ្រប់គ្រងមតិយោបល់បាន',
+    permissionShort: 'សិទ្ធិមានកម្រិត',
+    permissionWarning: 'បានភ្ជាប់ ប៉ុន្តែ token មិនមានសិទ្ធិគ្រប់គ្រងមតិយោបល់ទេ។',
+    disconnect: 'ផ្ដាច់ Page',
+    planCapacityTitle: 'សមត្ថភាពកន្លែងធ្វើការ',
+    starterBadge: 'Starter · ៣ ទំព័រ',
+    growthBadge: 'Growth · ១០ ទំព័រ',
+    starterSubtitle: 'រួមបញ្ចូលការភ្ជាប់រហូតដល់ ៣ Facebook Pages ក្នុងកន្លែងធ្វើការនេះ។',
     growthSubtitle: 'ភ្ជាប់រហូតដល់ ១០ Facebook Pages ជាមួយអាទិភាពខ្ពស់។',
-    upgradeToGrowthCta: 'ដំឡើងទៅ Growth ដើម្បីភ្ជាប់ ១០ ទំព័រ',
-    addConnectionTitle: 'ភ្ជាប់ Facebook Page បន្ថែម',
-    slotsLeft: (count: number) => `នៅសល់ ${count} ចំនួនទំព័រដែលអាចភ្ជាប់បាន`,
-    availableSlot: 'កន្លែងទំនេរសម្រាប់ភ្ជាប់',
-    availableSlotDesc: 'រួចរាល់ដើម្បីភ្ជាប់ Facebook Page មួយទៀតទៅក្នុងប្រព័ន្ធគ្រប់គ្រងមតិយោបល់។',
+    upgradeToGrowthCta: 'ដំឡើងទៅ Growth',
+    addConnectionTitle: 'ភ្ជាប់ Facebook Page',
+    slotsLeft: (count: number) => `នៅសល់ ${count} កន្លែង`,
+    availableSlot: 'ទំនេរ',
     directOAuth: 'ចូល Meta ផ្ទាល់',
     oauthFeature1: 'ការផ្ទៀងផ្ទាត់ដោយផ្ទាល់តាមរយៈ Meta',
     oauthFeature2: 'ស្វែងរក Page និងសិទ្ធិស្វ័យប្រវត្តិ',
@@ -100,43 +135,24 @@ const text = {
       no_pages: 'គណនី Facebook នេះមិនគ្រប់គ្រង Page ណាមួយទេ។ សូមចូលដោយគណនីដែលគ្រប់គ្រង Page ដែលអ្នកចង់ឱ្យ KCMS គ្រប់គ្រង។',
     },
     sessionExpired: 'ការអនុញ្ញាត Facebook នេះផុតកំណត់ ឬបានប្រើរួចហើយ។ សូមចាប់ផ្ដើមម្ដងទៀតដោយចុច Continue with Facebook។',
-    retry: 'ព្យាយាមម្តងទៀត', error: 'KCMS មិនអាចបញ្ចប់ការភ្ជាប់បានទេ។ សូមពិនិត្យសិទ្ធិ ហើយព្យាយាមម្ដងទៀត។', facebookUnavailable: 'ការភ្ជាប់ Facebook មិនទាន់បានកំណត់ទេ។ សូមទាក់ទងជំនួយ KCMS។', noPages: 'Meta មិនបានផ្ដល់ Page ដែលមានសិទ្ធិសម្រាប់គណនីនេះទេ។',
+    retry: 'ព្យាយាមម្តងទៀត',
+    error: 'KCMS មិនអាចបញ្ចប់ការភ្ជាប់បានទេ។ សូមពិនិត្យសិទ្ធិ ហើយព្យាយាមម្ដងទៀត។',
+    facebookUnavailable: 'ការភ្ជាប់ Facebook មិនទាន់បានកំណត់ទេ។ សូមទាក់ទងជំនួយ KCMS។',
+    teamTitle: 'ក្រុមការងារកន្លែងធ្វើការ',
+    teamLead: 'សមាជិកដែលអាចពិនិត្យមើលមតិយោបល់ និងធ្វើសកម្មភាពគ្រប់គ្រង។',
+    teamInviteTitle: 'អញ្ជើញសមាជិកក្រុម',
+    teamInviteSubtitle: 'បង្កើតតំណអញ្ជើញតែម្តងសម្រាប់សហការីដើម្បីចូលរួមកន្លែងធ្វើការនេះ។',
+    teamMembersCount: (count: number) => `${count} នាក់`,
+    trustLockTitle: 'អ៊ិនគ្រីបពេលរក្សាទុក',
+    trustLockBody: 'Token ត្រូវបានអ៊ិនគ្រីប ហើយមិនបង្ហាញជាអក្សរធម្មតាឡើយ។',
+    trustScopeTitle: 'Meta Graph API',
+    trustScopeBody: 'KCMS ប្រើតែសិទ្ធិលើ Page ដែល Meta បានផ្ដល់ប៉ុណ្ណោះ។',
+    trustSyncTitle: 'សមកាលកម្មតាមកាលកំណត់',
+    trustSyncBody: 'មតិយោបល់ថ្មីត្រូវបានប្រមូល ខណៈអេក្រង់ត្រួតពិនិត្យបើក។',
+    loading: 'កំពុងផ្ទុក…',
   },
 } as const
 
-/** Facebook's own mark, inlined as SVG. A styled letter "f" only resembled it
- *  at a glance and rendered differently on machines lacking the font. */
-function FacebookMark() {
-  return (
-    <svg aria-hidden="true" className="provider-mark" focusable="false" viewBox="0 0 24 24">
-      <path
-        d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 3.925 23.094 9.101 24v-8.437H6.627v-2.49h2.474V9.9c0-2.457 1.457-3.813 3.678-3.813 1.066 0 2.18.19 2.18.19v2.4h-1.229c-1.21 0-1.587.755-1.587 1.53v1.837h2.7l-.431 2.49h-2.269V24C20.075 23.094 24 18.1 24 12.073z"
-        fill="#1877F2"
-      />
-      <path
-        d="M16.671 15.543 17.102 13.053h-2.7v-1.837c0-.775.377-1.53 1.587-1.53h1.229v-2.4s-1.114-.19-2.18-.19c-2.221 0-3.678 1.356-3.678 3.813v2.144H8.886v2.49h2.474V24a9.71 9.71 0 0 0 3.042 0v-8.457h2.269z"
-        fill="#fff"
-      />
-    </svg>
-  )
-}
-
-/** The same mark in a single colour, for use on Facebook's blue button where
- *  the two-tone version would put white on white. */
-function FacebookGlyph() {
-  return (
-    <svg aria-hidden="true" className="provider-glyph" focusable="false" viewBox="0 0 24 24">
-      <path
-        d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 3.925 23.094 9.101 24v-8.437H6.627v-2.49h2.474V9.9c0-2.457 1.457-3.813 3.678-3.813 1.066 0 2.18.19 2.18.19v2.4h-1.229c-1.21 0-1.587.755-1.587 1.53v1.837h2.7l-.431 2.49h-2.269V24C20.075 23.094 24 18.1 24 12.073z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
-/** Connecting a Page always upserts on the backend — reconnecting an
- *  already-held Page never counts against the plan limit — so the local list
- *  mirrors that: replace the matching row, or append when it is new. */
 function upsertConnection(data: PageConnections, connection: PageConnection): PageConnections {
   const current = Array.isArray(data?.connections) ? data.connections : []
   const exists = current.some((row) => row.page_id === connection.page_id)
@@ -148,6 +164,9 @@ function upsertConnection(data: PageConnections, connection: PageConnection): Pa
   }
 }
 
+/** The endpoint has returned two shapes over its life: a list of connections,
+ *  and a single connection object. Both are read here so an older backend does
+ *  not blank the screen. */
 function normalizePageConnections(res: unknown): PageConnections {
   if (!res || typeof res !== 'object') {
     return { connections: [], page_limit: 3, plan: 'STARTER' }
@@ -183,20 +202,28 @@ function normalizePageConnections(res: unknown): PageConnections {
 
 export function ConnectPage({ locale }: ConnectPageProps) {
   const t = text[locale]
-  const planName = (plan?: string) =>
-    copy[locale].pricingPlans.find((candidate) => candidate.id === plan?.toLowerCase())?.name ?? (plan || 'Prototype')
+  const content = copy[locale]
+  const session = useSession()
+
+  // Page connections
   const [data, setData] = useState<PageConnections | null>(null)
   const [state, setState] = useState<LoadState>('loading')
-  const [token, setToken] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(false)
-  const [tokenError, setTokenError] = useState<string | null>(null)
   const [choices, setChoices] = useState<PageChoice[]>([])
   const [oauthState, setOauthState] = useState<string | null>(null)
   const [facebookError, setFacebookError] = useState<string | null>(null)
   const [selectedPage, setSelectedPage] = useState('')
 
-  const load = useCallback(async () => {
+  // Team
+  const [team, setTeam] = useState<Team | null>(null)
+  const [teamRole, setTeamRole] = useState<'owner' | 'member'>('member')
+  const [freshInvite, setFreshInvite] = useState<CreatedInvitation | null>(null)
+  const [copied, setCopied] = useState(false)
+  const [teamProblem, setTeamProblem] = useState<string | null>(null)
+  const [teamBusy, setTeamBusy] = useState(false)
+
+  const loadData = useCallback(async () => {
     try {
       const res = await listFacebookConnections()
       setData(normalizePageConnections(res))
@@ -207,9 +234,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     }
 
     const params = new URLSearchParams(window.location.search)
-
-    // Meta's own refusals arrive as a code from the callback rather than as a
-    // failed request, so they are read here before anything else.
     const failed = params.get('facebook_error')
     if (failed) {
       setFacebookError(t.oauthErrors[failed as keyof typeof t.oauthErrors] ?? t.error)
@@ -220,9 +244,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     const callbackState = params.get('facebook_session')
     if (!callbackState) return
 
-    // Returning from Meta is the end of the flow. A failure here must explain
-    // itself rather than replacing the screen with a bare error, which left no
-    // way to see what went wrong or to start again.
     try {
       const available = await listFacebookPageChoices(callbackState)
       setOauthState(callbackState)
@@ -236,17 +257,30 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             ? caught.detail
             : t.error,
       )
-      // Only a session that cannot be used again is cleared. Clearing it while
-      // the Page chooser is still waiting to be confirmed meant one refresh
-      // dropped the operator back to "connect" with the authorization lost.
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [t])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load()
-  }, [load])
+    void loadData()
+  }, [loadData])
+
+  useEffect(() => {
+    void getTeam()
+      .then((res) => {
+        if (res && Array.isArray(res.members)) setTeam(res)
+      })
+      .catch(() => {})
+  }, [])
+
+  async function refreshTeam() {
+    try {
+      setTeam(await getTeam())
+    } catch {
+      // The visible list stays as it was; the action's own error is reported.
+    }
+  }
 
   async function beginFacebook() {
     setBusy(true)
@@ -255,8 +289,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
       const result = await startFacebookAuthorization()
       window.location.assign(result.authorization_url)
     } catch (caught) {
-      // 503 means the deployment has no app credentials, which is an operator
-      // problem, not something the person clicking can fix by retrying.
       setFacebookError(
         caught instanceof ApiError && caught.status === 503
           ? t.facebookUnavailable
@@ -264,25 +296,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             ? caught.detail
             : t.error,
       )
-      setBusy(false)
-    }
-  }
-
-  async function submitToken(event: React.FormEvent) {
-    event.preventDefault()
-    if (!token.trim()) return
-    setBusy(true)
-    setError(false)
-    setTokenError(null)
-    try {
-      const connection = await connectFacebookPageManually(token.trim())
-      setData((current) => (current ? upsertConnection(current, connection) : current))
-      setToken('')
-    } catch (caught) {
-      // Meta's refusal usually names the actual mistake — the wrong token
-      // kind, an expired token — and a generic message hides it.
-      setTokenError(caught instanceof ApiError && caught.detail ? caught.detail : t.error)
-    } finally {
       setBusy(false)
     }
   }
@@ -299,11 +312,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
       setOauthState(null)
       window.history.replaceState({}, '', window.location.pathname)
     } catch (caught) {
-      // The last step of the flow. A bare "something went wrong" here left the
-      // operator believing the Page was connected when it was not.
-      setFacebookError(
-        caught instanceof ApiError && caught.detail ? caught.detail : t.error,
-      )
+      setFacebookError(caught instanceof ApiError && caught.detail ? caught.detail : t.error)
     } finally {
       setBusy(false)
     }
@@ -315,7 +324,9 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     try {
       await disconnectFacebookPage(pageId)
       setData((current) =>
-        current ? { ...current, connections: (current.connections || []).filter((row) => row.page_id !== pageId) } : current,
+        current
+          ? { ...current, connections: (current.connections || []).filter((row) => row.page_id !== pageId) }
+          : current,
       )
     } catch {
       setError(true)
@@ -324,263 +335,404 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     }
   }
 
-  if (state === 'loading') return <main className="dash-body"><p className="work-status" role="status">Loading…</p></main>
+  const isOwner = team?.your_role === 'owner'
+  const inviteUrl = freshInvite ? `${window.location.origin}/join/${freshInvite.token}` : ''
 
-  if (state === 'error' || !data) {
-    return <main className="dash-body"><div className="work-error" role="alert"><p>{t.error}</p><button className="button" onClick={() => { setState('loading'); void load() }} type="button">{t.retry}</button></div></main>
+  async function inviteMember() {
+    setTeamBusy(true)
+    setTeamProblem(null)
+    try {
+      setFreshInvite(await createInvitation(teamRole))
+      setCopied(false)
+      await refreshTeam()
+    } catch {
+      setTeamProblem(content.authUnreachable)
+    } finally {
+      setTeamBusy(false)
+    }
   }
 
-  const connections = Array.isArray(data?.connections) ? data.connections : []
-  const pageLimit = data?.page_limit ?? 3
+  async function removeTeamMember(userId: string) {
+    setTeamProblem(null)
+    try {
+      await removeMember(userId)
+      await refreshTeam()
+    } catch (caught) {
+      setTeamProblem(
+        caught instanceof ApiError && caught.status === 409
+          ? content.teamLastOwner
+          : content.authUnreachable,
+      )
+    }
+  }
+
+  if (state === 'loading') {
+    return <PageState kind="loading" message={t.loading} />
+  }
+
+  if (state === 'error' || !data) {
+    return (
+      <PageState
+        action={
+          <button className="ws-btn" onClick={() => { setState('loading'); void loadData() }} type="button">
+            {t.retry}
+          </button>
+        }
+        kind="error"
+        message={t.error}
+      />
+    )
+  }
+
+  const connections = Array.isArray(data.connections) ? data.connections : []
+  const pageLimit = data.page_limit ?? 3
   const atCap = connections.length >= pageLimit
+  const members = team && Array.isArray(team.members) ? team.members : []
+  const invitations = team && Array.isArray(team.invitations) ? team.invitations : []
+  const isGrowth = data.plan === 'GROWTH'
 
   return (
-    <main className="dash-body">
-      <header className="dash-head">
-        <div className="dash-head-text">
-          <h1>{t.title}</h1>
-          <p>{t.lead}</p>
-        </div>
-      </header>
-
-      {/* Plan Capacity & Visual Slots Gauge */}
-      <section aria-label={t.planCapacityTitle} className="conn-plan-hero">
-        <div className="conn-plan-hero-left">
-          <div className="conn-plan-title-block">
-            <div className="conn-plan-tier-wrap">
-              <span className={`conn-plan-tier-badge is-${(data.plan || 'STARTER').toLowerCase()}`}>
-                <svg className="conn-tier-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-                <span>{data.plan === 'GROWTH' ? t.growthBadge : t.starterBadge}</span>
-              </span>
-              <span className="conn-plan-slots-count">
-                {t.slotsLeft(Math.max(0, pageLimit - connections.length))}
-              </span>
-            </div>
-            <p className="conn-plan-lead-desc">
-              {data.plan === 'GROWTH' ? t.growthSubtitle : t.starterSubtitle}
-            </p>
-          </div>
-          <div className="conn-slots-visual-bar">
-            {Array.from({ length: pageLimit }).map((_, i) => {
-              const isFilled = i < connections.length
-              const page = isFilled ? connections[i] : null
-              return (
-                <div
-                  className={`conn-slot-pill ${isFilled ? 'is-filled' : 'is-empty'}`}
-                  key={i}
-                  title={isFilled ? `Slot ${i + 1}: ${page?.page_name}` : `Slot ${i + 1}: Available`}
-                >
-                  <span className="conn-slot-dot" />
-                  <span className="conn-slot-label">
-                    {isFilled ? `Slot ${i + 1}: ${page?.can_moderate ? t.ready : t.connected}` : `${t.availableSlot} ${i + 1}`}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-        {data.plan !== 'GROWTH' && (
-          <div className="conn-plan-hero-right">
-            <a className="button button-upgrade" href="/#early-access">
-              <span>{t.upgradeToGrowthCta}</span>
-              <svg className="conn-arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </a>
-          </div>
-        )}
-      </section>
-
-      {connections.length > 0 && (
-        <section aria-label={t.connectedPagesTitle} className="conn-connected-section">
-          <div className="conn-section-header">
-            <div className="conn-section-title-wrap">
-              <h2>{t.connectedPagesTitle}</h2>
-              <span className="conn-quota-pill">
-                {t.pagesUsage(connections.length, pageLimit)} · {planName(data.plan)}
-              </span>
-            </div>
-          </div>
-          <ul className="connected-pages-list">
-            {connections.map((page) => {
-              const method = page.method === 'FACEBOOK_LOGIN' ? t.facebookMethod : t.tokenMethod
-              return (
-                <li className="connected-page-card" key={page.page_id}>
-                  <div className="conn-card-top">
-                    <div className="conn-card-identity">
-                      <div className="conn-page-avatar">
-                        <FacebookMark />
-                      </div>
-                      <div className="conn-page-titles">
-                        <span className="connection-kicker">{method}</span>
-                        <h3>{page.page_name}</h3>
-                        <span className="conn-page-id-badge">ID: {page.page_id}</span>
-                      </div>
-                    </div>
-                    <div className={`conn-status-badge ${page.can_moderate ? 'is-ready' : 'is-warning'}`}>
-                      <span className="conn-status-dot" />
-                      <span className="connection-capability">{page.can_moderate ? t.ready : t.permissionWarning}</span>
-                    </div>
-                  </div>
-                  <dl className="connection-facts conn-facts-grid">
-                    <div className="conn-fact-tile">
-                      <dt>{t.method}</dt>
-                      <dd>{method}</dd>
-                    </div>
-                    <div className="conn-fact-tile">
-                      <dt>{t.capability}</dt>
-                      <dd>{page.tasks?.join(', ') || '—'}</dd>
-                    </div>
-                    <div className="conn-fact-tile">
-                      <dt>{t.lastSync}</dt>
-                      <dd>{page.last_synced_at ? new Date(page.last_synced_at).toLocaleString() : t.syncWaiting}</dd>
-                    </div>
-                    <div className="conn-fact-tile">
-                      <dt>{t.connectedAt}</dt>
-                      <dd>{page.connected_at ? new Date(page.connected_at).toLocaleString() : '—'}</dd>
-                    </div>
-                  </dl>
-                  <div className="conn-card-footer">
-                    <button className="button button-danger button-small" disabled={busy} onClick={() => void disconnect(page.page_id)} type="button">{busy ? t.disconnecting : t.disconnect}</button>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-          {error && <p className="auth-error" role="alert">{t.error}</p>}
-        </section>
-      )}
-
-      {atCap ? (
-        <section className="connection-option conn-cap-card">
-          <div className="conn-cap-content">
-            <h2>{t.atCapTitle}</h2>
-            <p>{t.atCapBody}</p>
-            <a className="button button-small" href="/#early-access">{t.upgradeCta}</a>
-          </div>
-        </section>
-      ) : choices.length > 0 ? (
-        <section className="connection-chooser conn-chooser-card">
-          <div className="conn-chooser-head">
-            <h2>{t.choose}</h2>
-            <p>{t.chooseHelp}</p>
-          </div>
-          <div className="page-choice-list">
-            {choices.map((page) => (
-              <label className={`page-choice ${selectedPage === page.page_id ? 'is-selected' : ''}`} key={page.page_id}>
-                <input checked={selectedPage === page.page_id} name="facebook-page" onChange={() => setSelectedPage(page.page_id)} type="radio" />
-                <div className="page-choice-content">
-                  <strong>{page.page_name}</strong>
-                  <small className={page.can_moderate ? 'is-ready' : 'is-warning'}>{page.can_moderate ? t.ready : t.permissionWarning}</small>
-                </div>
-              </label>
-            ))}
-          </div>
-          {(facebookError || error) && <p className="auth-error" role="alert">{facebookError ?? t.error}</p>}
-          <button className="button" disabled={busy || !selectedPage} onClick={() => void confirmPage()} type="button">{busy ? t.connecting : t.confirm}</button>
-        </section>
-      ) : oauthState ? <p className="work-status">{t.noPages}</p> : (
-        <div className="connection-options conn-grid">
-          {/* Supported Token Method */}
-          <section className="connection-option is-recommended conn-method-card is-token-card">
-            <div className="connection-option-head">
-              <div className="conn-method-icon-wrap">
-                <FacebookMark />
-              </div>
-              <span className="work-chip connection-recommended">{t.recommended}</span>
-            </div>
-            <h2>{t.tokenTitle}</h2>
-            <p>{t.tokenLead}</p>
-            <form className="advanced-token-form conn-token-form" onSubmit={submitToken}>
-              <div className="conn-field-wrap">
-                <div className="conn-label-row">
-                  <label htmlFor="page-access-token">{t.token}</label>
-                  <span className="conn-secure-tag">🔒 {locale === 'km' ? 'បានអ៊ិនគ្រីប' : 'Encrypted'}</span>
-                </div>
-                <input autoComplete="off" className="conn-token-input" id="page-access-token" onChange={(event) => setToken(event.target.value)} placeholder="EAA..." type="password" value={token} />
-                <p className="conn-field-hint">{t.tokenHint}</p>
-              </div>
-              {tokenError && <p className="auth-error" role="alert">{tokenError}</p>}
-              <button className="button button-token-submit" disabled={busy || !token.trim()} type="submit">
-                {busy ? t.connecting : t.validate}
+    <Page>
+      <PageHead
+        actions={
+          <>
+            <Badge tone={isGrowth ? 'accent' : 'neutral'}>
+              <Icon className="ws-btn-icon" name="star" />
+              {isGrowth ? t.growthBadge : t.starterBadge}
+            </Badge>
+            {!atCap && (
+              <button
+                className="ws-btn"
+                disabled={busy}
+                onClick={() => void beginFacebook()}
+                type="button"
+              >
+                <Icon className="ws-btn-icon" name="plus" />
+                <span>{busy ? content.connAdding : content.connAdd}</span>
               </button>
-            </form>
-          </section>
+            )}
+            {isOwner && (
+              <button
+                className="ws-btn"
+                disabled={teamBusy}
+                onClick={() => void inviteMember()}
+                type="button"
+              >
+                <Icon className="ws-btn-icon" name="plus" />
+                <span>{content.teamInvite}</span>
+              </button>
+            )}
+          </>
+        }
+        lead={t.lead}
+        title={t.title}
+      />
 
-          {/* Facebook Direct OAuth */}
-          <section className="connection-option is-advanced conn-method-card is-oauth-card">
-            <div className="connection-option-head">
-              <div className="conn-method-icon-wrap">
-                <FacebookMark />
-              </div>
-              <span className="conn-oauth-badge">{t.directOAuth}</span>
+      {/* ---- Facebook Pages -------------------------------------------- */}
+      <div className="ws-stack">
+          <Card
+            actions={
+              !isGrowth && (
+                <a className="ws-btn" data-variant="secondary" href="/#pricing">
+                  <span>{t.upgradeToGrowthCta}</span>
+                  <Icon className="ws-btn-icon" name="arrowRight" />
+                </a>
+              )
+            }
+            description={isGrowth ? t.growthSubtitle : t.starterSubtitle}
+            title={t.planCapacityTitle}
+          >
+            <div className="ws-stack-tight">
+              <Meter
+                caption={t.pagesUsage(connections.length, pageLimit)}
+                label={content.connPagesUsed}
+                max={pageLimit}
+                value={connections.length}
+              />
+              <ul className="ws-slots">
+                {Array.from({ length: pageLimit }).map((_, index) => {
+                  const conn = connections[index]
+                  return (
+                    <li
+                      className="ws-slot"
+                      data-state={conn ? 'used' : 'free'}
+                      key={conn?.page_id ?? `slot-${index}`}
+                    >
+                      <Icon className="ws-btn-icon" name={conn ? 'check' : 'plus'} />
+                      <span className="ws-slot-name">
+                        {conn ? conn.page_name : `${content.connOpenSlot} ${index + 1}`}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
             </div>
-            <h2>{t.facebook}</h2>
-            <p>{t.facebookHelp}</p>
-            <ul className="conn-feature-bullets">
-              <li>
-                <svg className="conn-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span>{t.oauthFeature1}</span>
-              </li>
-              <li>
-                <svg className="conn-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span>{t.oauthFeature2}</span>
-              </li>
-              <li>
-                <svg className="conn-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span>{t.oauthFeature3}</span>
-              </li>
-            </ul>
-            {facebookError && <p className="auth-error" role="alert">{facebookError}</p>}
-            <button className="button button-facebook" disabled={busy} onClick={() => void beginFacebook()} type="button">
-              <FacebookGlyph />
-              <span>{busy ? t.connecting : t.facebook}</span>
-            </button>
-          </section>
-        </div>
-      )}
+          </Card>
 
-      {/* Security & Assurance Badge Row */}
-      <div className="conn-trust-strip">
-        <div className="conn-trust-item">
-          <svg className="conn-trust-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-          <div>
-            <strong>{locale === 'km' ? 'បានអ៊ិនគ្រីបពេលរក្សាទុក' : 'Encrypted at rest'}</strong>
-            <small>{locale === 'km' ? 'Token ត្រូវបានរក្សាទុកដោយសុវត្ថិភាព' : 'Tokens encrypted at rest, never shown in plain text'}</small>
-          </div>
-        </div>
-        <div className="conn-trust-item">
-          <svg className="conn-trust-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          <div>
-            <strong>{locale === 'km' ? 'ការភ្ជាប់ Meta Graph API' : 'Meta Graph API integration'}</strong>
-            <small>{locale === 'km' ? 'ប្រើតែសិទ្ធិដែលបានផ្ដល់តាម Meta' : 'Uses only the Page permissions granted through Meta'}</small>
-          </div>
-        </div>
-        <div className="conn-trust-item">
-          <svg className="conn-trust-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 14 14" />
-          </svg>
-          <div>
-            <strong>{locale === 'km' ? 'ធ្វើសមកាលកម្មជាប្រចាំ' : 'Periodic synchronization'}</strong>
-            <small>{locale === 'km' ? 'ពិនិត្យមតិយោបល់ថ្មី ពេលផ្ទាំងគ្រប់គ្រងបើក' : 'Checks for new comments while the moderation screen is open'}</small>
-          </div>
-        </div>
+          {facebookError && (
+            <Banner role="alert" tone="danger">{facebookError}</Banner>
+          )}
+          {error && <Banner role="alert" tone="danger">{t.error}</Banner>}
+
+          {/* Returned from Meta with a set of authorized Pages to pick from. */}
+          {choices.length > 0 && (
+            <Card description={t.chooseHelp} title={t.choose} tone="accent">
+              <div className="ws-stack-tight">
+                <ul className="ws-choices">
+                  {choices.map((page) => (
+                    <li key={page.page_id}>
+                      <label className="ws-choice">
+                        <input
+                          checked={selectedPage === page.page_id}
+                          name="page_choice"
+                          onChange={() => setSelectedPage(page.page_id)}
+                          type="radio"
+                          value={page.page_id}
+                        />
+                        <span className="ws-choice-text">
+                          <span className="ws-choice-name">{page.page_name}</span>
+                          <span className="ws-choice-id">{page.page_id}</span>
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+                <div className="ws-form-actions">
+                  <button
+                    className="ws-btn"
+                    disabled={busy || !selectedPage}
+                    onClick={() => void confirmPage()}
+                    type="button"
+                  >
+                    {t.confirm}
+                  </button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {atCap && (
+            <Banner role="status" title={t.atCapTitle} tone="amber">
+              {t.atCapBody}
+            </Banner>
+          )}
+
+          <Card
+            actions={<Badge tone="neutral">{t.pagesUsage(connections.length, pageLimit)}</Badge>}
+            description={t.connectedPagesLead}
+            title={t.connectedPagesTitle}
+          >
+            {connections.length === 0 ? (
+              <EmptyState
+                description={content.connEmptyPagesLead}
+                icon="page"
+                title={content.connEmptyPages}
+              />
+            ) : (
+              <ul className="ws-rows">
+                {connections.map((conn) => (
+                  <li className="ws-row" key={conn.page_id}>
+                    <div className="ws-row-main">
+                      <Avatar icon="page" />
+                      <div className="ws-row-text">
+                        <p className="ws-row-title">{conn.page_name}</p>
+                        <p className="ws-row-sub">ID: {conn.page_id}</p>
+                        <div className="ws-row-tags">
+                          {conn.can_moderate === false ? (
+                            <Badge tone="amber">{t.permissionShort}</Badge>
+                          ) : (
+                            <Badge dot tone="accent">{t.ready}</Badge>
+                          )}
+                          <Badge tone="neutral">{content.connMethodFacebook}</Badge>
+                        </div>
+                        {conn.can_moderate === false && (
+                          <p className="ws-row-sub">{t.permissionWarning}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="ws-row-meta">
+                      <button
+                        className="ws-btn"
+                        data-size="sm"
+                        data-variant="danger"
+                        disabled={busy}
+                        onClick={() => void disconnect(conn.page_id)}
+                        type="button"
+                      >
+                        {t.disconnect}
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+
+          <ul className="ws-trust">
+            <li>
+              <Icon name="lock" />
+              <div>
+                <strong>{t.trustLockTitle}</strong>
+                <p>{t.trustLockBody}</p>
+              </div>
+            </li>
+            <li>
+              <Icon name="shield" />
+              <div>
+                <strong>{t.trustScopeTitle}</strong>
+                <p>{t.trustScopeBody}</p>
+              </div>
+            </li>
+            <li>
+              <Icon name="clock" />
+              <div>
+                <strong>{t.trustSyncTitle}</strong>
+                <p>{t.trustSyncBody}</p>
+              </div>
+            </li>
+          </ul>
       </div>
-    </main>
+
+      {/* ---- Team ------------------------------------------------------- */}
+      <div className="ws-stack">
+          {teamProblem && <Banner role="alert" tone="danger">{teamProblem}</Banner>}
+
+          <Card
+            actions={<Badge tone="neutral">{t.teamMembersCount(members.length)}</Badge>}
+            description={t.teamLead}
+            title={t.teamTitle}
+            footer={!isOwner ? <p className="ws-card-note">{content.teamOwnerOnly}</p> : undefined}
+          >
+            {members.length === 0 ? (
+              <EmptyState
+                description={content.connTeamEmptyLead}
+                icon="users"
+                title={content.connTeamEmpty}
+              />
+            ) : (
+              <ul className="ws-rows">
+                {members.map((member) => {
+                  const you = member.user_id === session.user?.id
+                  return (
+                    <li className="ws-row" key={member.user_id}>
+                      <div className="ws-row-main">
+                        <Avatar name={member.display_name} />
+                        <div className="ws-row-text">
+                          <p className="ws-row-title">
+                            {member.display_name}
+                            {you && <Badge tone="accent">{content.teamYou}</Badge>}
+                          </p>
+                          {member.email && <p className="ws-row-sub">{member.email}</p>}
+                        </div>
+                      </div>
+                      <div className="ws-row-meta">
+                        <Badge tone={member.role === 'owner' ? 'violet' : 'neutral'}>
+                          {member.role === 'owner' ? content.teamOwner : content.teamMember}
+                        </Badge>
+                        {isOwner && !you && (
+                          <button
+                            className="ws-link-btn"
+                            data-tone="danger"
+                            onClick={() => void removeTeamMember(member.user_id)}
+                            type="button"
+                          >
+                            {content.teamRemove}
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </Card>
+
+          {/* The role picker sits beside the members it governs; the invite
+              action itself is the page's header button. A fresh link is shown
+              here because it can only ever be shown once. */}
+          {isOwner && (
+            <Card
+              actions={
+                <SelectField
+                  id="invite-role"
+                  label={content.teamInviteRole}
+                  onChange={(e) => setTeamRole(e.target.value as 'owner' | 'member')}
+                  value={teamRole}
+                >
+                  <option value="member">{content.teamMember}</option>
+                  <option value="owner">{content.teamOwner}</option>
+                </SelectField>
+              }
+              description={t.teamInviteSubtitle}
+              title={t.teamInviteTitle}
+            >
+              <div className="ws-stack-tight">
+                {freshInvite && (
+                  <>
+                    <Banner icon="link" role="status" title={content.teamLinkTitle} tone="accent">
+                      {content.teamLinkBody}
+                    </Banner>
+                    <div className="ws-copy-row">
+                      <input aria-label={content.teamLinkTitle} readOnly value={inviteUrl} />
+                      <button
+                        className="ws-btn"
+                        data-variant="secondary"
+                        onClick={() => {
+                          void navigator.clipboard?.writeText(inviteUrl)
+                          setCopied(true)
+                        }}
+                        type="button"
+                      >
+                        <Icon className="ws-btn-icon" name="copy" />
+                        <span>{copied ? content.teamCopied : content.teamCopy}</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* Open invitations are rows in the same shape as members, so
+                    the tab reads as one list of people, pending or joined. */}
+                <h3 className="ws-subhead">{content.connInviteOpen}</h3>
+                {invitations.length === 0 ? (
+                  <p className="ws-card-note">{content.connInviteNone}</p>
+                ) : (
+                  <ul className="ws-rows">
+                    {invitations.map((invitation) => (
+                      <li className="ws-row" key={invitation.token_hash}>
+                        <div className="ws-row-main">
+                          <Avatar icon="mail" />
+                          <div className="ws-row-text">
+                            <p className="ws-row-title">
+                              {invitation.role === 'owner' ? content.teamOwner : content.teamMember}
+                            </p>
+                            <p className="ws-row-sub">
+                              {content.teamExpires}{' '}
+                              {new Date(invitation.expires_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="ws-row-meta">
+                          <Badge tone="amber">{content.teamPending}</Badge>
+                          <button
+                            className="ws-link-btn"
+                            data-tone="danger"
+                            onClick={async () => {
+                              await revokeInvitation(invitation.token_hash)
+                              await refreshTeam()
+                            }}
+                            type="button"
+                          >
+                            {content.teamRevoke}
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </Card>
+          )}
+      </div>
+    </Page>
   )
 }

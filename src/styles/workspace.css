@@ -1,0 +1,291 @@
+/* ==========================================================================
+   KCMS Workspace design system
+   --------------------------------------------------------------------------
+   One vocabulary for the authenticated screens (Pages & Team, Settings,
+   Profile). Every primitive here is prefixed `ws-` so it sits outside the
+   older dashboard cascade and cannot be reshaped by it: the pages that use
+   these classes look the same wherever they appear.
+   ========================================================================== */
+
+.dashboard {
+  /* Surfaces */
+  --ws-surface: #ffffff;
+  --ws-surface-sunken: #f7f9f8;
+  --ws-surface-accent: #f1faf8;
+  --ws-surface-warn: #fffaf1;
+  --ws-surface-danger: #fdf3f2;
+
+  /* Lines */
+  --ws-line: rgba(24, 48, 51, 0.12);
+  --ws-line-strong: rgba(24, 48, 51, 0.2);
+  --ws-line-accent: rgba(11, 107, 99, 0.3);
+
+  /* Ink */
+  --ws-ink: #183033;
+  --ws-ink-muted: #587074;
+  --ws-ink-faint: #7d9296;
+
+  /* Accents */
+  --ws-accent: #0b6b63;
+  --ws-accent-deep: #064b46;
+  --ws-amber: #c26a0a;
+  --ws-danger: #b42318;
+  --ws-danger-deep: #8a1c13;
+
+  /* Shape */
+  --ws-radius-sm: 0.4rem;
+  --ws-radius: 0.6rem;
+  --ws-radius-pill: 9999px;
+
+  /* Elevation */
+  --ws-shadow-sm: 0 1px 2px rgba(24, 48, 51, 0.05);
+  --ws-shadow: 0 1px 3px rgba(24, 48, 51, 0.06), 0 8px 24px -16px rgba(24, 48, 51, 0.28);
+
+  /* Rhythm */
+  --ws-pad: 1.15rem;
+}
+
+/* ---- Page frame ---------------------------------------------------------- */
+.ws-page { display: flex; flex-direction: column; gap: 1.15rem; width: min(100% - 2rem, 74rem); margin-inline: auto; padding-block: 1.6rem 3.5rem; }
+.ws-page-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.ws-page-head-text { min-width: 0; }
+.ws-page-title { max-width: none; margin: 0; color: var(--ws-ink); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.ws-page-lead { max-width: 56ch; margin: 0.3rem 0 0; color: var(--ws-ink-muted); font-size: 0.85rem; line-height: 1.6; }
+.ws-page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.site[lang='km'] .ws-page-lead { line-height: 1.85; }
+
+/* Vertical stacks and column grids used inside panels. */
+.ws-stack { display: flex; flex-direction: column; gap: 1.15rem; }
+.ws-stack-tight { display: flex; flex-direction: column; gap: 0.6rem; }
+.ws-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1.15rem; align-items: stretch; }
+
+/* ---- Tabs ---------------------------------------------------------------- */
+.ws-tabs { display: flex; gap: 0.25rem; padding: 0.28rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius); background: var(--ws-surface-sunken); width: fit-content; max-width: 100%; overflow-x: auto; }
+.ws-tab { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.85rem; border: 0; border-radius: var(--ws-radius-sm); background: transparent; color: var(--ws-ink-muted); font-size: 0.82rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease; }
+.ws-tab:hover { color: var(--ws-ink); background: rgba(24, 48, 51, 0.05); }
+.ws-tab.is-active { color: var(--ws-ink); background: var(--ws-surface); box-shadow: var(--ws-shadow-sm); }
+.ws-tab-icon { width: 1rem; height: 1rem; flex-shrink: 0; }
+.ws-tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 1.35rem; padding: 0.05rem 0.35rem; border-radius: var(--ws-radius-pill); background: rgba(24, 48, 51, 0.08); color: var(--ws-ink-muted); font-size: 0.68rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ws-tab.is-active .ws-tab-count { background: rgba(11, 107, 99, 0.12); color: var(--ws-accent); }
+
+/* ---- Card ---------------------------------------------------------------- */
+.ws-card { display: flex; flex-direction: column; min-width: 0; border: 1px solid var(--ws-line); border-radius: var(--ws-radius); background: var(--ws-surface); box-shadow: var(--ws-shadow-sm); }
+.ws-card[data-tone='accent'] { border-color: var(--ws-line-accent); }
+.ws-card[data-tone='danger'] { border-color: rgba(180, 35, 24, 0.28); }
+.ws-card-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 0.75rem; padding: var(--ws-pad) var(--ws-pad) 0; }
+.ws-card-head-text { min-width: 0; }
+.ws-card-title { max-width: none; margin: 0; color: var(--ws-ink); font-size: 0.95rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.3; }
+.ws-card-desc { max-width: 62ch; margin: 0.25rem 0 0; color: var(--ws-ink-muted); font-size: 0.8rem; line-height: 1.55; }
+.site[lang='km'] .ws-card-desc { line-height: 1.8; }
+.ws-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.ws-card-body { display: flex; flex-direction: column; flex: 1; padding: var(--ws-pad); }
+.ws-card-head + .ws-card-body { padding-top: 0.9rem; }
+.ws-card-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.85rem var(--ws-pad); border-top: 1px solid var(--ws-line); background: var(--ws-surface-sunken); border-radius: 0 0 var(--ws-radius) var(--ws-radius); }
+.ws-card-note { margin: 0; color: var(--ws-ink-muted); font-size: 0.78rem; line-height: 1.55; }
+
+/* ---- Buttons ------------------------------------------------------------- */
+.ws-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.3rem; padding: 0.45rem 0.9rem; border: 1px solid transparent; border-radius: var(--ws-radius-sm); background: var(--ws-accent); color: #ffffff; font-size: 0.82rem; font-weight: 600; line-height: 1.2; text-decoration: none; cursor: pointer; transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease; }
+.ws-btn:hover { background: #095d56; transform: translateY(-1px); }
+.ws-btn:active { transform: translateY(0); }
+.ws-btn[disabled], .ws-btn[aria-disabled='true'] { opacity: 0.55; cursor: not-allowed; transform: none; }
+.ws-btn-icon { width: 1rem; height: 1rem; flex-shrink: 0; }
+/* Flags are 23:16 artwork, so they get their own box rather than the square icon one. */
+.ws-flag { width: 1.15rem; height: auto; aspect-ratio: 23 / 16; flex-shrink: 0; border-radius: 0.13rem; box-shadow: 0 0 0 1px rgba(24, 48, 51, 0.16); object-fit: contain; }
+
+.ws-btn[data-variant='secondary'] { border-color: var(--ws-line-strong); background: var(--ws-surface); color: var(--ws-ink); }
+.ws-btn[data-variant='secondary']:hover { border-color: var(--ws-accent); background: var(--ws-surface-accent); color: var(--ws-accent); }
+.ws-btn[data-variant='ghost'] { background: transparent; color: var(--ws-ink-muted); }
+.ws-btn[data-variant='ghost']:hover { background: rgba(24, 48, 51, 0.06); color: var(--ws-ink); }
+.ws-btn[data-variant='danger'] { border-color: rgba(180, 35, 24, 0.3); background: var(--ws-surface); color: var(--ws-danger); }
+.ws-btn[data-variant='danger']:hover { background: var(--ws-danger); border-color: var(--ws-danger); color: #ffffff; }
+.ws-btn[data-variant='danger-solid'] { background: var(--ws-danger); color: #ffffff; }
+.ws-btn[data-variant='danger-solid']:hover { background: var(--ws-danger-deep); }
+.ws-btn[data-variant='facebook'] { background: #1877f2; border-color: #1877f2; color: #ffffff; }
+.ws-btn[data-variant='facebook']:hover { background: #0f62d0; border-color: #0f62d0; }
+.ws-btn[data-size='sm'] { min-height: 1.95rem; padding: 0.3rem 0.65rem; font-size: 0.76rem; }
+.ws-btn[data-size='lg'] { min-height: 2.85rem; padding: 0.7rem 1.3rem; font-size: 0.9rem; }
+.ws-btn[data-block='true'] { width: 100%; }
+
+/* A text-weight action for inline, low-frequency operations (Remove, Revoke). */
+.ws-link-btn { padding: 0.2rem 0.35rem; border: 0; border-radius: var(--ws-radius-sm); background: transparent; color: var(--ws-ink-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 140ms ease, color 140ms ease; }
+.ws-link-btn:hover { background: rgba(24, 48, 51, 0.06); color: var(--ws-ink); }
+.ws-link-btn[data-tone='danger'] { color: var(--ws-danger); }
+.ws-link-btn[data-tone='danger']:hover { background: rgba(180, 35, 24, 0.09); }
+
+/* ---- Badges -------------------------------------------------------------- */
+.ws-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.5rem; border: 1px solid transparent; border-radius: var(--ws-radius-pill); font-size: 0.7rem; font-weight: 650; line-height: 1.5; white-space: nowrap; }
+.ws-badge[data-tone='neutral'] { border-color: var(--ws-line-strong); background: rgba(24, 48, 51, 0.04); color: var(--ws-ink-muted); }
+.ws-badge[data-tone='accent'] { border-color: rgba(11, 107, 99, 0.22); background: rgba(11, 107, 99, 0.1); color: #075049; }
+.ws-badge[data-tone='amber'] { border-color: rgba(194, 106, 10, 0.28); background: rgba(194, 106, 10, 0.1); color: #8a4a05; }
+.ws-badge[data-tone='danger'] { border-color: rgba(180, 35, 24, 0.25); background: rgba(180, 35, 24, 0.08); color: var(--ws-danger); }
+.ws-badge[data-tone='violet'] { border-color: rgba(79, 70, 229, 0.25); background: rgba(79, 70, 229, 0.09); color: #3f38c4; }
+.ws-badge-dot { width: 0.4rem; height: 0.4rem; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.ws-badge-dot[data-pulse='true'] { animation: ws-pulse 2.2s ease-out infinite; }
+@keyframes ws-pulse { 0% { box-shadow: 0 0 0 0 rgba(11, 107, 99, 0.4); } 70% { box-shadow: 0 0 0 0.35rem rgba(11, 107, 99, 0); } 100% { box-shadow: 0 0 0 0 rgba(11, 107, 99, 0); } }
+@media (prefers-reduced-motion: reduce) { .ws-badge-dot[data-pulse='true'] { animation: none; } }
+
+/* ---- Avatar -------------------------------------------------------------- */
+.ws-avatar { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: linear-gradient(135deg, var(--ws-accent), var(--ws-accent-deep)); color: #ffffff; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.03em; }
+.ws-avatar[data-size='sm'] { width: 1.8rem; height: 1.8rem; font-size: 0.68rem; }
+.ws-avatar[data-size='lg'] { width: 3.5rem; height: 3.5rem; font-size: 1.15rem; }
+.ws-avatar[data-size='xl'] { width: 4.25rem; height: 4.25rem; font-size: 1.45rem; }
+.ws-avatar[data-tone='brand'] { background: #1877f2; border-radius: var(--ws-radius-sm); }
+.ws-avatar[data-tone='square'] { border-radius: var(--ws-radius-sm); background: rgba(11, 107, 99, 0.1); color: var(--ws-accent); }
+.ws-avatar svg { width: 1.15rem; height: 1.15rem; fill: currentColor; }
+
+/* ---- Rows (members, pages, invitations) ---------------------------------- */
+.ws-rows { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.ws-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 0.9rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface); transition: border-color 140ms ease, box-shadow 140ms ease; }
+.ws-row:hover { border-color: var(--ws-line-strong); box-shadow: var(--ws-shadow-sm); }
+.ws-row-main { display: flex; align-items: center; gap: 0.75rem; min-width: 0; flex: 1 1 16rem; }
+.ws-row-text { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.ws-row-title { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; margin: 0; color: var(--ws-ink); font-size: 0.86rem; font-weight: 650; line-height: 1.35; }
+.ws-row-sub { margin: 0; color: var(--ws-ink-muted); font-size: 0.76rem; line-height: 1.45; overflow-wrap: anywhere; }
+.ws-row-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-top: 0.3rem; }
+.ws-row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+
+/* ---- Definition facts ---------------------------------------------------- */
+.ws-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.6rem; margin: 0; }
+.ws-fact { display: flex; flex-direction: column; gap: 0.2rem; padding: 0.7rem 0.85rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface-sunken); }
+.ws-fact dt { color: var(--ws-ink-muted); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+.site[lang='km'] .ws-fact dt { letter-spacing: 0; text-transform: none; }
+.ws-fact dd { margin: 0; color: var(--ws-ink); font-size: 0.85rem; font-weight: 600; overflow-wrap: anywhere; }
+
+/* ---- Fields -------------------------------------------------------------- */
+.ws-field { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.ws-field-label { color: var(--ws-ink); font-size: 0.78rem; font-weight: 600; }
+.ws-field input, .ws-field select { width: 100%; min-height: 2.4rem; padding: 0.5rem 0.7rem; border: 1px solid var(--ws-line-strong); border-radius: var(--ws-radius-sm); background: var(--ws-surface); color: var(--ws-ink); font: inherit; font-size: 0.84rem; transition: border-color 140ms ease, box-shadow 140ms ease; }
+.ws-field input:focus-visible, .ws-field select:focus-visible { border-color: var(--ws-accent); outline: 2px solid rgba(11, 107, 99, 0.25); outline-offset: 1px; }
+.ws-field input:disabled, .ws-field select:disabled { background: var(--ws-surface-sunken); color: var(--ws-ink-faint); cursor: not-allowed; }
+.ws-field input[data-invalid='true'] { border-color: var(--ws-danger); }
+.ws-field-hint { margin: 0; color: var(--ws-ink-muted); font-size: 0.74rem; line-height: 1.5; }
+.ws-field-error { margin: 0; color: var(--ws-danger); font-size: 0.74rem; font-weight: 500; line-height: 1.5; }
+.ws-form { display: flex; flex-direction: column; gap: 0.85rem; }
+.ws-form-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem; }
+/* A button sharing a row with fields lines up with the inputs, not with the
+   bottom of whichever field happens to carry the longest hint. */
+.ws-form-row > .ws-btn { margin-top: 1.4rem; }
+.ws-form-row .ws-field { flex: 1 1 14rem; }
+.ws-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem; }
+.ws-save-state { color: var(--ws-accent); font-size: 0.76rem; font-weight: 600; }
+
+/* ---- Banners ------------------------------------------------------------- */
+.ws-banner { display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.8rem 0.95rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface-sunken); }
+.ws-banner[data-tone='accent'] { border-color: var(--ws-line-accent); background: var(--ws-surface-accent); }
+.ws-banner[data-tone='amber'] { border-color: rgba(194, 106, 10, 0.3); background: var(--ws-surface-warn); }
+.ws-banner[data-tone='danger'] { border-color: rgba(180, 35, 24, 0.3); background: var(--ws-surface-danger); }
+.ws-banner-icon { width: 1.05rem; height: 1.05rem; margin-top: 0.1rem; flex-shrink: 0; color: var(--ws-ink-muted); }
+.ws-banner[data-tone='accent'] .ws-banner-icon { color: var(--ws-accent); }
+.ws-banner[data-tone='amber'] .ws-banner-icon { color: var(--ws-amber); }
+.ws-banner[data-tone='danger'] .ws-banner-icon { color: var(--ws-danger); }
+.ws-banner-body { min-width: 0; flex: 1; }
+.ws-banner-title { display: block; margin: 0; color: var(--ws-ink); font-size: 0.82rem; font-weight: 650; line-height: 1.4; }
+.ws-banner-text { margin: 0.2rem 0 0; color: var(--ws-ink-muted); font-size: 0.79rem; line-height: 1.55; }
+.ws-banner-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
+
+/* ---- Meter --------------------------------------------------------------- */
+.ws-meter { display: flex; flex-direction: column; gap: 0.4rem; }
+.ws-meter-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.ws-meter-label { color: var(--ws-ink-muted); font-size: 0.76rem; font-weight: 600; }
+.ws-meter-value { color: var(--ws-ink); font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ws-meter-track { height: 0.4rem; border-radius: var(--ws-radius-pill); background: rgba(24, 48, 51, 0.09); overflow: hidden; }
+.ws-meter-fill { display: block; height: 100%; border-radius: inherit; background: var(--ws-accent); transition: width 300ms ease; }
+.ws-meter-fill[data-tone='amber'] { background: var(--ws-amber); }
+.ws-meter-fill[data-tone='danger'] { background: var(--ws-danger); }
+
+/* ---- Slot chips ---------------------------------------------------------- */
+.ws-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.ws-slot { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.7rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface); font-size: 0.78rem; }
+.ws-slot[data-state='free'] { border-style: dashed; background: var(--ws-surface-sunken); color: var(--ws-ink-faint); }
+.ws-slot[data-state='used'] { border-color: var(--ws-line-accent); background: var(--ws-surface-accent); color: #075049; font-weight: 600; }
+.ws-slot-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- Choice list (radio cards) ------------------------------------------- */
+.ws-choices { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.ws-choice { display: flex; align-items: center; gap: 0.65rem; padding: 0.7rem 0.85rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface); cursor: pointer; transition: border-color 140ms ease, background 140ms ease; }
+.ws-choice:hover { border-color: var(--ws-line-accent); background: var(--ws-surface-accent); }
+.ws-choice:has(input:checked) { border-color: var(--ws-accent); background: var(--ws-surface-accent); box-shadow: inset 0 0 0 1px var(--ws-accent); }
+.ws-choice input { width: 1rem; height: 1rem; accent-color: var(--ws-accent); flex-shrink: 0; }
+.ws-choice-text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.ws-choice-name { color: var(--ws-ink); font-size: 0.84rem; font-weight: 600; }
+.ws-choice-id { color: var(--ws-ink-muted); font-size: 0.73rem; font-variant-numeric: tabular-nums; }
+
+/* ---- Feature list -------------------------------------------------------- */
+.ws-features { display: flex; flex-direction: column; gap: 0.45rem; margin: 0; padding: 0; list-style: none; }
+.ws-features li { display: flex; align-items: flex-start; gap: 0.55rem; color: var(--ws-ink-muted); font-size: 0.8rem; line-height: 1.5; }
+.ws-features svg { width: 0.95rem; height: 0.95rem; margin-top: 0.15rem; flex-shrink: 0; color: var(--ws-accent); }
+
+/* ---- Copy field ---------------------------------------------------------- */
+.ws-copy-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ws-copy-row input { flex: 1 1 16rem; min-height: 2.4rem; padding: 0.5rem 0.7rem; border: 1px solid var(--ws-line-strong); border-radius: var(--ws-radius-sm); background: var(--ws-surface); font: inherit; font-size: 0.78rem; color: var(--ws-ink-muted); }
+
+/* ---- Empty state --------------------------------------------------------- */
+.ws-empty { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 2rem 1rem; text-align: center; border: 1px dashed var(--ws-line-strong); border-radius: var(--ws-radius-sm); background: var(--ws-surface-sunken); }
+.ws-empty-icon { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: rgba(11, 107, 99, 0.09); color: var(--ws-accent); }
+.ws-empty-icon svg { width: 1.2rem; height: 1.2rem; }
+.ws-empty-title { margin: 0; color: var(--ws-ink); font-size: 0.88rem; font-weight: 650; }
+.ws-empty-text { max-width: 42ch; margin: 0; color: var(--ws-ink-muted); font-size: 0.79rem; line-height: 1.55; }
+
+/* ---- Trust strip --------------------------------------------------------- */
+.ws-trust { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+.ws-trust li { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.8rem 0.9rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface-sunken); }
+.ws-trust svg { width: 1.05rem; height: 1.05rem; margin-top: 0.1rem; flex-shrink: 0; color: var(--ws-accent); }
+.ws-trust strong { display: block; color: var(--ws-ink); font-size: 0.8rem; font-weight: 650; }
+.ws-trust p { margin: 0.15rem 0 0; color: var(--ws-ink-muted); font-size: 0.76rem; line-height: 1.5; }
+
+/* ---- Page state (loading / error) ---------------------------------------- */
+.ws-state { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 4rem 1rem; text-align: center; color: var(--ws-ink-muted); font-size: 0.85rem; }
+.ws-spinner { width: 1.5rem; height: 1.5rem; border: 2px solid rgba(11, 107, 99, 0.2); border-top-color: var(--ws-accent); border-radius: 50%; animation: ws-spin 700ms linear infinite; }
+@keyframes ws-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ws-spinner { animation: none; } }
+
+/* ---- Profile identity header --------------------------------------------- */
+.ws-identity { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding: 1.25rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius); background: linear-gradient(135deg, var(--ws-surface-accent), var(--ws-surface)); }
+.ws-identity-text { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.ws-identity-name { max-width: none; margin: 0; color: var(--ws-ink); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.015em; line-height: 1.2; }
+.ws-identity-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+
+/* ---- Settings section navigation ----------------------------------------- */
+.ws-split { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.ws-sidenav { position: sticky; top: 1.5rem; display: flex; flex-direction: column; gap: 0.15rem; }
+.ws-sidenav-link { display: flex; align-items: center; gap: 0.55rem; padding: 0.45rem 0.65rem; border: 0; border-radius: var(--ws-radius-sm); background: transparent; color: var(--ws-ink-muted); font-size: 0.8rem; font-weight: 500; text-align: left; text-decoration: none; cursor: pointer; transition: background 140ms ease, color 140ms ease; }
+.ws-sidenav-link:hover { background: rgba(24, 48, 51, 0.05); color: var(--ws-ink); }
+.ws-sidenav-link.is-active { background: rgba(11, 107, 99, 0.1); color: var(--ws-accent); font-weight: 650; }
+.ws-sidenav-link svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+
+/* ---- Responsive ---------------------------------------------------------- */
+@media (max-width: 860px) {
+  .ws-page { width: min(100% - 1.5rem, 74rem); padding-block: 1.25rem 3rem; }
+  .ws-split { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .ws-sidenav { position: static; flex-direction: row; overflow-x: auto; padding-bottom: 0.25rem; border-bottom: 1px solid var(--ws-line); }
+  .ws-sidenav-link { white-space: nowrap; }
+}
+@media (max-width: 560px) {
+  .ws-row { align-items: flex-start; }
+  .ws-row-meta { width: 100%; justify-content: space-between; }
+  .ws-tabs { width: 100%; }
+  .ws-tab { flex: 1; justify-content: center; padding-inline: 0.5rem; }
+  /* Both tabs must fit without a scroller; the label alone still names them. */
+  .ws-tab-icon { display: none; }
+}
+
+/* ---- Sidebar account card as a link to the profile ----------------------- */
+.dash-account-card .dash-user-profile { display: flex; align-items: center; gap: 0.65rem; padding: 0.35rem; margin: -0.35rem; border-radius: var(--ws-radius-sm); color: inherit; text-decoration: none; transition: background 140ms ease; }
+.dash-account-card .dash-user-profile:hover { background: rgba(24, 48, 51, 0.06); }
+.dash-account-card .dash-user-profile.is-active { background: rgba(11, 107, 99, 0.1); }
+.dash-account-card .dash-user-meta { flex: 1; }
+.dash-nav-chevron { width: 0.9rem; height: 0.9rem; flex-shrink: 0; color: var(--ws-ink-faint); }
+.dash-account-card .dash-user-profile:hover .dash-nav-chevron { color: var(--ws-accent); }
+
+/* ---- Chip row (compact keyword preview) ----------------------------------- */
+.ws-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+.ws-word-mark[data-tone='OFFENSIVE'] { background: rgba(194, 106, 10, 0.1); color: var(--ws-amber); }
+.ws-subhead { margin: 0.35rem 0 0; color: var(--ws-ink-muted); font-size: 0.72rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+.site[lang='km'] .ws-subhead { letter-spacing: 0; text-transform: none; }
+.ws-card-actions .ws-field { min-width: 9rem; }
+/* Pushes a card's action to the bottom when its neighbour is taller. */
+.ws-actions-end { margin-top: auto; }
+
+/* Deleting is irreversible, so the control reads as destructive. */
+.button-action-delete { border-color: #b42318; background: #b42318; box-shadow: 0 0.28rem 0 #8a1c13; }
+.button-action-delete:hover { background: #9d1f15; }

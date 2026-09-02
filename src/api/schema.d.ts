@@ -196,10 +196,13 @@ export interface paths {
          * @description Records a moderation Action. Actions are append-only and reversible,
          *     and never become training labels.
          *
-         *     When the comment came from a connected Facebook Page, HIDE and UNHIDE are
-         *     applied on Facebook as well. The Action row and the Facebook state are
-         *     written together: if Facebook refuses, the row is rolled back, because an
-         *     Action records what actually happened to the comment.
+         *     When the comment came from a connected Facebook Page, DELETE is applied on
+         *     Facebook as well. The Action row and the Facebook state are written
+         *     together: if Facebook refuses, the row is rolled back, because an Action
+         *     records what actually happened to the comment.
+         *
+         *     DELETE is irreversible on Facebook's side. LEAVE changes nothing there and
+         *     exists so that a decision to allow a comment is still recorded.
          */
         post: operations["recordAction"];
         delete?: never;
@@ -407,6 +410,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/keywords": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Keywords
+         * @description This workspace's own keywords. Never another workspace's, and never the
+         *     shipped defaults: those are not editable and not listed as if they were.
+         */
+        get: operations["getKeywords"];
+        put?: never;
+        /** Add Keyword */
+        post: operations["addKeyword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/keywords/{keyword}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Keyword */
+        delete: operations["removeKeyword"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/me": {
         parameters: {
             query?: never;
@@ -595,7 +637,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "LEAVE" | "HIDE" | "UNHIDE";
+            kind: "LEAVE" | "DELETE";
         };
         /** AdminPilotRequest */
         AdminPilotRequest: {
@@ -763,6 +805,32 @@ export interface components {
             workspace_id: string;
             /** Workspace Name */
             workspace_name: string;
+        };
+        /** KeywordCreate */
+        KeywordCreate: {
+            /** Keyword */
+            keyword: string;
+            /** Note */
+            note?: string | null;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "HARMFUL" | "OFFENSIVE";
+        };
+        /** KeywordEntry */
+        KeywordEntry: {
+            /** Created At */
+            created_at?: string | null;
+            /** Keyword */
+            keyword: string;
+            /** Note */
+            note?: string | null;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "HARMFUL" | "OFFENSIVE";
         };
         /** ManualPageConnection */
         ManualPageConnection: {
@@ -993,8 +1061,8 @@ export interface components {
          * @description Counts computed across the whole workspace, not from one page.
          */
         Summary: {
-            /** Hidden */
-            hidden: number;
+            /** Deleted */
+            deleted: number;
             /** Left Visible */
             left_visible: number;
             /** Need Review */
@@ -1007,8 +1075,6 @@ export interface components {
             reasons: components["schemas"]["ReasonCount"][];
             /** Reviewed */
             reviewed: number;
-            /** Unhidden */
-            unhidden: number;
         };
         /** SyncResult */
         SyncResult: {
@@ -1853,6 +1919,103 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["WorkspaceSettings"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getKeywords: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeywordEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    addKeyword: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KeywordCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeywordEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    removeKeyword: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                keyword: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
