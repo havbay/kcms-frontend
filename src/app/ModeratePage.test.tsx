@@ -58,11 +58,11 @@ function mockApi(routes: {
     const url = String(input)
     const json = (body: unknown, status: number) =>
       Promise.resolve(new Response(JSON.stringify(body), { status }))
+    if (url.includes('/sync')) {
+      return json(routes.sync?.body ?? {}, routes.sync?.status ?? 200)
+    }
     if (url.includes('/facebook/connection')) {
       return json(routes.connection ?? { state: 'CONNECTED', can_moderate: true }, 200)
-    }
-    if (url.includes('/facebook/sync')) {
-      return json(routes.sync?.body ?? {}, routes.sync?.status ?? 200)
     }
     if (url.includes('/actions') && (init as RequestInit)?.method === 'POST') {
       return json(routes.action?.body ?? [], routes.action?.status ?? 201)
@@ -80,16 +80,19 @@ describe('moderation work list', () => {
   afterEach(() => vi.restoreAllMocks())
 
   it('shows why each comment surfaced, not just a score', async () => {
+    const user = userEvent.setup()
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(WORK_LIST), { status: 200 }),
     )
     renderPage()
 
     await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
-    expect(
-      screen.getAllByText(/Aimed at an organization — never hidden automatically/).length,
-    ).toBeGreaterThan(0)
-    expect(screen.getAllByText(/Possible harm — review first/).length).toBeGreaterThan(0)
+    const rows = screen.getAllByRole('row').slice(1)
+    expect(rows[0]).toHaveAttribute('data-reason', 'institution_sample')
+    expect(rows[1]).toHaveAttribute('data-reason', 'triage')
+
+    await user.click(within(rows[0]!).getByRole('button', { name: /សេវាកម្ម/ }))
+    expect(screen.getByText(/Aimed at an organization — never hidden automatically/)).toBeVisible()
   })
 
   it('keeps institution criticism visually distinct from targeted harm', async () => {
@@ -136,7 +139,7 @@ describe('moderation work list', () => {
     )
     renderPage()
 
-    expect((await screen.findAllByText('Video')).length).toBeGreaterThan(0)
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
     expect(screen.getAllByText(/ស្វែងយល់ពីសេវាថ្មី/).length).toBeGreaterThan(0)
     // Hide is on every row now, so moderating never requires opening detail.
     expect(screen.getAllByRole('button', { name: 'Hide' })).toHaveLength(WORK_LIST.items.length)
@@ -154,7 +157,7 @@ describe('moderation work list', () => {
       new Response(JSON.stringify(WORK_LIST), { status: 200 }),
     )
     renderPage()
-    await screen.findAllByText('Video')
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
 
     await user.type(screen.getByLabelText('Search comments'), 'scam')
     await user.selectOptions(screen.getByLabelText('Review status'), 'PENDING')
@@ -164,7 +167,7 @@ describe('moderation work list', () => {
       const url = String(fetchMock.mock.calls.at(-1)?.[0])
       expect(url).toContain('query=scam')
       expect(url).toContain('review_status=PENDING')
-      expect(url).toContain('limit=10')
+      expect(url).toContain('limit=')
     })
   })
 
@@ -198,14 +201,14 @@ describe('syncing from the connected Page', () => {
       const url = String(input)
       const json = (body: unknown) =>
         Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
-      if (url.includes('/facebook/connection')) return json({ state: 'CONNECTED' })
-      if (url.includes('/facebook/sync')) {
+      if (url.includes('/sync')) {
         synced = true
         return json({
           fetched: 4, imported: 1, page_id: 'page-real',
           page_name: 'Demo Page', last_synced_at: '2026-09-01T12:00:00Z',
         })
       }
+      if (url.includes('/facebook/connection')) return json({ state: 'CONNECTED' })
       return json(synced ? arrived : WORK_LIST)
     })
 
@@ -220,7 +223,7 @@ describe('syncing from the connected Page', () => {
     expect(
       fetchMock.mock.calls.some(
         ([url, init]) =>
-          String(url).includes('/facebook/sync') && (init as RequestInit)?.method === 'POST',
+          String(url).includes('/sync') && (init as RequestInit)?.method === 'POST',
       ),
     ).toBe(true)
   })

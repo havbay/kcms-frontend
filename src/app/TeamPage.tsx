@@ -77,8 +77,10 @@ export function TeamPage({ locale }: TeamPageProps) {
   return (
     <main className="dash-body">
       <header className="dash-head">
-        <h1>{content.teamTitle}</h1>
-        <p>{content.teamLead}</p>
+        <div className="dash-head-text">
+          <h1>{content.teamTitle}</h1>
+          <p>{content.teamLead}</p>
+        </div>
       </header>
 
       {problem && <p className="auth-error" role="alert">{problem}</p>}
@@ -86,24 +88,30 @@ export function TeamPage({ locale }: TeamPageProps) {
       <ul className="team-list">
         {team.members.map((member) => {
           const you = member.user_id === session.user?.id
+          const initials = member.display_name ? member.display_name.slice(0, 2).toUpperCase() : 'U'
           return (
             <li className="team-member" key={member.user_id}>
-              <div>
-                <p className="team-name">
-                  {member.display_name}
-                  {you && <span className="team-you">{content.teamYou}</span>}
-                </p>
-                {member.email && <p className="team-email">{member.email}</p>}
+              <div className="team-member-main">
+                <div className="team-avatar" aria-hidden="true">{initials}</div>
+                <div className="team-info">
+                  <p className="team-name">
+                    {member.display_name}
+                    {you && <span className="team-you">{content.teamYou}</span>}
+                  </p>
+                  {member.email && <p className="team-email">{member.email}</p>}
+                </div>
               </div>
-              <span className={`work-chip role-${member.role}`}>
-                {member.role === 'owner' ? content.teamOwner : content.teamMember}
-              </span>
-              {isOwner && (
-                <button className="text-link team-remove"
-                        onClick={() => void remove(member.user_id)} type="button">
-                  {content.teamRemove}
-                </button>
-              )}
+              <div className="team-member-meta">
+                <span className={`work-chip role-${member.role}`}>
+                  {member.role === 'owner' ? content.teamOwner : content.teamMember}
+                </span>
+                {isOwner && (
+                  <button className="text-link team-remove"
+                          onClick={() => void remove(member.user_id)} type="button">
+                    {content.teamRemove}
+                  </button>
+                )}
+              </div>
             </li>
           )
         })}

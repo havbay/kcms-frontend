@@ -104,8 +104,10 @@ export function SettingsPage({ locale }: SettingsPageProps) {
   return (
     <main className="dash-body">
       <header className="dash-head">
-        <h1>{content.setTitle}</h1>
-        <p>{content.setLead}</p>
+        <div className="dash-head-text">
+          <h1>{content.setTitle}</h1>
+          <p>{content.setLead}</p>
+        </div>
       </header>
 
       {problem && <p className="auth-error" role="alert">{problem}</p>}

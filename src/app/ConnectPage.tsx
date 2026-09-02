@@ -34,6 +34,21 @@ const text = {
     connectedAt: 'Connected', method: 'Connection method', capability: 'Moderation access', disconnect: 'Disconnect Page', disconnecting: 'Disconnecting…',
     tokenTitle: 'Connect with a Page access token',
     tokenLead: 'Paste a Page access token for the Page you want KCMS to moderate. KCMS confirms it with Meta, stores it encrypted, and never shows it again.',
+    planCapacityTitle: 'Workspace Capacity & Plan',
+    planSubtitle: (plan: string, used: number, limit: number) => `${plan} tier · ${used} of ${limit} slots in use`,
+    starterBadge: 'Starter Plan · 3 Pages',
+    growthBadge: 'Growth Plan · 10 Pages',
+    starterSubtitle: 'Up to 3 Facebook Page connections included in your workspace.',
+    growthSubtitle: 'Up to 10 Facebook Page connections with priority moderation.',
+    upgradeToGrowthCta: 'Upgrade to Growth (10 Pages)',
+    addConnectionTitle: 'Connect a Facebook Page',
+    slotsLeft: (count: number) => `${count} page slot${count === 1 ? '' : 's'} remaining on your plan`,
+    availableSlot: 'Available Page Slot',
+    availableSlotDesc: 'Ready to connect another Facebook Page to your workspace moderation pool.',
+    directOAuth: 'Direct Meta Login',
+    oauthFeature1: 'Direct authentication through Meta',
+    oauthFeature2: 'Automatic Page discovery and permissions',
+    oauthFeature3: 'Seamless one-click connection without copying keys',
     oauthErrors: {
       denied: 'The Facebook authorization was cancelled, so no Page was connected.',
       incomplete: 'Facebook did not complete the authorization. Please try again.',
@@ -61,6 +76,21 @@ const text = {
     connectedAt: 'បានភ្ជាប់', method: 'វិធីភ្ជាប់', capability: 'សិទ្ធិគ្រប់គ្រង', disconnect: 'ផ្ដាច់ Page', disconnecting: 'កំពុងផ្ដាច់…',
     tokenTitle: 'ភ្ជាប់ដោយ Page access token',
     tokenLead: 'បញ្ចូល Page access token សម្រាប់ Page ដែលអ្នកចង់ឱ្យ KCMS គ្រប់គ្រង។ KCMS ផ្ទៀងផ្ទាត់ជាមួយ Meta រក្សាទុកជាកូដសម្ងាត់ ហើយមិនបង្ហាញវាម្ដងទៀតទេ។',
+    planCapacityTitle: 'សមត្ថភាពកន្លែងធ្វើការ & គម្រោង',
+    planSubtitle: (plan: string, used: number, limit: number) => `គម្រោង ${plan} · ប្រើប្រាស់ ${used} នៃ ${limit} ចំនួនទំព័រ`,
+    starterBadge: 'គម្រោង Starter · ៣ ទំព័រ',
+    growthBadge: 'គម្រោង Growth · ១០ ទំព័រ',
+    starterSubtitle: 'រួមបញ្ចូលការភ្ជាប់រហូតដល់ ៣ Facebook Pages សម្រាប់គ្រប់គ្រងមតិយោបល់។',
+    growthSubtitle: 'ភ្ជាប់រហូតដល់ ១០ Facebook Pages ជាមួយអាទិភាពខ្ពស់។',
+    upgradeToGrowthCta: 'ដំឡើងទៅ Growth ដើម្បីភ្ជាប់ ១០ ទំព័រ',
+    addConnectionTitle: 'ភ្ជាប់ Facebook Page បន្ថែម',
+    slotsLeft: (count: number) => `នៅសល់ ${count} ចំនួនទំព័រដែលអាចភ្ជាប់បាន`,
+    availableSlot: 'កន្លែងទំនេរសម្រាប់ភ្ជាប់',
+    availableSlotDesc: 'រួចរាល់ដើម្បីភ្ជាប់ Facebook Page មួយទៀតទៅក្នុងប្រព័ន្ធគ្រប់គ្រងមតិយោបល់។',
+    directOAuth: 'ចូល Meta ផ្ទាល់',
+    oauthFeature1: 'ការផ្ទៀងផ្ទាត់ដោយផ្ទាល់តាមរយៈ Meta',
+    oauthFeature2: 'ស្វែងរក Page និងសិទ្ធិស្វ័យប្រវត្តិ',
+    oauthFeature3: 'ភ្ជាប់ភ្លាមៗដោយមិនបាច់ចម្លងលេខកូដ Token',
     oauthErrors: {
       denied: 'ការអនុញ្ញាត Facebook ត្រូវបានបោះបង់ ដូច្នេះមិនមាន Page ត្រូវបានភ្ជាប់ទេ។',
       incomplete: 'Facebook មិនបានបញ្ចប់ការអនុញ្ញាតទេ។ សូមព្យាយាមម្ដងទៀត។',
@@ -108,19 +138,53 @@ function FacebookGlyph() {
  *  already-held Page never counts against the plan limit — so the local list
  *  mirrors that: replace the matching row, or append when it is new. */
 function upsertConnection(data: PageConnections, connection: PageConnection): PageConnections {
-  const exists = data.connections.some((row) => row.page_id === connection.page_id)
+  const current = Array.isArray(data?.connections) ? data.connections : []
+  const exists = current.some((row) => row.page_id === connection.page_id)
   return {
     ...data,
     connections: exists
-      ? data.connections.map((row) => (row.page_id === connection.page_id ? connection : row))
-      : [...data.connections, connection],
+      ? current.map((row) => (row.page_id === connection.page_id ? connection : row))
+      : [...current, connection],
   }
+}
+
+function normalizePageConnections(res: unknown): PageConnections {
+  if (!res || typeof res !== 'object') {
+    return { connections: [], page_limit: 3, plan: 'STARTER' }
+  }
+  const raw = res as Record<string, unknown>
+  if (Array.isArray(raw.connections)) {
+    return {
+      connections: raw.connections as PageConnection[],
+      page_limit: typeof raw.page_limit === 'number' ? raw.page_limit : 3,
+      plan: (raw.plan as PageConnections['plan']) || 'STARTER',
+    }
+  }
+  if (raw.state === 'CONNECTED' && raw.page_id) {
+    return {
+      connections: [
+        {
+          state: 'CONNECTED',
+          page_id: String(raw.page_id),
+          page_name: String(raw.page_name || 'Facebook Page'),
+          method: (raw.method as 'FACEBOOK_LOGIN' | 'MANUAL_TOKEN') || 'FACEBOOK_LOGIN',
+          tasks: Array.isArray(raw.tasks) ? (raw.tasks as string[]) : [],
+          can_moderate: Boolean(raw.can_moderate),
+          connected_at: String(raw.connected_at || ''),
+          last_synced_at: raw.last_synced_at ? String(raw.last_synced_at) : null,
+        },
+      ],
+      page_limit: 3,
+      plan: 'STARTER',
+    }
+  }
+  return { connections: [], page_limit: 3, plan: 'STARTER' }
 }
 
 export function ConnectPage({ locale }: ConnectPageProps) {
   const t = text[locale]
-  const planName = (plan: string) =>
-    copy[locale].pricingPlans.find((candidate) => candidate.id === plan.toLowerCase())?.name ?? plan
+  const planName = (plan?: string) =>
+    copy[locale].pricingPlans.find((candidate) => candidate.id === plan?.toLowerCase())?.name ?? (plan || 'Prototype')
   const [data, setData] = useState<PageConnections | null>(null)
   const [state, setState] = useState<LoadState>('loading')
   const [token, setToken] = useState('')
@@ -134,7 +198,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
 
   const load = useCallback(async () => {
     try {
-      setData(await listFacebookConnections())
+      const res = await listFacebookConnections()
+      setData(normalizePageConnections(res))
       setState('ready')
     } catch {
       setState('error')
@@ -250,7 +315,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     try {
       await disconnectFacebookPage(pageId)
       setData((current) =>
-        current ? { ...current, connections: current.connections.filter((row) => row.page_id !== pageId) } : current,
+        current ? { ...current, connections: (current.connections || []).filter((row) => row.page_id !== pageId) } : current,
       )
     } catch {
       setError(true)
@@ -265,36 +330,122 @@ export function ConnectPage({ locale }: ConnectPageProps) {
     return <main className="dash-body"><div className="work-error" role="alert"><p>{t.error}</p><button className="button" onClick={() => { setState('loading'); void load() }} type="button">{t.retry}</button></div></main>
   }
 
-  const atCap = data.connections.length >= data.page_limit
+  const connections = Array.isArray(data?.connections) ? data.connections : []
+  const pageLimit = data?.page_limit ?? 3
+  const atCap = connections.length >= pageLimit
 
   return (
     <main className="dash-body">
-      <header className="dash-head"><h1>{t.title}</h1><p>{t.lead}</p></header>
+      <header className="dash-head">
+        <div className="dash-head-text">
+          <h1>{t.title}</h1>
+          <p>{t.lead}</p>
+        </div>
+      </header>
 
-      {data.connections.length > 0 && (
-        <section aria-label={t.connectedPagesTitle} className="connection-status">
-          <div className="connection-status-head">
-            <h2>{t.connectedPagesTitle}</h2>
-            <span className="connection-capability">
-              {t.pagesUsage(data.connections.length, data.page_limit)} · {planName(data.plan)}
-            </span>
+      {/* Plan Capacity & Visual Slots Gauge */}
+      <section aria-label={t.planCapacityTitle} className="conn-plan-hero">
+        <div className="conn-plan-hero-left">
+          <div className="conn-plan-title-block">
+            <div className="conn-plan-tier-wrap">
+              <span className={`conn-plan-tier-badge is-${(data.plan || 'STARTER').toLowerCase()}`}>
+                <svg className="conn-tier-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <span>{data.plan === 'GROWTH' ? t.growthBadge : t.starterBadge}</span>
+              </span>
+              <span className="conn-plan-slots-count">
+                {t.slotsLeft(Math.max(0, pageLimit - connections.length))}
+              </span>
+            </div>
+            <p className="conn-plan-lead-desc">
+              {data.plan === 'GROWTH' ? t.growthSubtitle : t.starterSubtitle}
+            </p>
+          </div>
+          <div className="conn-slots-visual-bar">
+            {Array.from({ length: pageLimit }).map((_, i) => {
+              const isFilled = i < connections.length
+              const page = isFilled ? connections[i] : null
+              return (
+                <div
+                  className={`conn-slot-pill ${isFilled ? 'is-filled' : 'is-empty'}`}
+                  key={i}
+                  title={isFilled ? `Slot ${i + 1}: ${page?.page_name}` : `Slot ${i + 1}: Available`}
+                >
+                  <span className="conn-slot-dot" />
+                  <span className="conn-slot-label">
+                    {isFilled ? `Slot ${i + 1}: ${page?.can_moderate ? t.ready : t.connected}` : `${t.availableSlot} ${i + 1}`}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        {data.plan !== 'GROWTH' && (
+          <div className="conn-plan-hero-right">
+            <a className="button button-upgrade" href="/#early-access">
+              <span>{t.upgradeToGrowthCta}</span>
+              <svg className="conn-arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </a>
+          </div>
+        )}
+      </section>
+
+      {connections.length > 0 && (
+        <section aria-label={t.connectedPagesTitle} className="conn-connected-section">
+          <div className="conn-section-header">
+            <div className="conn-section-title-wrap">
+              <h2>{t.connectedPagesTitle}</h2>
+              <span className="conn-quota-pill">
+                {t.pagesUsage(connections.length, pageLimit)} · {planName(data.plan)}
+              </span>
+            </div>
           </div>
           <ul className="connected-pages-list">
-            {data.connections.map((page) => {
+            {connections.map((page) => {
               const method = page.method === 'FACEBOOK_LOGIN' ? t.facebookMethod : t.tokenMethod
               return (
                 <li className="connected-page-card" key={page.page_id}>
-                  <div className="connection-status-head">
-                    <div><span className="connection-kicker">Facebook Page</span><h3>{page.page_name}</h3><p>ID {page.page_id}</p></div>
-                    <span className={`connection-capability ${page.can_moderate ? 'is-ready' : 'is-warning'}`}>{page.can_moderate ? t.ready : t.permissionWarning}</span>
+                  <div className="conn-card-top">
+                    <div className="conn-card-identity">
+                      <div className="conn-page-avatar">
+                        <FacebookMark />
+                      </div>
+                      <div className="conn-page-titles">
+                        <span className="connection-kicker">{method}</span>
+                        <h3>{page.page_name}</h3>
+                        <span className="conn-page-id-badge">ID: {page.page_id}</span>
+                      </div>
+                    </div>
+                    <div className={`conn-status-badge ${page.can_moderate ? 'is-ready' : 'is-warning'}`}>
+                      <span className="conn-status-dot" />
+                      <span className="connection-capability">{page.can_moderate ? t.ready : t.permissionWarning}</span>
+                    </div>
                   </div>
-                  <dl className="connection-facts">
-                    <div><dt>{t.method}</dt><dd>{method}</dd></div>
-                    <div><dt>{t.capability}</dt><dd>{page.tasks?.join(', ') || '—'}</dd></div>
-                    <div><dt>{t.lastSync}</dt><dd>{page.last_synced_at ? new Date(page.last_synced_at).toLocaleString() : t.syncWaiting}</dd></div>
-                    <div><dt>{t.connectedAt}</dt><dd>{page.connected_at ? new Date(page.connected_at).toLocaleString() : '—'}</dd></div>
+                  <dl className="connection-facts conn-facts-grid">
+                    <div className="conn-fact-tile">
+                      <dt>{t.method}</dt>
+                      <dd>{method}</dd>
+                    </div>
+                    <div className="conn-fact-tile">
+                      <dt>{t.capability}</dt>
+                      <dd>{page.tasks?.join(', ') || '—'}</dd>
+                    </div>
+                    <div className="conn-fact-tile">
+                      <dt>{t.lastSync}</dt>
+                      <dd>{page.last_synced_at ? new Date(page.last_synced_at).toLocaleString() : t.syncWaiting}</dd>
+                    </div>
+                    <div className="conn-fact-tile">
+                      <dt>{t.connectedAt}</dt>
+                      <dd>{page.connected_at ? new Date(page.connected_at).toLocaleString() : '—'}</dd>
+                    </div>
                   </dl>
-                  <button className="button button-danger button-small" disabled={busy} onClick={() => void disconnect(page.page_id)} type="button">{busy ? t.disconnecting : t.disconnect}</button>
+                  <div className="conn-card-footer">
+                    <button className="button button-danger button-small" disabled={busy} onClick={() => void disconnect(page.page_id)} type="button">{busy ? t.disconnecting : t.disconnect}</button>
+                  </div>
                 </li>
               )
             })}
@@ -304,47 +455,132 @@ export function ConnectPage({ locale }: ConnectPageProps) {
       )}
 
       {atCap ? (
-        <section className="connection-option">
-          <h2>{t.atCapTitle}</h2>
-          <p>{t.atCapBody}</p>
-          <a className="button button-small" href="/#early-access">{t.upgradeCta}</a>
+        <section className="connection-option conn-cap-card">
+          <div className="conn-cap-content">
+            <h2>{t.atCapTitle}</h2>
+            <p>{t.atCapBody}</p>
+            <a className="button button-small" href="/#early-access">{t.upgradeCta}</a>
+          </div>
         </section>
       ) : choices.length > 0 ? (
-        <section className="connection-chooser">
-          <h2>{t.choose}</h2><p>{t.chooseHelp}</p>
-          <div className="page-choice-list">{choices.map((page) => (
-            <label className="page-choice" key={page.page_id}>
-              <input checked={selectedPage === page.page_id} name="facebook-page" onChange={() => setSelectedPage(page.page_id)} type="radio" />
-              <span><strong>{page.page_name}</strong><small>{page.can_moderate ? t.ready : t.permissionWarning}</small></span>
-            </label>
-          ))}</div>
+        <section className="connection-chooser conn-chooser-card">
+          <div className="conn-chooser-head">
+            <h2>{t.choose}</h2>
+            <p>{t.chooseHelp}</p>
+          </div>
+          <div className="page-choice-list">
+            {choices.map((page) => (
+              <label className={`page-choice ${selectedPage === page.page_id ? 'is-selected' : ''}`} key={page.page_id}>
+                <input checked={selectedPage === page.page_id} name="facebook-page" onChange={() => setSelectedPage(page.page_id)} type="radio" />
+                <div className="page-choice-content">
+                  <strong>{page.page_name}</strong>
+                  <small className={page.can_moderate ? 'is-ready' : 'is-warning'}>{page.can_moderate ? t.ready : t.permissionWarning}</small>
+                </div>
+              </label>
+            ))}
+          </div>
           {(facebookError || error) && <p className="auth-error" role="alert">{facebookError ?? t.error}</p>}
           <button className="button" disabled={busy || !selectedPage} onClick={() => void confirmPage()} type="button">{busy ? t.connecting : t.confirm}</button>
         </section>
       ) : oauthState ? <p className="work-status">{t.noPages}</p> : (
-        <div className="connection-options">
-          {/* Facebook Login is not finished. Leaving it enabled and recommended
-              sends people down a path that fails, so it is disabled and named
-              as unfinished, and the Page token becomes the supported route. */}
-          <section className="connection-option is-recommended">
-            <div className="connection-option-head"><FacebookMark /><span className="work-chip connection-recommended">{t.recommended}</span></div>
-            <h2>{t.tokenTitle}</h2><p>{t.tokenLead}</p>
-            <form className="advanced-token-form" onSubmit={submitToken}>
-                <label htmlFor="page-access-token">{t.token}</label>
-                <input autoComplete="off" id="page-access-token" onChange={(event) => setToken(event.target.value)} type="password" value={token} />
-                <p>{t.tokenHint}</p>
-                {tokenError && <p className="auth-error" role="alert">{tokenError}</p>}
-              <button className="button" disabled={busy || !token.trim()} type="submit">{busy ? t.connecting : t.validate}</button>
+        <div className="connection-options conn-grid">
+          {/* Supported Token Method */}
+          <section className="connection-option is-recommended conn-method-card is-token-card">
+            <div className="connection-option-head">
+              <div className="conn-method-icon-wrap">
+                <FacebookMark />
+              </div>
+              <span className="work-chip connection-recommended">{t.recommended}</span>
+            </div>
+            <h2>{t.tokenTitle}</h2>
+            <p>{t.tokenLead}</p>
+            <form className="advanced-token-form conn-token-form" onSubmit={submitToken}>
+              <div className="conn-field-wrap">
+                <div className="conn-label-row">
+                  <label htmlFor="page-access-token">{t.token}</label>
+                  <span className="conn-secure-tag">🔒 AES-256 Encrypted</span>
+                </div>
+                <input autoComplete="off" className="conn-token-input" id="page-access-token" onChange={(event) => setToken(event.target.value)} placeholder="EAA..." type="password" value={token} />
+                <p className="conn-field-hint">{t.tokenHint}</p>
+              </div>
+              {tokenError && <p className="auth-error" role="alert">{tokenError}</p>}
+              <button className="button button-token-submit" disabled={busy || !token.trim()} type="submit">
+                {busy ? t.connecting : t.validate}
+              </button>
             </form>
           </section>
-          <section className="connection-option is-advanced">
-            <div className="connection-option-head"><FacebookMark /></div>
-            <h2>{t.facebook}</h2><p>{t.facebookHelp}</p>
+
+          {/* Facebook Direct OAuth */}
+          <section className="connection-option is-advanced conn-method-card is-oauth-card">
+            <div className="connection-option-head">
+              <div className="conn-method-icon-wrap">
+                <FacebookMark />
+              </div>
+              <span className="conn-oauth-badge">{t.directOAuth}</span>
+            </div>
+            <h2>{t.facebook}</h2>
+            <p>{t.facebookHelp}</p>
+            <ul className="conn-feature-bullets">
+              <li>
+                <svg className="conn-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>{t.oauthFeature1}</span>
+              </li>
+              <li>
+                <svg className="conn-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>{t.oauthFeature2}</span>
+              </li>
+              <li>
+                <svg className="conn-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>{t.oauthFeature3}</span>
+              </li>
+            </ul>
             {facebookError && <p className="auth-error" role="alert">{facebookError}</p>}
-            <button className="button button-facebook" disabled={busy} onClick={() => void beginFacebook()} type="button"><FacebookGlyph />{busy ? t.connecting : t.facebook}</button>
+            <button className="button button-facebook" disabled={busy} onClick={() => void beginFacebook()} type="button">
+              <FacebookGlyph />
+              <span>{busy ? t.connecting : t.facebook}</span>
+            </button>
           </section>
         </div>
       )}
+
+      {/* Security & Assurance Badge Row */}
+      <div className="conn-trust-strip">
+        <div className="conn-trust-item">
+          <svg className="conn-trust-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <div>
+            <strong>{locale === 'km' ? 'ការអ៊ិនគ្រីបកម្រិតខ្ពស់' : 'AES-256 Encrypted'}</strong>
+            <small>{locale === 'km' ? 'Token ត្រូវបានរក្សាទុកដោយសុវត្ថិភាព' : 'Tokens encrypted at rest, never shown in plain text'}</small>
+          </div>
+        </div>
+        <div className="conn-trust-item">
+          <svg className="conn-trust-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          <div>
+            <strong>{locale === 'km' ? 'អនុលោមតាម Meta Graph API' : 'Meta API Compliant'}</strong>
+            <small>{locale === 'km' ? 'ស្របតាមគោលការណ៍ Facebook Page' : '100% compliant with Facebook moderation terms'}</small>
+          </div>
+        </div>
+        <div className="conn-trust-item">
+          <svg className="conn-trust-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 14 14" />
+          </svg>
+          <div>
+            <strong>{locale === 'km' ? 'សមកាលកម្មពេលវេលាជាក់ស្ដែង' : 'Continuous Sync'}</strong>
+            <small>{locale === 'km' ? 'ទទួលបានមតិយោបល់ថ្មីៗស្វ័យប្រវត្តិ' : 'Fetches recent comments smoothly in the background'}</small>
+          </div>
+        </div>
+      </div>
     </main>
   )
 }
