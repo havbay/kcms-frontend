@@ -150,7 +150,7 @@ describe('KCMS public landing page', () => {
     expect(access).toHaveTextContent('Early access')
     expect(access).toHaveTextContent('Starter')
     expect(access).toHaveTextContent('$15/mo')
-    expect(access).toHaveTextContent('Core real-time Khmer & Khmerlish moderation')
+    expect(access).toHaveTextContent('Khmer & Khmerlish comment moderation')
     expect(access).toHaveTextContent('Price per Page drops as you grow')
     expect(within(access).getAllByRole('link', { name: /Request pilot access/ })).toHaveLength(2)
     expect(

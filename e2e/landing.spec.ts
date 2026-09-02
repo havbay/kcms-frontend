@@ -85,8 +85,9 @@ test('desktop visitor reaches early access and footer without overflow', async (
   const access = page.getByRole('region', {
     name: 'Start a pilot with your Page and your team.',
   })
-  await expect(access).toContainText('Pricing discussed with your team')
-  await expect(access.getByRole('link', { name: /Request pilot access/ })).toBeVisible()
+  await expect(access).toContainText('Starter')
+  await expect(access).toContainText('$15/mo')
+  await expect(access.getByRole('link', { name: /Request pilot access/ }).first()).toBeVisible()
 
   const footer = page.getByRole('contentinfo')
   await expect(footer).toContainText('Versioned pattern matching')
@@ -426,7 +427,7 @@ test('the client can connect a Page by token or start Facebook authorization', a
   await stubApi(page)
   await signInDemo(page)
 
-  await page.getByRole('link', { name: 'Connect Facebook Page' }).click()
+  await page.getByRole('link', { name: 'Page connection' }).click()
   await expect(page).toHaveURL(/\/app\/connect$/)
 
   // Both routes are offered: one-click authorization and the Page token.
@@ -434,8 +435,8 @@ test('the client can connect a Page by token or start Facebook authorization', a
 
   await page.getByLabel('Page access token').fill('test-page-token')
   await page.getByRole('button', { name: 'Validate and connect' }).click()
-  await expect(page.getByText('Angkor Shop')).toBeVisible()
-  await expect(page.getByText('Ready to moderate')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Angkor Shop' })).toBeVisible()
+  await expect(page.getByText('Ready to moderate', { exact: true })).toBeVisible()
 })
 
 
