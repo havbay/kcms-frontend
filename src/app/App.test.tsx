@@ -139,7 +139,7 @@ describe('KCMS public landing page', () => {
     expect(workflow).toHaveTextContent('សម្រេចដោយមានបរិបទ')
   })
 
-  it('offers an early access pilot without inventing price tiers', () => {
+  it('offers the published early access plans', () => {
     render(<App />, { wrapper: MemoryRouter })
 
     const access = screen.getByRole('region', {
@@ -147,14 +147,15 @@ describe('KCMS public landing page', () => {
     })
 
     expect(access).toHaveAttribute('id', 'early-access')
-    expect(access).toHaveTextContent('Pilot access')
-    expect(access).toHaveTextContent('Pricing discussed with your team')
-    expect(access).toHaveTextContent('Khmer and Khmerlish pattern matching')
-    expect(access).toHaveTextContent('Future pricing may depend on the number of connected Facebook Pages')
-    expect(within(access).getByRole('link', { name: /Request pilot access/ })).toHaveAttribute(
-      'href',
-      '/request-access',
-    )
+    expect(access).toHaveTextContent('Early access')
+    expect(access).toHaveTextContent('Starter')
+    expect(access).toHaveTextContent('$15/mo')
+    expect(access).toHaveTextContent('Core real-time Khmer & Khmerlish moderation')
+    expect(access).toHaveTextContent('Price per Page drops as you grow')
+    expect(within(access).getAllByRole('link', { name: /Request pilot access/ })).toHaveLength(2)
+    expect(
+      within(access).getAllByRole('link', { name: /Request pilot access/ })[0],
+    ).toHaveAttribute('href', '/request-access')
   })
 
   it('closes the page with a footer that states prototype status', () => {
@@ -180,7 +181,8 @@ describe('KCMS public landing page', () => {
     })
 
     expect(access).toHaveTextContent('ការចូលប្រើសាកល្បង')
-    expect(access).toHaveTextContent('តម្លៃពិភាក្សាជាមួយក្រុមរបស់អ្នក')
+    expect(access).toHaveTextContent('ចាប់ផ្តើម')
+    expect(access).toHaveTextContent('$15/ខែ')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('ស្ថានភាព Prototype')
   })
 

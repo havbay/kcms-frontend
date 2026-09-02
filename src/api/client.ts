@@ -233,8 +233,19 @@ export function acceptSetupInvitation(
   })
 }
 
-export function listFacebookConnections(): Promise<PageConnections> {
-  return request<PageConnections>('/api/v1/facebook/connections')
+type LegacyPageConnection = PageConnection | { state: 'NOT_CONNECTED'; can_moderate: false }
+
+/** Adapt the deployed single-Page contract to the collection shape consumed by
+ * the new UI. Multi-Page routes must not be used until the backend owns them. */
+export async function listFacebookConnections(): Promise<PageConnections> {
+  const found = await request<LegacyPageConnection>('/api/v1/facebook/connection')
+  return {
+    connections: found.state === 'CONNECTED' ? [found] : [],
+    // The legacy database supports one connection per workspace. Advertising
+    // a larger limit here would let a second selection silently replace it.
+    page_limit: 1,
+    plan: 'STARTER',
+  }
 }
 
 export function connectFacebookPageManually(pageAccessToken: string): Promise<PageConnection> {
@@ -264,16 +275,13 @@ export function selectFacebookPage(state: string, pageId: string): Promise<PageC
 }
 
 export function syncFacebookComments(pageId: string): Promise<SyncResult> {
-  return request<SyncResult>(
-    `/api/v1/facebook/connections/${encodeURIComponent(pageId)}/sync`,
-    { method: 'POST' },
-  )
+  void pageId
+  return request<SyncResult>('/api/v1/facebook/sync', { method: 'POST' })
 }
 
 export function disconnectFacebookPage(pageId: string): Promise<void> {
-  return request<void>(`/api/v1/facebook/connections/${encodeURIComponent(pageId)}`, {
-    method: 'DELETE',
-  })
+  void pageId
+  return request<void>('/api/v1/facebook/connection', { method: 'DELETE' })
 }
 
 export type Team = components['schemas']['Team']

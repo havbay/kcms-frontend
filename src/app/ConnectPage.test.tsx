@@ -151,7 +151,7 @@ describe('Facebook Page connection', () => {
     renderPage()
 
     await waitFor(() => expect(screen.getByText('Community Page')).toBeVisible())
-    expect(screen.getAllByText('Connected with Facebook')).toHaveLength(2)
+    expect(screen.getByText('Connected with Facebook')).toBeVisible()
     expect(screen.getByText('Waiting for first synchronization')).toBeVisible()
     expect(screen.getByRole('button', { name: 'Disconnect Page' })).toBeVisible()
   })

@@ -498,7 +498,7 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .stat-label { display: block; margin-top: 0.5rem; color: var(--muted); font-size: 0.82rem; font-weight: 650; }
 
 .dash-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 0.9rem; margin-top: 0.9rem; }
-.dash-panel { padding: 1.35rem 1.5rem; border: 1px solid rgba(24, 48, 51, 0.14); border-radius: 0.6rem; background: var(--clean-white); }
+.dash-panel { min-width: 0; overflow: hidden; padding: 1.35rem 1.5rem; border: 1px solid rgba(24, 48, 51, 0.14); border-radius: 0.6rem; background: var(--clean-white); }
 .dash-panel h2 { max-width: none; margin: 0 0 1.1rem; color: var(--muted); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.09em; line-height: 1.4; text-transform: uppercase; }
 .site[lang='km'] .dash-panel h2 { letter-spacing: 0; text-transform: none; }
 .reason-bars { display: grid; gap: 0.8rem; margin: 0; padding: 0; list-style: none; }

@@ -94,7 +94,7 @@ export function OverviewPage({ locale }: OverviewPageProps) {
                 </span>
                 <span aria-hidden="true" className="reason-bar" data-reason={row.surfaced_reason}
                       style={{
-                        inlineSize: `${Math.round((row.count / Math.max(s.need_review, 1)) * 100)}%`,
+                        inlineSize: `${Math.min(100, Math.round((row.count / Math.max(s.need_review, 1)) * 100))}%`,
                       }} />
                 <span className="reason-count">{row.count}</span>
               </li>
