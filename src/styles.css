@@ -3551,6 +3551,12 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   flex-direction: column;
   gap: 1.25rem;
 }
+.notice-shell > .auth {
+  /* Override the legacy auth layout's flex: 1. The sign-in surface should be
+     a content-sized panel, not a white column stretching to the viewport. */
+  flex: 0 0 auto;
+  margin-block: clamp(2rem, 8vh, 5rem);
+}
 .onboarding-card {
   width: min(100% - 2rem, 36rem);
 }
@@ -3587,6 +3593,9 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   flex-direction: column;
   gap: 1rem;
   width: 100%;
+}
+.auth-form {
+  margin-top: 0.5rem;
 }
 .form-pair {
   display: grid;
@@ -3712,6 +3721,24 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   margin-top: 0.5rem;
   padding-top: 0.85rem;
   border-top: 1px solid rgba(24, 48, 51, 0.08);
+}
+.auth-switch {
+  align-self: stretch;
+}
+
+@media (max-width: 560px) {
+  .notice-shell .app-header {
+    align-items: center;
+    flex-direction: row;
+    width: min(100% - 2rem, 72rem);
+    padding-block: 1rem 0.75rem;
+  }
+  .notice-shell > .auth {
+    width: min(100% - 1.5rem, 32rem);
+    margin-block: 1rem 1.5rem;
+    padding: 1.75rem 1.25rem;
+    border-radius: 0.75rem;
+  }
 }
 .notice-actions {
   display: flex;
@@ -4278,7 +4305,6 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
-
 /* ==========================================================================
    Pages & Team Management (Unified View)
    ========================================================================== */
@@ -5056,6 +5082,3 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   font-size: 0.76rem;
   color: var(--muted);
 }
-
-
-
