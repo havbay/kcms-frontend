@@ -471,7 +471,12 @@ test('settings let an owner rename the workspace and anyone rename themselves', 
   await stubApi(page, { role: 'owner' })
   await signInDemo(page)
 
-  await page.getByRole('link', { name: 'Settings' }).click()
+  // Scoped to the sidebar: the Overview also offers a Settings shortcut tile,
+  // so an unscoped role query now matches two links.
+  await page
+    .getByRole('navigation', { name: 'Client workspace' })
+    .getByRole('link', { name: 'Settings' })
+    .click()
   await expect(page).toHaveURL(/\/app\/settings$/)
   await expect(page.getByLabel('Workspace name')).toHaveValue('Angkor Shop')
   await expect(page.getByLabel('Workspace name')).toBeEnabled()
