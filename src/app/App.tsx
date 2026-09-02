@@ -9,9 +9,10 @@ import { JoinPage } from './JoinPage'
 import { LandingPage } from './LandingPage'
 import { ModeratePage } from './ModeratePage'
 import { NoticePage } from './NoticePage'
+import { ProfilePage } from './ProfilePage'
 import { SettingsPage } from './SettingsPage'
-import { TeamPage } from './TeamPage'
 import { RequireSession } from './RequireSession'
+import { RulesPage } from './RulesPage'
 import { SignInPage } from './SignInPage'
 import { OverviewPage } from './OverviewPage'
 import { RequestAccessPage } from './RequestAccessPage'
@@ -34,8 +35,11 @@ export function App() {
       <Route path="/app" element={dashboard(<OverviewPage locale={locale} />)} />
       <Route path="/app/moderate" element={dashboard(<ModeratePage locale={locale} />)} />
       <Route path="/app/connect" element={dashboard(<ConnectPage locale={locale} />)} />
-      <Route path="/app/team" element={dashboard(<TeamPage locale={locale} />)} />
+      {/* Older shared links land on the same merged screen. */}
+      <Route path="/app/team" element={<Navigate replace to="/app/connect" />} />
+      <Route path="/app/rules" element={dashboard(<RulesPage locale={locale} />)} />
       <Route path="/app/settings" element={dashboard(<SettingsPage locale={locale} />)} />
+      <Route path="/app/profile" element={dashboard(<ProfilePage {...shared} />)} />
       <Route path="/join/:token" element={<JoinPage {...shared} />} />
       <Route path="/setup/:token" element={<SetupPage {...shared} />} />
       <Route path="/admin/requests" element={<AdminRequestsPage {...shared} />} />

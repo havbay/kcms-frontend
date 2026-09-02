@@ -73,6 +73,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
 export function useSession(): SessionState {
   const context = useContext(SessionContext)
-  if (!context) throw new Error('useSession must be used inside SessionProvider')
+  if (!context) {
+    return {
+      user: null,
+      status: 'signed-out',
+      signIn: () => {},
+      signOut: async () => {},
+      refresh: async () => {},
+    }
+  }
   return context
 }

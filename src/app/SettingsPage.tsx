@@ -1,36 +1,35 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import {
-  ApiError, getSettings, removeSampleComments, renameSelf, renameWorkspace,
+  ApiError, getSettings, removeSampleComments, renameWorkspace,
   type WorkspaceSettings,
 } from '../api/client'
-import { AuthField } from './AuthField'
 import { copy, type Locale } from './copy'
-import { useSession } from './session'
+import {
+  Badge, Banner, Card, Fact, Icon, Page, PageHead, PageState, TextField,
+} from './ui'
 
 type SettingsPageProps = { locale: Locale }
 type SaveState = 'idle' | 'saving' | 'saved'
 
 export function SettingsPage({ locale }: SettingsPageProps) {
   const content = copy[locale]
-  const session = useSession()
   const [settings, setSettings] = useState<WorkspaceSettings | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [workspaceName, setWorkspaceName] = useState('')
-  const [displayName, setDisplayName] = useState('')
   const [workspaceState, setWorkspaceState] = useState<SaveState>('idle')
-  const [nameState, setNameState] = useState<SaveState>('idle')
   const [problem, setProblem] = useState<string | null>(null)
   const [clearing, setClearing] = useState(false)
   const [cleared, setCleared] = useState<number | null>(null)
   const [confirmClear, setConfirmClear] = useState(false)
+
 
   const load = useCallback(async () => {
     try {
       const found = await getSettings()
       setSettings(found)
       setWorkspaceName(found.workspace_name)
-      setDisplayName(found.display_name)
     } catch {
       setSettings(null)
     } finally {
@@ -44,13 +43,18 @@ export function SettingsPage({ locale }: SettingsPageProps) {
   }, [load])
 
   if (!loaded) {
-    return <main className="dash-body"><p className="work-status" role="status">{content.modLoading}</p></main>
+    return <PageState kind="loading" message={content.modLoading} />
   }
   if (!settings) {
-    return <main className="dash-body"><p className="work-status">{content.modErrorTitle}</p></main>
+    return <PageState kind="error" message={content.modErrorTitle} />
   }
 
   const isOwner = settings.your_role === 'owner'
+  // Gated on samples actually being stored rather than on the sandbox flag: a
+  // workspace whose flag had been cleared kept its samples with no way to
+  // remove them. `cleared` keeps the section mounted after the removal so the
+  // outcome is actually read.
+  const showSamples = isOwner && (settings.sample_comments > 0 || cleared !== null)
 
   async function clearSamples() {
     setClearing(true)
@@ -84,121 +88,149 @@ export function SettingsPage({ locale }: SettingsPageProps) {
     }
   }
 
-  async function saveName(event: React.FormEvent) {
-    event.preventDefault()
-    if (!displayName.trim()) return
-    setNameState('saving')
-    setProblem(null)
-    try {
-      const updated = await renameSelf(displayName.trim())
-      setSettings(updated)
-      setNameState('saved')
-      // Keep the sidebar's "Signed in as" in step with the change.
-      await session.refresh()
-    } catch {
-      setNameState('idle')
-      setProblem(content.authUnreachable)
-    }
-  }
+  // Anchors, not a switcher: settings is short enough that hiding a section
+  // behind a tab only makes it harder to find.
+  const sections: Array<{ id: string; label: string; icon: 'building' | 'trash' }> = [
+    { id: 'settings-general', label: content.setNavGeneral, icon: 'building' },
+    ...(showSamples ? [{ id: 'settings-data', label: content.setNavData, icon: 'trash' as const }] : []),
+  ]
 
   return (
-    <main className="dash-body">
-      <header className="dash-head">
-        <div className="dash-head-text">
-          <h1>{content.setTitle}</h1>
-          <p>{content.setLead}</p>
-        </div>
-      </header>
+    <Page>
+      <PageHead
+        actions={
+          <Badge tone={settings.is_sandbox ? 'amber' : 'accent'} dot>
+            {settings.is_sandbox ? content.setSandbox : content.setConnected}
+          </Badge>
+        }
+        lead={content.setLead}
+        title={content.setTitle}
+      />
 
-      {problem && <p className="auth-error" role="alert">{problem}</p>}
+      {problem && <Banner role="alert" tone="danger">{problem}</Banner>}
 
-      <section className="settings-card">
-        <h2>{content.setWorkspace}</h2>
-        <form className="settings-form" noValidate onSubmit={saveWorkspace}>
-          <AuthField
-            disabled={!isOwner}
-            error={workspaceName.trim() ? null : content.errNameRequired}
-            hint={isOwner ? undefined : content.setWorkspaceOwnerOnly}
-            id="set-workspace"
-            label={content.setWorkspaceName}
-            onChange={(e) => { setWorkspaceName(e.target.value); setWorkspaceState('idle') }}
-            value={workspaceName}
-          />
-          {isOwner && (
-            <button className="button button-small" disabled={workspaceState === 'saving'} type="submit">
-              {workspaceState === 'saving' ? content.setSaving
-                : workspaceState === 'saved' ? content.setSaved : content.setSave}
-            </button>
-          )}
-        </form>
+      <div className="ws-split">
+        <nav aria-label={content.setTitle} className="ws-sidenav">
+          {sections.map((item) => (
+            <a className="ws-sidenav-link" href={`#${item.id}`} key={item.id}>
+              <Icon name={item.icon} />
+              <span>{item.label}</span>
+            </a>
+          ))}
+          <Link className="ws-sidenav-link" to="/app/profile">
+            <Icon name="user" />
+            <span>{content.setNavProfile}</span>
+          </Link>
+        </nav>
 
-        <dl className="settings-facts">
-          <div>
-            <dt>{content.setPlan}</dt>
-            <dd>{settings.is_sandbox ? content.setSandbox : content.setConnected}</dd>
+        <div className="ws-stack">
+          <div className="ws-stack" id="settings-general">
+            <Card description={content.setGeneralLead} title={content.setWorkspace}>
+                <form className="ws-form" noValidate onSubmit={saveWorkspace}>
+                  <TextField
+                    disabled={!isOwner}
+                    error={workspaceName.trim() ? null : content.errNameRequired}
+                    hint={isOwner ? undefined : content.setWorkspaceOwnerOnly}
+                    id="set-workspace"
+                    label={content.setWorkspaceName}
+                    onChange={(e) => { setWorkspaceName(e.target.value); setWorkspaceState('idle') }}
+                    value={workspaceName}
+                  />
+                  {isOwner && (
+                    <div className="ws-form-actions">
+                      <button className="ws-btn" disabled={workspaceState === 'saving'} type="submit">
+                        {workspaceState === 'saving' ? content.setSaving : content.setSave}
+                      </button>
+                      {workspaceState === 'saved' && (
+                        <span className="ws-save-state" role="status">{content.setSaved}</span>
+                      )}
+                    </div>
+                  )}
+                </form>
+              </Card>
+
+              <Card title={content.proDetails}>
+                <dl className="ws-facts">
+                  <Fact term={content.setPlan}>
+                    {settings.is_sandbox ? content.setSandbox : content.setConnected}
+                  </Fact>
+                  <Fact term={content.proRole}>
+                    {settings.your_role === 'owner' ? content.teamOwner : content.teamMember}
+                  </Fact>
+                  <Fact term={content.setWorkspaceId}>{settings.workspace_id}</Fact>
+                </dl>
+              </Card>
+
+              <Card
+                actions={
+                  <Link className="ws-btn" data-variant="secondary" to="/app/profile">
+                    <span>{content.setOpenProfile}</span>
+                    <Icon className="ws-btn-icon" name="arrowRight" />
+                  </Link>
+                }
+                description={content.setYouLead}
+                title={content.setYou}
+              />
           </div>
-          <div>
-            <dt>{content.teamYou}</dt>
-            <dd>{settings.your_role === 'owner' ? content.teamOwner : content.teamMember}</dd>
-          </div>
-        </dl>
-      </section>
 
-      {/* Kept mounted after the removal so the outcome is actually read:
-          clearing the samples turns is_sandbox off, which would otherwise
-          unmount this section the instant it has something to report. */}
-      {/* Gated on samples actually being stored, not on the sandbox flag:
-          a workspace whose flag had been cleared kept its samples with no
-          way to remove them. */}
-      {isOwner && (settings.sample_comments > 0 || cleared !== null) && (
-        <section className="settings-card">
-          <h2>{content.setSamples}</h2>
-          <p className="settings-note">{content.setSamplesLead}</p>
-          {cleared === null && <p className="settings-note"><strong>{content.setSamplesCount(settings.sample_comments)}</strong></p>}
-          {cleared === null ? confirmClear ? (
-            <div className="settings-confirm">
-              <p><strong>{content.setSamplesConfirm}</strong></p>
-              <div className="settings-confirm-actions">
-                <button className="button button-small button-danger" disabled={clearing} onClick={() => void clearSamples()} type="button">
-                  {clearing ? content.setSamplesClearing : content.setSamplesYes}
-                </button>
-                <button className="button button-small button-quiet" disabled={clearing} onClick={() => setConfirmClear(false)} type="button">
-                  {content.setSamplesCancel}
-                </button>
+          {showSamples && (
+            <div id="settings-data">
+            <Card description={content.setSamplesLead} title={content.setSamples} tone="danger">
+              <div className="ws-stack-tight">
+                {cleared === null ? (
+                  <>
+                    <Banner icon="info" tone="amber">
+                      {content.setSamplesCount(settings.sample_comments)}
+                    </Banner>
+                    {confirmClear ? (
+                      <>
+                        <Banner role="status" title={content.setSamplesConfirm} tone="danger" />
+                        <div className="ws-form-actions">
+                          <button
+                            className="ws-btn"
+                            data-variant="danger-solid"
+                            disabled={clearing}
+                            onClick={() => void clearSamples()}
+                            type="button"
+                          >
+                            {clearing ? content.setSamplesClearing : content.setSamplesYes}
+                          </button>
+                          <button
+                            className="ws-btn"
+                            data-variant="secondary"
+                            disabled={clearing}
+                            onClick={() => setConfirmClear(false)}
+                            type="button"
+                          >
+                            {content.setSamplesCancel}
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="ws-form-actions">
+                        <button
+                          className="ws-btn"
+                          data-variant="danger"
+                          onClick={() => setConfirmClear(true)}
+                          type="button"
+                        >
+                          <Icon className="ws-btn-icon" name="trash" />
+                          <span>{content.setSamplesRemove}</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Banner icon="check" role="status" tone="accent">
+                    {content.setSamplesDone(cleared)}
+                  </Banner>
+                )}
               </div>
+            </Card>
             </div>
-          ) : (
-            <button className="button button-small" onClick={() => setConfirmClear(true)} type="button">
-              {content.setSamplesRemove}
-            </button>
-          ) : (
-            <p className="settings-note" role="status">{content.setSamplesDone(cleared)}</p>
           )}
-        </section>
-      )}
-
-      <section className="settings-card">
-        <h2>{content.setYou}</h2>
-        <form className="settings-form" noValidate onSubmit={saveName}>
-          <AuthField
-            error={displayName.trim() ? null : content.errNameRequired}
-            hint={content.setNameNote}
-            id="set-name"
-            label={content.setYourName}
-            onChange={(e) => { setDisplayName(e.target.value); setNameState('idle') }}
-            value={displayName}
-          />
-          <button className="button button-small" disabled={nameState === 'saving'} type="submit">
-            {nameState === 'saving' ? content.setSaving
-              : nameState === 'saved' ? content.setSaved : content.setSave}
-          </button>
-        </form>
-
-        <button className="text-link settings-signout"
-                onClick={() => void session.signOut()} type="button">
-          {content.setSignOut}
-        </button>
-      </section>
-    </main>
+        </div>
+      </div>
+    </Page>
   )
 }

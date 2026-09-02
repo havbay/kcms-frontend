@@ -350,3 +350,34 @@ export function renameSelf(displayName: string): Promise<WorkspaceSettings> {
     body: JSON.stringify({ display_name: displayName }),
   })
 }
+
+/* ---- Moderation rules: this workspace's keywords -------------------------
+ * Scoped to the workspace, never to the platform. Two severities only:
+ * HARMFUL is taken off the Page automatically, OFFENSIVE goes to a reviewer.
+ * There is no "safe" keyword — a word can surface a comment, never clear one.
+ * ------------------------------------------------------------------------- */
+
+export type KeywordSeverity = 'HARMFUL' | 'OFFENSIVE'
+export type KeywordEntry = components['schemas']['KeywordEntry']
+
+export function getKeywords(): Promise<KeywordEntry[]> {
+  return request<KeywordEntry[]>('/api/v1/settings/keywords')
+}
+
+export function addKeyword(
+  keyword: string,
+  severity: KeywordSeverity,
+  note?: string,
+): Promise<KeywordEntry> {
+  return request<KeywordEntry>('/api/v1/settings/keywords', {
+    method: 'POST',
+    body: JSON.stringify({ keyword, severity, note: note?.trim() || null }),
+  })
+}
+
+export function removeKeyword(keyword: string): Promise<void> {
+  return request<void>(
+    `/api/v1/settings/keywords/${encodeURIComponent(keyword)}`,
+    { method: 'DELETE' },
+  )
+}

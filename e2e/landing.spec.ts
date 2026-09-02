@@ -343,6 +343,9 @@ async function stubApi(
     if (path.endsWith('/comments')) {
       return json({ items: [], total: 0, limit: 25, offset: 0 })
     }
+    if (path.endsWith('/facebook/connections')) {
+      return json({ connections: [], page_limit: 3, plan: 'STARTER' })
+    }
     if (path.endsWith('/facebook/connection')) {
       return json({ state: 'NOT_CONNECTED', can_moderate: false })
     }
@@ -423,20 +426,21 @@ test('an administrator sees the administration entry and can open it', async ({ 
   await expect(page.getByRole('button', { name: 'Pending' })).toBeVisible()
 })
 
-test('the client can connect a Page by token or start Facebook authorization', async ({ page }) => {
+test('adding a Page is the only connection route offered in the dashboard', async ({ page }) => {
   await stubApi(page)
   await signInDemo(page)
 
-  await page.getByRole('link', { name: 'Page connection' }).click()
+  await page.getByRole('link', { name: 'Management' }).click()
   await expect(page).toHaveURL(/\/app\/connect$/)
 
-  // Both routes are offered: one-click authorization and the Page token.
-  await expect(page.getByRole('button', { name: 'Continue with Facebook' })).toBeEnabled()
+  // Adding a Page is the header's primary action; the provider's own login
+  // button belongs on the sign-in screen, not in here.
+  await expect(page.getByRole('button', { name: 'Add Page' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Continue with Facebook' })).toHaveCount(0)
 
-  await page.getByLabel('Page access token').fill('test-page-token')
-  await page.getByRole('button', { name: 'Validate and connect' }).click()
-  await expect(page.getByRole('heading', { name: 'Angkor Shop' })).toBeVisible()
-  await expect(page.getByText('Ready to moderate', { exact: true })).toBeVisible()
+  // The plan's capacity is stated before anyone tries to exceed it.
+  await expect(page.getByRole('heading', { name: 'Workspace capacity' })).toBeVisible()
+  await expect(page.getByText('0 of 3 Pages connected').first()).toBeVisible()
 })
 
 
@@ -444,12 +448,12 @@ test('an owner can see the team and create a shareable invitation link', async (
   await stubApi(page, { role: 'owner' })
   await signInDemo(page)
 
-  await page.getByRole('link', { name: 'Team' }).click()
-  await expect(page).toHaveURL(/\/app\/team$/)
-  await expect(page.locator('.team-member')).toHaveCount(2)
+  await page.getByRole('link', { name: 'Management' }).click()
+  await expect(page.getByRole('listitem').filter({ hasText: 'Dara Sok' })).toHaveCount(1)
+  await expect(page.getByRole('listitem').filter({ hasText: 'Sophea Kim' })).toHaveCount(1)
 
   await page.getByRole('button', { name: 'Create invitation link' }).click()
-  const link = page.locator('.team-link-row input')
+  const link = page.locator('.ws-copy-row input')
   await expect(link).toBeVisible()
   // The link is shown once, so it must carry the token the owner has to share.
   await expect(link).toHaveValue(/\/join\/tok-123$/)
@@ -460,7 +464,7 @@ test('a member cannot invite or remove anyone', async ({ page }) => {
   await stubApi(page, { role: 'member' })
   await signInDemo(page)
 
-  await page.getByRole('link', { name: 'Team' }).click()
+  await page.getByRole('link', { name: 'Management' }).click()
   await expect(page.getByText('Only an owner can invite or remove people.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Create invitation link' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Remove' })).toHaveCount(0)
@@ -480,6 +484,10 @@ test('settings let an owner rename the workspace and anyone rename themselves', 
   await expect(page).toHaveURL(/\/app\/settings$/)
   await expect(page.getByLabel('Workspace name')).toHaveValue('Angkor Shop')
   await expect(page.getByLabel('Workspace name')).toBeEnabled()
+
+  // Renaming yourself belongs to the profile, not to the shared workspace.
+  await page.locator('.dash-user-profile').click()
+  await expect(page).toHaveURL(/\/app\/profile$/)
   await expect(page.getByLabel('Your display name')).toHaveValue('Dara Sok')
 
   // The rename is explained, so nobody expects it to rewrite history.
@@ -490,10 +498,15 @@ test('a member cannot rename the shared workspace', async ({ page }) => {
   await stubApi(page, { role: 'member' })
   await signInDemo(page)
 
-  await page.getByRole('link', { name: 'Settings' }).click()
+  await page
+    .getByRole('navigation', { name: 'Client workspace' })
+    .getByRole('link', { name: 'Settings' })
+    .click()
   await expect(page.getByLabel('Workspace name')).toBeDisabled()
-  await expect(page.getByText('Only an owner can rename the workspace.')).toBeVisible()
+  await expect(page.getByText('Only an owner can rename the workspace.').first()).toBeVisible()
+
   // But their own name is still theirs to change.
+  await page.locator('.dash-user-profile').click()
   await expect(page.getByLabel('Your display name')).toBeEnabled()
 })
 
@@ -505,7 +518,7 @@ test('the dashboard has no unbuilt placeholder sections left', async ({ page }) 
   await expect(page.getByText('Not in the prototype')).toHaveCount(0)
   // Scoped to the sidebar: the sandbox banner also links to Page connection.
   const nav = page.getByRole('navigation', { name: /workspace/i })
-  for (const label of ['Overview', 'Moderate', 'Page connection', 'Team', 'Settings']) {
+  for (const label of ['Overview', 'Moderate', 'Management', 'Moderation rules', 'Settings']) {
     await expect(nav.getByRole('link', { name: label, exact: true })).toBeVisible()
   }
 })
