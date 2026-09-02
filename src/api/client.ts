@@ -233,8 +233,20 @@ export function acceptSetupInvitation(
   })
 }
 
-export function listFacebookConnections(): Promise<PageConnections> {
-  return request<PageConnections>('/api/v1/facebook/connections')
+type LegacyPageConnection = PageConnection | { state: 'NOT_CONNECTED'; can_moderate: false }
+
+/** Accept the old response shape in tests and during a rolling deploy, while
+ * using the backend-owned multi-Page collection route. */
+export async function listFacebookConnections(): Promise<PageConnections> {
+  const found = await request<PageConnections | LegacyPageConnection>(
+    '/api/v1/facebook/connections',
+  )
+  if ('connections' in found) return found
+  return {
+    connections: found.state === 'CONNECTED' ? [found] : [],
+    page_limit: 1,
+    plan: 'STARTER',
+  }
 }
 
 export function connectFacebookPageManually(pageAccessToken: string): Promise<PageConnection> {

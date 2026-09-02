@@ -234,7 +234,11 @@ export function OverviewPage({ locale }: OverviewPageProps) {
       await recordAction(commentId, kind)
       await load()
     } catch {
-      // ignore
+      setSyncNote(
+        locale === 'km'
+          ? 'មិនអាចអនុវត្តសកម្មភាពនេះបានទេ។ មិនមានអ្វីត្រូវបានកត់ត្រា។'
+          : 'The action failed. Nothing was recorded.',
+      )
     } finally {
       setActingId(null)
     }
@@ -279,10 +283,10 @@ export function OverviewPage({ locale }: OverviewPageProps) {
             <h1>{content.dashOverviewTitle}</h1>
             <span className="ov-live-pill">
               <span className="ov-live-dot" />
-              <span>{locale === 'km' ? 'សកម្ម' : 'Live'}</span>
+              <span>{locale === 'km' ? 'ស្ថានភាពបច្ចុប្បន្ន' : 'Current'}</span>
             </span>
           </div>
-          <p>{locale === 'km' ? 'ទិន្នន័យគ្រប់គ្រងមតិយោបល់ និងស្ថានភាពជួររង់ចាំ' : 'Real-time moderation metrics and queue status.'}</p>
+          <p>{locale === 'km' ? 'ទិន្នន័យគ្រប់គ្រងមតិយោបល់ និងស្ថានភាពជួររង់ចាំ' : 'Moderation metrics and current queue status.'}</p>
         </div>
         <div className="dash-head-actions">
           <button
@@ -389,10 +393,12 @@ export function OverviewPage({ locale }: OverviewPageProps) {
               </div>
               <span className="ov-cat-badge">{s.reasons.length} {locale === 'km' ? 'ប្រភេទ' : 'categories'}</span>
             </div>
-
             <ul className="ov-threat-list">
               {s.reasons.map((row) => {
-                const pct = Math.round((row.count / Math.max(s.need_review, 1)) * 100)
+                const pct = Math.min(
+                  100,
+                  Math.round((row.count / Math.max(s.need_review, 1)) * 100),
+                )
                 const shortLabel = getShortReasonLabel(row.surfaced_reason, locale)
                 const meta = getReasonMeta(row.surfaced_reason)
 

@@ -139,7 +139,7 @@ describe('KCMS public landing page', () => {
     expect(workflow).toHaveTextContent('សម្រេចដោយមានបរិបទ')
   })
 
-  it('offers early access pilot and pricing tiers', () => {
+  it('offers the published early access plans', () => {
     render(<App />, { wrapper: MemoryRouter })
 
     const access = screen.getByRole('region', {
@@ -147,13 +147,15 @@ describe('KCMS public landing page', () => {
     })
 
     expect(access).toHaveAttribute('id', 'early-access')
+    expect(access).toHaveTextContent('Early access')
     expect(access).toHaveTextContent('Starter')
-    expect(access).toHaveTextContent('Growth')
-    expect(access).toHaveTextContent('Enterprise')
-    expect(within(access).getAllByRole('link', { name: /Request pilot access/ })[0]).toHaveAttribute(
-      'href',
-      '/request-access',
-    )
+    expect(access).toHaveTextContent('$15/mo')
+    expect(access).toHaveTextContent('Khmer & Khmerlish comment moderation')
+    expect(access).toHaveTextContent('Price per Page drops as you grow')
+    expect(within(access).getAllByRole('link', { name: /Request pilot access/ })).toHaveLength(2)
+    expect(
+      within(access).getAllByRole('link', { name: /Request pilot access/ })[0],
+    ).toHaveAttribute('href', '/request-access')
   })
 
   it('closes the page with a footer that states prototype status', () => {
@@ -178,9 +180,9 @@ describe('KCMS public landing page', () => {
       name: 'ចាប់ផ្តើមសាកល្បងជាមួយទំព័រ និងក្រុមរបស់អ្នក។',
     })
 
+    expect(access).toHaveTextContent('ការចូលប្រើសាកល្បង')
     expect(access).toHaveTextContent('ចាប់ផ្តើម')
-    expect(access).toHaveTextContent('រីកចម្រើន')
-    expect(access).toHaveTextContent('សហគ្រាស')
+    expect(access).toHaveTextContent('$15/ខែ')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('ស្ថានភាព Prototype')
   })
 

@@ -498,7 +498,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
               <div className="conn-field-wrap">
                 <div className="conn-label-row">
                   <label htmlFor="page-access-token">{t.token}</label>
-                  <span className="conn-secure-tag">🔒 AES-256 Encrypted</span>
+                  <span className="conn-secure-tag">🔒 {locale === 'km' ? 'បានអ៊ិនគ្រីប' : 'Encrypted'}</span>
                 </div>
                 <input autoComplete="off" className="conn-token-input" id="page-access-token" onChange={(event) => setToken(event.target.value)} placeholder="EAA..." type="password" value={token} />
                 <p className="conn-field-hint">{t.tokenHint}</p>
@@ -557,7 +557,7 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
           <div>
-            <strong>{locale === 'km' ? 'ការអ៊ិនគ្រីបកម្រិតខ្ពស់' : 'AES-256 Encrypted'}</strong>
+            <strong>{locale === 'km' ? 'បានអ៊ិនគ្រីបពេលរក្សាទុក' : 'Encrypted at rest'}</strong>
             <small>{locale === 'km' ? 'Token ត្រូវបានរក្សាទុកដោយសុវត្ថិភាព' : 'Tokens encrypted at rest, never shown in plain text'}</small>
           </div>
         </div>
@@ -566,8 +566,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
           <div>
-            <strong>{locale === 'km' ? 'អនុលោមតាម Meta Graph API' : 'Meta API Compliant'}</strong>
-            <small>{locale === 'km' ? 'ស្របតាមគោលការណ៍ Facebook Page' : '100% compliant with Facebook moderation terms'}</small>
+            <strong>{locale === 'km' ? 'ការភ្ជាប់ Meta Graph API' : 'Meta Graph API integration'}</strong>
+            <small>{locale === 'km' ? 'ប្រើតែសិទ្ធិដែលបានផ្ដល់តាម Meta' : 'Uses only the Page permissions granted through Meta'}</small>
           </div>
         </div>
         <div className="conn-trust-item">
@@ -576,8 +576,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             <polyline points="12 6 12 12 14 14" />
           </svg>
           <div>
-            <strong>{locale === 'km' ? 'សមកាលកម្មពេលវេលាជាក់ស្ដែង' : 'Continuous Sync'}</strong>
-            <small>{locale === 'km' ? 'ទទួលបានមតិយោបល់ថ្មីៗស្វ័យប្រវត្តិ' : 'Fetches recent comments smoothly in the background'}</small>
+            <strong>{locale === 'km' ? 'ធ្វើសមកាលកម្មជាប្រចាំ' : 'Periodic synchronization'}</strong>
+            <small>{locale === 'km' ? 'ពិនិត្យមតិយោបល់ថ្មី ពេលផ្ទាំងគ្រប់គ្រងបើក' : 'Checks for new comments while the moderation screen is open'}</small>
           </div>
         </div>
       </div>
