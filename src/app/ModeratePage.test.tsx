@@ -198,12 +198,18 @@ describe('syncing from the connected Page', () => {
       const url = String(input)
       const json = (body: unknown) =>
         Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
-      if (url.includes('/facebook/connection')) return json({ state: 'CONNECTED' })
-      if (url.includes('/facebook/sync')) {
+      if (url.includes('/sync')) {
         synced = true
         return json({
           fetched: 4, imported: 1, page_id: 'page-real',
           page_name: 'Demo Page', last_synced_at: '2026-09-01T12:00:00Z',
+        })
+      }
+      if (url.includes('/facebook/connections')) {
+        return json({
+          connections: [{ state: 'CONNECTED', page_id: 'page-real' }],
+          page_limit: 3,
+          plan: 'STARTER',
         })
       }
       return json(synced ? arrived : WORK_LIST)
@@ -220,7 +226,8 @@ describe('syncing from the connected Page', () => {
     expect(
       fetchMock.mock.calls.some(
         ([url, init]) =>
-          String(url).includes('/facebook/sync') && (init as RequestInit)?.method === 'POST',
+          String(url).includes('/facebook/connections/page-real/sync')
+          && (init as RequestInit)?.method === 'POST',
       ),
     ).toBe(true)
   })
