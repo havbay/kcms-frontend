@@ -13,6 +13,10 @@ const OWNER = {
   your_role: 'owner',
   is_sandbox: true,
   sample_comments: 12,
+  auto_delete_delay_minutes: 0,
+  auto_hide_offensive: false,
+  keyword_allowlist: [] as string[],
+  keyword_blocklist: [] as string[],
 }
 
 /** Settings reads both the workspace and this workspace's keyword list. */
@@ -38,84 +42,105 @@ function renderPage() {
   )
 }
 
-describe('removing the sample comments', () => {
+describe('what the settings page shows', () => {
   beforeEach(() => vi.restoreAllMocks())
   afterEach(() => vi.restoreAllMocks())
 
-  it('asks for confirmation before emptying the workspace', async () => {
-    const user = userEvent.setup()
-    const fetchMock = stub()
-
-    renderPage()
-    await user.click(await screen.findByRole('button', { name: 'Remove sample comments' }))
-
-    // Nothing is deleted on the first click — the destructive call happens
-    // only after the confirmation.
-    expect(
-      fetchMock.mock.calls.some(([, init]) => (init as RequestInit)?.method === 'DELETE'),
-    ).toBe(false)
-    expect(screen.getByText(/Remove the sample comments permanently\?/)).toBeVisible()
-  })
-
-  it('removes them on confirmation and reports how many went', async () => {
-    const user = userEvent.setup()
-    const fetchMock = stub()
-
-    renderPage()
-    await user.click(await screen.findByRole('button', { name: 'Remove sample comments' }))
-    await user.click(screen.getByRole('button', { name: 'Remove them' }))
-
-    expect(await screen.findByText('Removed 12 sample comments.')).toBeVisible()
-    const deleted = fetchMock.mock.calls.find(
-      ([url, init]) =>
-        String(url).includes('/comments/samples') && (init as RequestInit)?.method === 'DELETE',
-    )
-    expect(deleted).toBeDefined()
-  })
-
-  it('keeps them when the owner backs out', async () => {
-    const user = userEvent.setup()
-    const fetchMock = stub()
-
-    renderPage()
-    await user.click(await screen.findByRole('button', { name: 'Remove sample comments' }))
-    await user.click(screen.getByRole('button', { name: 'Keep them' }))
-
-    expect(
-      fetchMock.mock.calls.some(([, init]) => (init as RequestInit)?.method === 'DELETE'),
-    ).toBe(false)
-    expect(await screen.findByRole('button', { name: 'Remove sample comments' })).toBeVisible()
-  })
-
-  it('is not offered to a member, who cannot empty a shared workspace', async () => {
-    stub({ ...OWNER, your_role: 'member' })
-
-    renderPage()
-    await screen.findByDisplayValue('Angkor Shop')
-    await waitFor(() =>
-      expect(screen.queryByRole('button', { name: 'Remove sample comments' })).not.toBeInTheDocument(),
-    )
-  })
-
-  it('is not offered once no samples remain', async () => {
-    stub({ ...OWNER, sample_comments: 0 })
-
-    renderPage()
-    await screen.findByDisplayValue('Angkor Shop')
-
-    // Gated on what is stored, not on the sandbox flag, so a workspace with no
-    // samples is not offered a removal that would do nothing.
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('button', { name: 'Remove sample comments' }),
-      ).not.toBeInTheDocument(),
-    )
-  })
-
-  it('says how many samples will go before removing them', async () => {
+  it('no longer offers workspace rename, sample removal, or account details', async () => {
     stub()
 
     renderPage()
-    expect(await screen.findByText('12 sample comments stored.')).toBeVisible()
+    await screen.findByLabelText('Auto-delete delay')
+
+    expect(screen.queryByLabelText('Workspace name')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Remove sample comments' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Account details')).not.toBeInTheDocument()
+    expect(screen.queryByText('You')).not.toBeInTheDocument()
+  })
+})
+
+describe('auto-delete quarantine delay', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('shows the current delay and lets an owner change it', async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input)
+      if (url.includes('/settings/keywords')) return new Response(JSON.stringify([]), { status: 200 })
+      if (url.includes('/settings/auto-delete')) {
+        return new Response(JSON.stringify({ ...OWNER, auto_delete_delay_minutes: 30 }), { status: 200 })
+      }
+      return new Response(JSON.stringify(OWNER), { status: 200 })
+    })
+
+    renderPage()
+    const select = await screen.findByLabelText('Auto-delete delay')
+    expect(select).toHaveValue('0')
+
+    await user.selectOptions(select, '30')
+
+    await waitFor(() => expect(select).toHaveValue('30'))
+    const patched = fetchMock.mock.calls.find(
+      ([url, init]) =>
+        String(url).includes('/settings/auto-delete') && (init as RequestInit)?.method === 'PATCH',
+    )
+    expect(patched).toBeDefined()
+    expect(JSON.parse(String((patched?.[1] as RequestInit).body))).toEqual({ delay_minutes: 30 })
+  })
+
+  it('is disabled for a member, who cannot change it', async () => {
+    stub({ ...OWNER, your_role: 'member' })
+
+    renderPage()
+    expect(await screen.findByLabelText('Auto-delete delay')).toBeDisabled()
+  })
+})
+
+describe('advanced moderation settings', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('lets an owner turn on auto-hide for offensive comments', async () => {
+    const user = userEvent.setup()
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input)
+      if (url.includes('/settings/keywords')) return new Response(JSON.stringify([]), { status: 200 })
+      if (url.includes('/settings/auto-hide-offensive')) {
+        return new Response(JSON.stringify({ ...OWNER, auto_hide_offensive: true }), { status: 200 })
+      }
+      return new Response(JSON.stringify(OWNER), { status: 200 })
+    })
+
+    renderPage()
+    const toggle = await screen.findByLabelText('Auto-hide offensive comments')
+    expect(toggle).not.toBeChecked()
+
+    await user.click(toggle)
+
+    await waitFor(() => expect(toggle).toBeChecked())
+    const patched = fetchMock.mock.calls.find(
+      ([url, init]) =>
+        String(url).includes('/settings/auto-hide-offensive') &&
+        (init as RequestInit)?.method === 'PATCH',
+    )
+    expect(JSON.parse(String((patched?.[1] as RequestInit).body))).toEqual({ enabled: true })
+  })
+
+  it('is disabled for a member, who cannot change it', async () => {
+    stub({ ...OWNER, your_role: 'member' })
+
+    renderPage()
+    expect(await screen.findByLabelText('Auto-hide offensive comments')).toBeDisabled()
+  })
+
+  it('no longer offers allowlist or blocklist phrase editing', async () => {
+    stub()
+
+    renderPage()
+    await screen.findByLabelText('Auto-hide offensive comments')
+
+    expect(screen.queryByLabelText('Allowlist phrases')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Blocklist phrases')).not.toBeInTheDocument()
   })
 })

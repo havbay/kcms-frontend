@@ -95,6 +95,36 @@ function formatRelativeTime(dateStr: string, locale: Locale): string {
   }
 }
 
+function formatCountdown(remainingMs: number): string {
+  const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  if (hours > 0) return `${hours}h ${minutes}m`
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
+}
+
+// A HARMFUL comment auto-hidden under a quarantine delay: `until` is when the
+// sweep on the backend will delete it if nobody has stepped in by then. Ticks
+// every second purely client-side — the backend is the source of truth for
+// whether the delete has actually happened yet.
+function QuarantineCountdown({ until, locale }: { until: string; locale: Locale }) {
+  const content = copy[locale]
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const remainingMs = new Date(until).getTime() - now
+  return (
+    <span className={`work-chip quarantine-chip${remainingMs <= 0 ? ' is-due' : ''}`}>
+      {remainingMs <= 0 ? content.modQuarantineDue : content.modQuarantineCountdown(formatCountdown(remainingMs))}
+    </span>
+  )
+}
+
 const ui = {
   en: {
     search: 'Search comments', status: 'Review status', severity: 'Severity', target: 'Target', reason: 'Why surfaced', sort: 'Sort by',
@@ -159,12 +189,12 @@ export function ModeratePage({ locale }: ModeratePageProps) {
   const [pendingAction, setPendingAction] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [reviewStatus, setReviewStatus] = useState('')
+  const [reviewStatus, setReviewStatus] = useState('PENDING')
   const [severity, setSeverity] = useState('')
   const [target, setTarget] = useState('')
   const [reason, setReason] = useState('')
   const [sort, setSort] = useState<CommentFilters['sort']>('PRIORITY')
-  const [filters, setFilters] = useState<CommentFilters>({ sort: 'PRIORITY' })
+  const [filters, setFilters] = useState<CommentFilters>({ reviewStatus: 'PENDING', sort: 'PRIORITY' })
   const [syncing, setSyncing] = useState(false)
   const [syncNote, setSyncNote] = useState<string | null>(null)
   const [actionError, setActionError] = useState<{ commentId: string; message: string } | null>(null)
@@ -203,6 +233,16 @@ export function ModeratePage({ locale }: ModeratePageProps) {
     try {
       const history = await recordAction(commentId, kind)
       const latest = history[0]
+      // A deleted comment is gone from Facebook and now counts as actioned, so
+      // it leaves the pending queue immediately instead of lingering as a row
+      // whose only remaining action is one that cannot be taken again. It is
+      // still there under Actioned, where the server already files it.
+      if (kind === 'DELETE' && filters.reviewStatus === 'PENDING') {
+        setItems((current) => current.filter((item) => item.comment_id !== commentId))
+        setTotal((current) => Math.max(0, current - 1))
+        setSelectedId((current) => (current === commentId ? null : current))
+        return
+      }
       setItems((current) => current.map((item) => item.comment_id === commentId ? {
         ...item,
         latest_action: latest?.kind ?? item.latest_action,
@@ -304,8 +344,10 @@ export function ModeratePage({ locale }: ModeratePageProps) {
   }
 
   function resetFilters() {
-    setSearch(''); setReviewStatus(''); setSeverity(''); setTarget(''); setReason(''); setSort('PRIORITY')
-    setOffset(0); setFilters({ sort: 'PRIORITY' })
+    // Reset clears the refinements, not the queue you are standing in: Pending
+    // is the default view, so a reset returns to it rather than to no status.
+    setSearch(''); setReviewStatus('PENDING'); setSeverity(''); setTarget(''); setReason(''); setSort('PRIORITY')
+    setOffset(0); setFilters({ reviewStatus: 'PENDING', sort: 'PRIORITY' })
   }
 
   const selected = items.find((item) => item.comment_id === selectedId) ?? null
@@ -340,20 +382,6 @@ export function ModeratePage({ locale }: ModeratePageProps) {
 
       <div className="mod-toolbar">
         <div aria-label={t.queueStatus} className="mod-status-tabs" role="tablist">
-          <button
-            aria-selected={reviewStatus === ''}
-            className={`mod-tab-btn ${reviewStatus === '' ? 'is-active' : ''}`}
-            onClick={() => {
-              setReviewStatus('')
-              setOffset(0)
-              setFilters((prev) => ({ ...prev, reviewStatus: undefined }))
-            }}
-            role="tab"
-            type="button"
-          >
-            <span>{t.all}</span>
-            {reviewStatus === '' && <span className="mod-tab-badge is-all">{total}</span>}
-          </button>
           <button
             aria-selected={reviewStatus === 'PENDING'}
             className={`mod-tab-btn ${reviewStatus === 'PENDING' ? 'is-active' : ''}`}
@@ -465,7 +493,6 @@ export function ModeratePage({ locale }: ModeratePageProps) {
         <label className="filter-status-select">
           <span>{t.status}</span>
           <select onChange={(event) => setReviewStatus(event.target.value)} value={reviewStatus}>
-            <option value="">{t.all}</option>
             <option value="PENDING">{t.pending}</option>
             <option value="ACTIONED">{t.actioned}</option>
           </select>
@@ -512,7 +539,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
         </div>
       </form>
 
-      {(search || severity || target || reason || reviewStatus) && (
+      {(search || severity || target || reason) && (
         <div className="mod-active-filters">
           <span className="active-filters-label">{t.activeFilters}:</span>
           {search && (
@@ -525,19 +552,6 @@ export function ModeratePage({ locale }: ModeratePageProps) {
               type="button"
             >
               <span>{t.search}: "{search}"</span>
-              <span className="pill-x">×</span>
-            </button>
-          )}
-          {reviewStatus && (
-            <button
-              className="active-filter-pill"
-              onClick={() => {
-                setReviewStatus('')
-                setFilters((f) => ({ ...f, reviewStatus: undefined }))
-              }}
-              type="button"
-            >
-              <span>{t.status}: {reviewStatus === 'PENDING' ? t.pending : t.actioned}</span>
               <span className="pill-x">×</span>
             </button>
           )}
@@ -710,18 +724,12 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                             {item.latest_action_on_facebook ? t.onFacebook : t.kcmsOnly}
                           </small>
                         )}
+                        {item.pending_delete_at && (
+                          <QuarantineCountdown locale={locale} until={item.pending_delete_at} />
+                        )}
                       </td>
                       <td className="cell-actions" onClick={(event) => event.stopPropagation()}>
                         <div className="row-actions">
-                          {/* Hide first: it is the reversible one, and the
-                              order the buttons sit in is a recommendation
-                              whether or not it is meant as one. Unhide appears
-                              only on a hidden comment, where it means something. */}
-                          {item.latest_action === 'HIDE' ? (
-                            <button className="button button-small" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'UNHIDE')} type="button">{content.modUnhide}</button>
-                          ) : (
-                            <button className="button button-small" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'HIDE')} type="button">{content.modHide}</button>
-                          )}
                           <button className="button button-small button-quiet" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'LEAVE')} type="button">{content.modLeave}</button>
                           {confirmDelete === item.comment_id ? (
                             <>
@@ -818,7 +826,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
               </header>
               <section className="detail-section"><h2>{content.colComment}</h2><blockquote lang="km">{selected.text}</blockquote></section>
               <section className="detail-section"><h2>{t.context}</h2><dl className="detail-facts"><div><dt>{t.source}</dt><dd lang="km">{formatPostCaption(selected.post_text, '—')}</dd></div><div><dt>{t.type}</dt><dd>{selected.post_kind === 'VIDEO' ? t.video : t.post}</dd></div>{selected.parent_text && <div><dt>{t.replyTo}</dt><dd lang="km">{selected.parent_text}</dd></div>}</dl>{selected.post_permalink && <a className="detail-link" href={selected.post_permalink} rel="noreferrer" target="_blank">{t.openPost}</a>}</section>
-              <section className="detail-section"><h2>{t.verdict}</h2><dl className="detail-facts"><div><dt>{content.colSeverity}</dt><dd>{selected.severity ? content.modSeverity[selected.severity as keyof typeof content.modSeverity] : '—'} · {Math.round((selected.severity_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.colTarget}</dt><dd>{selected.target ? content.modTarget[selected.target as keyof typeof content.modTarget] : '—'} · {Math.round((selected.target_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.pattern}</dt><dd>{selected.model_version}</dd></div>{selected.rationale && <div><dt>{content.modWhySurfaced}</dt><dd>{selected.rationale}</dd></div>}{selected.corrected_severity && <div><dt>{content.modCorrected}</dt><dd>{content.modSeverity[selected.corrected_severity as keyof typeof content.modSeverity]} · {content.modTarget[selected.corrected_target as keyof typeof content.modTarget]}</dd></div>}{selected.latest_action && <div><dt>{content.modActioned}</dt><dd>{selected.latest_action} {content.modBy} {selected.latest_actor}</dd></div>}</dl></section>
+              <section className="detail-section"><h2>{t.verdict}</h2><dl className="detail-facts"><div><dt>{content.colSeverity}</dt><dd>{selected.severity ? content.modSeverity[selected.severity as keyof typeof content.modSeverity] : '—'} · {Math.round((selected.severity_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.colTarget}</dt><dd>{selected.target ? content.modTarget[selected.target as keyof typeof content.modTarget] : '—'} · {Math.round((selected.target_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.pattern}</dt><dd>{selected.model_version}</dd></div>{selected.rationale && <div><dt>{content.modWhySurfaced}</dt><dd>{selected.rationale}</dd></div>}{selected.corrected_severity && <div><dt>{content.modCorrected}</dt><dd>{content.modSeverity[selected.corrected_severity as keyof typeof content.modSeverity]} · {content.modTarget[selected.corrected_target as keyof typeof content.modTarget]}</dd></div>}{selected.latest_action && <div><dt>{content.modActioned}</dt><dd>{selected.latest_action} {content.modBy} {selected.latest_actor}</dd></div>}{selected.pending_delete_at && <div><dt>{content.modQuarantined}</dt><dd><QuarantineCountdown locale={locale} until={selected.pending_delete_at} /></dd></div>}</dl></section>
               <section className="detail-section"><h2>{t.action}</h2><div className="moderation-actions">{selected.latest_action === 'HIDE' ? (<button className="button button-small" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'UNHIDE')} type="button">{content.modUnhide}</button>) : (<button className="button button-small" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'HIDE')} type="button">{content.modHide}</button>)}<button className="button button-small button-quiet" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'LEAVE')} type="button">{content.modLeave}</button>{confirmDelete === selected.comment_id ? (<><button className="button button-small button-action-delete" disabled={pendingAction === selected.comment_id} onClick={() => { setConfirmDelete(null); void act(selected.comment_id, 'DELETE') }} type="button">{content.modDeleteConfirm}</button><button className="button button-small button-quiet" onClick={() => setConfirmDelete(null)} type="button">{content.modCancel}</button></>) : (<button className="button button-small button-action-delete" disabled={pendingAction === selected.comment_id} onClick={() => setConfirmDelete(selected.comment_id)} type="button">{content.modDelete}</button>)}</div></section>
               <section className="detail-section"><h2>{t.correction}</h2><CorrectionForm commentId={selected.comment_id} currentSeverity={selected.severity} currentTarget={selected.target} locale={locale} onSaved={(newSeverity, newTarget) => setItems((current) => current.map((row) => row.comment_id === selected.comment_id ? { ...row, corrected_severity: newSeverity, corrected_target: newTarget, corrected_by: 'you' } : row))} /></section>
             </aside>

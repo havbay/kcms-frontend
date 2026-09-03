@@ -1,0 +1,91 @@
+/* Tailwind, for shadcn/animate-ui components only — deliberately WITHOUT
+ * Preflight (`tailwindcss/preflight`), Tailwind's global reset.
+ *
+ * Every raw custom property below is namespaced `--shadcn-*`. The first cut
+ * of this file used shadcn's stock bare names (`--muted`, `--border`, etc.)
+ * on `:root`, and `--muted` collided with styles.css's own pre-existing
+ * `:root { --muted: #587074; }` (used as `color: var(--muted)` on ~100
+ * selectors app-wide — nav captions, stat labels, hints). Whichever
+ * stylesheet's `:root` block was imported last won for that property, so
+ * "muted text" silently became shadcn's near-white "muted surface" colour
+ * everywhere, which is what actually broke the nav and dashboard, not
+ * Preflight. Namespacing rules this out regardless of what names this app's
+ * own CSS happens to use, now or later.
+ *
+ * `dark:` is wired to a `.dark` class rather than OS preference — nothing in
+ * this app ever adds that class today, so dark-variant utility classes on
+ * shadcn/animate-ui components stay inert until a real dark theme exists,
+ * instead of silently reacting to a visitor's OS setting.
+ */
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --shadcn-radius: 0.625rem;
+  --shadcn-background: oklch(1 0 0);
+  --shadcn-foreground: oklch(0.145 0 0);
+  --shadcn-card: oklch(1 0 0);
+  --shadcn-card-foreground: oklch(0.145 0 0);
+  --shadcn-popover: oklch(1 0 0);
+  --shadcn-popover-foreground: oklch(0.145 0 0);
+  --shadcn-primary: oklch(0.205 0 0);
+  --shadcn-primary-foreground: oklch(0.985 0 0);
+  --shadcn-secondary: oklch(0.97 0 0);
+  --shadcn-secondary-foreground: oklch(0.205 0 0);
+  --shadcn-muted: oklch(0.97 0 0);
+  --shadcn-muted-foreground: oklch(0.556 0 0);
+  --shadcn-accent: oklch(0.97 0 0);
+  --shadcn-accent-foreground: oklch(0.205 0 0);
+  --shadcn-destructive: oklch(0.577 0.245 27.325);
+  --shadcn-border: oklch(0.922 0 0);
+  --shadcn-input: oklch(0.922 0 0);
+  --shadcn-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --shadcn-background: oklch(0.145 0 0);
+  --shadcn-foreground: oklch(0.985 0 0);
+  --shadcn-card: oklch(0.205 0 0);
+  --shadcn-card-foreground: oklch(0.985 0 0);
+  --shadcn-popover: oklch(0.205 0 0);
+  --shadcn-popover-foreground: oklch(0.985 0 0);
+  --shadcn-primary: oklch(0.922 0 0);
+  --shadcn-primary-foreground: oklch(0.205 0 0);
+  --shadcn-secondary: oklch(0.269 0 0);
+  --shadcn-secondary-foreground: oklch(0.985 0 0);
+  --shadcn-muted: oklch(0.269 0 0);
+  --shadcn-muted-foreground: oklch(0.708 0 0);
+  --shadcn-accent: oklch(0.269 0 0);
+  --shadcn-accent-foreground: oklch(0.985 0 0);
+  --shadcn-destructive: oklch(0.704 0.191 22.216);
+  --shadcn-border: oklch(1 0 0 / 10%);
+  --shadcn-input: oklch(1 0 0 / 15%);
+  --shadcn-ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --color-background: var(--shadcn-background);
+  --color-foreground: var(--shadcn-foreground);
+  --color-card: var(--shadcn-card);
+  --color-card-foreground: var(--shadcn-card-foreground);
+  --color-popover: var(--shadcn-popover);
+  --color-popover-foreground: var(--shadcn-popover-foreground);
+  --color-primary: var(--shadcn-primary);
+  --color-primary-foreground: var(--shadcn-primary-foreground);
+  --color-secondary: var(--shadcn-secondary);
+  --color-secondary-foreground: var(--shadcn-secondary-foreground);
+  --color-muted: var(--shadcn-muted);
+  --color-muted-foreground: var(--shadcn-muted-foreground);
+  --color-accent: var(--shadcn-accent);
+  --color-accent-foreground: var(--shadcn-accent-foreground);
+  --color-destructive: var(--shadcn-destructive);
+  --color-border: var(--shadcn-border);
+  --color-input: var(--shadcn-input);
+  --color-ring: var(--shadcn-ring);
+  --radius-sm: calc(var(--shadcn-radius) - 4px);
+  --radius-md: calc(var(--shadcn-radius) - 2px);
+  --radius-lg: var(--shadcn-radius);
+  --radius-xl: calc(var(--shadcn-radius) + 4px);
+}

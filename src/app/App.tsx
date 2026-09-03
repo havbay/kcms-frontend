@@ -18,8 +18,31 @@ import { OverviewPage } from './OverviewPage'
 import { RequestAccessPage } from './RequestAccessPage'
 import { SetupPage } from './SetupPage'
 
+const LOCALE_KEY = 'kcms.locale'
+
+function readStoredLocale(): Locale {
+  try {
+    const stored = localStorage.getItem(LOCALE_KEY)
+    // A visitor who explicitly picked English keeps English. Nobody has
+    // said anything yet is the only case that falls back to Khmer.
+    return stored === 'en' || stored === 'km' ? stored : 'km'
+  } catch {
+    return 'km'
+  }
+}
+
 export function App() {
-  const [locale, setLocale] = useState<Locale>('en')
+  const [locale, setLocaleState] = useState<Locale>(readStoredLocale)
+
+  function setLocale(next: Locale) {
+    setLocaleState(next)
+    try {
+      localStorage.setItem(LOCALE_KEY, next)
+    } catch {
+      // Private browsing: the in-memory choice still works for this tab.
+    }
+  }
+
   const shared = { locale, setLocale }
 
   const dashboard = (children: React.ReactNode) => (

@@ -10,6 +10,7 @@ import { App } from './app/App'
 import { SessionProvider } from './app/session'
 import './styles.css'
 import './styles/workspace.css'
+import './styles/tailwind.css'
 
 const rootElement = document.getElementById('root')
 

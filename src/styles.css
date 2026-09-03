@@ -80,10 +80,18 @@ button:focus-visible, a:focus-visible { outline: 3px solid #e2a13a; outline-offs
 .eyebrow { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 1.75rem; color: var(--mekong-teal); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 .eyebrow span { width: 2.8rem; height: 0.28rem; background: repeating-linear-gradient(90deg, var(--mekong-teal) 0 0.55rem, transparent 0.55rem 0.75rem); }
 .site[lang='km'] .eyebrow { letter-spacing: 0; text-transform: none; }
-h1 { max-width: 11ch; margin: 0; color: var(--deep-ink); font-size: clamp(3rem, 6vw, 5.55rem); font-weight: 770; letter-spacing: -0.065em; line-height: 0.98; }
+/* Scoped to the landing hero specifically, not a bare `h1` selector: every
+   other h1 in the app (sign-in, notices, onboarding, dashboard page titles,
+   admin) has its own explicit font-size, but a bare element selector still
+   out-specifies a single-class one, and `.site[lang='km'] h1` used to beat
+   ALL of them at once — every Khmer h1 app-wide rendered at landing-page
+   hero size. See ARCHITECTURE notes: this is the second and third time this
+   exact bug surfaced on a different page (dashboard page titles, then
+   sign-in/request-access) before being traced to its actual source here. */
+#landing-heading { max-width: 11ch; margin: 0; color: var(--deep-ink); font-size: clamp(3rem, 6vw, 5.55rem); font-weight: 770; letter-spacing: -0.065em; line-height: 0.98; }
 h2 { max-width: 12ch; margin: 0; color: var(--deep-ink); font-size: clamp(2.35rem, 4vw, 4rem); font-weight: 770; line-height: 1.02; }
 h3 { margin: 0; color: var(--deep-ink); font-size: 1.25rem; line-height: 1.25; }
-.site[lang='km'] h1 { max-width: 14ch; font-size: clamp(2.65rem, 5.2vw, 4.8rem); letter-spacing: -0.02em; line-height: 1.32; }
+.site[lang='km'] #landing-heading { max-width: 14ch; font-size: clamp(2.65rem, 5.2vw, 4.8rem); letter-spacing: -0.02em; line-height: 1.32; }
 .site[lang='km'] h2 { max-width: 16ch; line-height: 1.28; }
 .site[lang='km'] h3 { line-height: 1.45; }
 .hero-description { max-width: 37rem; margin: 2rem 0 0; color: var(--muted); font-size: clamp(1.05rem, 1.6vw, 1.22rem); line-height: 1.75; }
@@ -235,8 +243,8 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 @media (max-width: 560px) {
   .site-header, .hero, .overview-section, .workflow-section { width: min(100% - 1.5rem, 34rem); }
   .hero { gap: 3.5rem; padding-top: 3.25rem; }
-  h1 { font-size: clamp(2.7rem, 13vw, 4rem); }
-  .site[lang='km'] h1 { font-size: clamp(2.25rem, 10vw, 3.3rem); }
+  #landing-heading { font-size: clamp(2.7rem, 13vw, 4rem); }
+  .site[lang='km'] #landing-heading { font-size: clamp(2.25rem, 10vw, 3.3rem); }
   .hero-actions { align-items: stretch; flex-direction: column; gap: 0.8rem; }
   .text-link { justify-content: center; }
   .scope-list { display: grid; grid-template-columns: 1fr; }
@@ -2616,6 +2624,17 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .reach-yes { color: #1a7f52; }
 /* An action that never reached Facebook must not read as a success. */
 .reach-no { color: #8a6100; }
+/* Hidden now, deleted automatically once the countdown reaches zero unless a
+   human intervenes first. */
+.quarantine-chip {
+  display: inline-flex;
+  margin-top: 0.3rem;
+  color: #7b3e00;
+  background: #f7e3c2;
+  border: 1px solid rgba(194, 106, 10, 0.35);
+  font-variant-numeric: tabular-nums;
+}
+.quarantine-chip.is-due { color: #8a1c13; background: #f8d7d3; border-color: rgba(138, 28, 19, 0.3); }
 .row-actions { display: flex; gap: 0.35rem; }
 .cell-actions { white-space: nowrap; }
 .row-action-error { margin: 0.35rem 0 0; font-size: 0.6875rem; color: #8a1c13; white-space: normal; max-width: 26ch; }
@@ -2787,12 +2806,34 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.dash-user-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
 .dash-user-role {
   font-size: 0.65rem;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+/* The plan reads as a chip rather than more caption text, so the role and the
+   plan stay tellable apart on one line. */
+.dash-user-plan {
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: rgba(24, 48, 51, 0.07);
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.dash-user-plan[data-plan='GROWTH'] {
+  background: rgba(11, 107, 99, 0.12);
+  color: #075049;
 }
 .dash-account-actions {
   display: flex;

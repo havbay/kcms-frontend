@@ -395,3 +395,39 @@ export function SelectField({
     </div>
   )
 }
+
+/** A labelled on/off switch. Unlike TextField/SelectField this fires on
+ *  every change rather than waiting for a form submit — the caller decides
+ *  whether that means "save immediately" or something else. */
+export function Toggle({
+  id,
+  label,
+  hint,
+  checked,
+  onChange,
+  disabled,
+}: FieldShell & {
+  checked: boolean
+  onChange: (checked: boolean) => void
+  disabled?: boolean
+}) {
+  const hintId = hint ? `${id}-hint` : undefined
+  return (
+    <div className="ws-field ws-toggle-field">
+      <div className="ws-toggle-row">
+        <input
+          aria-describedby={hintId}
+          checked={checked}
+          className="ws-toggle-input"
+          disabled={disabled}
+          id={id}
+          onChange={(e) => onChange(e.target.checked)}
+          role="switch"
+          type="checkbox"
+        />
+        <label className="ws-field-label" htmlFor={id}>{label}</label>
+      </div>
+      {hint && <p className="ws-field-hint" id={hintId}>{hint}</p>}
+    </div>
+  )
+}

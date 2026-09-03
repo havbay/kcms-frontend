@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 
-import { getSettings } from '../api/client'
+import { getSettings, listFacebookConnections, type PageConnections } from '../api/client'
 import { copy, type Locale } from './copy'
 import { useSession } from './session'
 
@@ -90,6 +90,10 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
   const session = useSession()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [workspaceName, setWorkspaceName] = useState<string>('')
+  // The plan belongs to the workspace, not the screen, so the account card
+  // carries it everywhere. It is left out entirely rather than guessed at when
+  // it cannot be read.
+  const [plan, setPlan] = useState<PageConnections['plan'] | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -98,6 +102,18 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
       setWorkspaceName(settings.workspace_name)
     }).catch(() => {
       // ignore
+    })
+    return () => {
+      mounted = false
+    }
+  }, [session.user])
+
+  useEffect(() => {
+    let mounted = true
+    listFacebookConnections().then((found) => {
+      if (mounted) setPlan(found.plan ?? null)
+    }).catch(() => {
+      if (mounted) setPlan(null)
     })
     return () => {
       mounted = false
@@ -210,8 +226,15 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
                 <strong className="dash-user-name" title={session.user.display_name}>
                   {session.user.display_name}
                 </strong>
-                <span className="dash-user-role">
-                  {session.user.is_platform_admin ? 'Admin' : 'Owner'}
+                <span className="dash-user-tags">
+                  <span className="dash-user-role">
+                    {session.user.is_platform_admin ? 'Admin' : 'Owner'}
+                  </span>
+                  {plan && (
+                    <span className="dash-user-plan" data-plan={plan} title={content.proPlan}>
+                      {plan === 'GROWTH' ? content.proPlanGrowth : content.proPlanStarter}
+                    </span>
+                  )}
                 </span>
               </div>
               <NavIcon type="chevron" />
