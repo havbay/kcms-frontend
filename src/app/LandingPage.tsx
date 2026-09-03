@@ -133,6 +133,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
         </section>
 
         <section aria-labelledby="overview-heading" className="overview-section" id="service-overview">
+          <div className="overview-panel">
           <div className="overview-intro">
             <p className="eyebrow"><span aria-hidden="true" />{content.overviewEyebrow}</p>
             <h2 id="overview-heading">{content.overviewHeading}</h2>
@@ -175,6 +176,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
           <ol aria-label={content.overviewTranscriptLabel} className="overview-transcript">
             {content.overviewChapters.map((chapter) => <li key={chapter}>{chapter}</li>)}
           </ol>
+          </div>
         </section>
 
         <section aria-labelledby="workflow-heading" className="workflow-section" id="how-it-works">
