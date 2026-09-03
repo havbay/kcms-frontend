@@ -331,6 +331,11 @@ export function removeMember(userId: string): Promise<void> {
   return request<void>(`/api/v1/team/members/${encodeURIComponent(userId)}`, { method: 'DELETE' })
 }
 
+/** Leave the workspace you are in. Needs no permission from its owner. */
+export function leaveWorkspace(): Promise<void> {
+  return request<void>('/api/v1/team/membership', { method: 'DELETE' })
+}
+
 export type WorkspaceSettings = components['schemas']['WorkspaceSettings']
 
 export function removeSampleComments(): Promise<{ removed: number }> {

@@ -5107,3 +5107,9 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 @media (max-width: 60rem) {
   .overview-panel { grid-template-columns: 1fr; }
 }
+
+/* Leaving is destructive to the person doing it, so it is quiet until armed. */
+.ws-card-foot { display: grid; gap: 0.6rem; justify-items: start; }
+.ws-leave-confirm { display: grid; gap: 0.5rem; }
+.ws-leave-confirm p { margin: 0; font-size: var(--app-text-sm, 0.75rem); max-width: 46ch; }
+.ws-leave-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }

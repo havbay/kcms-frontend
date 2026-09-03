@@ -278,3 +278,63 @@ describe('Workspace Team Management in unified view', () => {
     expect(screen.getByText('Invite a Team Member')).toBeVisible()
   })
 })
+
+describe('leaving a workspace', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  function teamApi(overrides: { leaveStatus?: number; leaveBody?: unknown } = {}) {
+    return vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+      const url = String(input)
+      const json = (body: unknown, status = 200) =>
+        Promise.resolve(new Response(JSON.stringify(body), { status }))
+      if (url.includes('/team/membership') && (init as RequestInit)?.method === 'DELETE') {
+        return Promise.resolve(
+          new Response(
+            overrides.leaveBody ? JSON.stringify(overrides.leaveBody) : null,
+            { status: overrides.leaveStatus ?? 204 },
+          ),
+        )
+      }
+      if (url.includes('/team')) {
+        return json({
+          workspace_name: 'CADT',
+          your_role: 'member',
+          members: [{ user_id: 'u1', display_name: 'Nara', role: 'member', joined_at: null }],
+        })
+      }
+      return json({ state: 'NOT_CONNECTED', can_moderate: false })
+    })
+  }
+
+  it('asks before leaving, since only an owner can add you back', async () => {
+    const user = userEvent.setup()
+    const fetchMock = teamApi()
+
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Leave this workspace' }))
+
+    expect(
+      fetchMock.mock.calls.some(
+        ([url, init]) =>
+          String(url).includes('/team/membership') &&
+          (init as RequestInit)?.method === 'DELETE',
+      ),
+    ).toBe(false)
+    expect(screen.getByText(/only an owner can add you back/)).toBeVisible()
+  })
+
+  it('explains when the last owner cannot leave', async () => {
+    const user = userEvent.setup()
+    teamApi({
+      leaveStatus: 409,
+      leaveBody: { detail: 'you are the last owner of this workspace; promote someone else before leaving' },
+    })
+
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Leave this workspace' }))
+    await user.click(screen.getByRole('button', { name: 'Leave workspace' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/last owner of this workspace/)
+  })
+})

@@ -10,6 +10,7 @@ import {
   type PageChoice,
   type PageConnection,
   type PageConnections,
+  leaveWorkspace,
   removeMember,
   revokeInvitation,
   selectFacebookPage,
@@ -336,6 +337,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
   }
 
   const isOwner = team?.your_role === 'owner'
+  const [confirmLeave, setConfirmLeave] = useState(false)
+  const [leaveError, setLeaveError] = useState<string | null>(null)
   const inviteUrl = freshInvite ? `${window.location.origin}/join/${freshInvite.token}` : ''
 
   async function inviteMember() {
@@ -349,6 +352,21 @@ export function ConnectPage({ locale }: ConnectPageProps) {
       setTeamProblem(content.authUnreachable)
     } finally {
       setTeamBusy(false)
+    }
+  }
+
+  async function leave() {
+    setLeaveError(null)
+    try {
+      await leaveWorkspace()
+      // The workspace changes underneath every screen, so reload rather than
+      // patching state and leaving other views showing the one just left.
+      window.location.assign('/app')
+    } catch (caught) {
+      setLeaveError(
+        caught instanceof ApiError && caught.detail ? caught.detail : content.teamLeaveError,
+      )
+      setConfirmLeave(false)
     }
   }
 
@@ -601,7 +619,26 @@ export function ConnectPage({ locale }: ConnectPageProps) {
             actions={<Badge tone="neutral">{t.teamMembersCount(members.length)}</Badge>}
             description={t.teamLead}
             title={t.teamTitle}
-            footer={!isOwner ? <p className="ws-card-note">{content.teamOwnerOnly}</p> : undefined}
+            footer={
+              <div className="ws-card-foot">
+                {!isOwner && <p className="ws-card-note">{content.teamOwnerOnly}</p>}
+                {/* Leaving needs no permission from the owner: a workspace holds
+                    another company's real comments, and wanting no further part
+                    in it should not depend on them agreeing. */}
+                {leaveError && <p className="auth-error" role="alert">{leaveError}</p>}
+                {confirmLeave ? (
+                  <div className="ws-leave-confirm">
+                    <p>{content.teamLeaveConfirm}</p>
+                    <div className="ws-leave-actions">
+                      <button className="button button-small button-action-delete" onClick={() => void leave()} type="button">{content.teamLeaveYes}</button>
+                      <button className="button button-small button-quiet" onClick={() => setConfirmLeave(false)} type="button">{content.modCancel}</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button className="button button-small button-quiet" onClick={() => setConfirmLeave(true)} type="button">{content.teamLeave}</button>
+                )}
+              </div>
+            }
           >
             {members.length === 0 ? (
               <EmptyState
