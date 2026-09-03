@@ -1170,6 +1170,8 @@ export interface components {
         WorkListItem: {
             /** Abstain */
             abstain: boolean | null;
+            /** Author Id */
+            author_id: string | null;
             /** Author Ref */
             author_ref: string;
             /** Comment Id */
@@ -1196,6 +1198,8 @@ export interface components {
             model_version: string | null;
             /** Page Id */
             page_id: string;
+            /** Page Name */
+            page_name: string | null;
             /** Parent Text */
             parent_text: string | null;
             /** Post Kind */

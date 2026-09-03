@@ -17,6 +17,8 @@ const WORK_LIST = {
       text: 'សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់ ខកចិត្តខ្លាំង។',
       author_ref: 'user-a',
       page_id: 'page-demo',
+      page_name: 'Angkor Shop',
+      author_id: null,
       post_text: 'ស្វែងយល់ពីសេវាថ្មីរបស់យើងក្នុងវីដេអូនេះ។',
       parent_text: null, is_reply: false, post_kind: 'VIDEO', post_permalink: null,
       posted_at: '2026-08-30T10:00:00Z',
@@ -31,6 +33,8 @@ const WORK_LIST = {
       text: 'អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។',
       author_ref: 'user-d',
       page_id: 'page-demo',
+      page_name: 'Angkor Shop',
+      author_id: null,
       post_text: 'ស្វែងយល់ពីសេវាថ្មីរបស់យើងក្នុងវីដេអូនេះ។',
       parent_text: 'តើអ្នកគិតយ៉ាងណាចំពោះសេវានេះ?', is_reply: true,
       post_kind: 'VIDEO', post_permalink: null,
@@ -423,5 +427,78 @@ describe('hide and unhide', () => {
         String(url).includes('/actions') && (init as RequestInit)?.method === 'POST',
     )
     expect(JSON.parse(String((call?.[1] as RequestInit).body))).toEqual({ kind: 'HIDE' })
+  })
+})
+
+
+describe('who commented and on which Page', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('names the Page each comment came from', async () => {
+    mockApi({})
+
+    renderPage()
+
+    // A workspace can hold several Pages, so the row has to say which.
+    expect((await screen.findAllByText('Angkor Shop')).length).toBeGreaterThan(0)
+  })
+
+  it('shows the name Meta actually gave', async () => {
+    const named = {
+      ...WORK_LIST,
+      total: 1,
+      items: [{ ...WORK_LIST.items[0]!, author_ref: 'Dara Sok', author_id: 'asid-1' }],
+    }
+    mockApi({ workList: named })
+
+    renderPage()
+
+    expect(await screen.findByLabelText(/From: Dara Sok/)).toBeInTheDocument()
+  })
+
+  it('does not invent an identity Meta withheld', async () => {
+    const anonymous = {
+      ...WORK_LIST,
+      total: 1,
+      items: [
+        {
+          ...WORK_LIST.items[0]!,
+          author_ref: 'fb:122095233513453649_1095042266288564',
+          author_id: null,
+        },
+      ],
+    }
+    mockApi({ workList: anonymous })
+
+    renderPage()
+
+    // Not "User #1220" with an "@fb_1220" handle, which named nobody.
+    expect(await screen.findByLabelText(/From: Unknown commenter/)).toBeInTheDocument()
+    expect(screen.queryByLabelText(/User #/)).not.toBeInTheDocument()
+  })
+
+  it('never links to a Facebook profile built from a comment id', async () => {
+    const anonymous = {
+      ...WORK_LIST,
+      total: 1,
+      items: [
+        {
+          ...WORK_LIST.items[0]!,
+          author_ref: 'fb:122095233513453649_1095042266288564',
+          post_permalink: 'https://www.facebook.com/1350914224763068/posts/122095233513453649',
+        },
+      ],
+    }
+    mockApi({ workList: anonymous })
+
+    renderPage()
+    await screen.findByLabelText(/From: Unknown commenter/)
+
+    for (const link of screen.getAllByRole('link')) {
+      const href = link.getAttribute('href') ?? ''
+      // facebook.com/<comment id> resolves to nobody.
+      expect(href).not.toMatch(/facebook\.com\/122095233513453649_/)
+    }
   })
 })

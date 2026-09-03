@@ -37,11 +37,14 @@ function getAuthorInfo(authorRef: string, locale: Locale) {
   const palette = AVATAR_PALETTES[hash] ?? AVATAR_PALETTES[0]!
 
   if (authorRef.startsWith('fb:')) {
-    const id = authorRef.slice(3, 7).toUpperCase()
+    // Meta withheld `from`, so there is no name and no handle. The stored
+    // "fb:<comment id>" is a record, not an identity: inventing "User #1220"
+    // and "@fb_1220" from it presented a person who does not exist, about a
+    // real comment a moderator is about to act on.
     return {
-      name: locale === 'km' ? `អ្នកប្រើ #${id}` : `User #${id}`,
-      handle: `@fb_${id.toLowerCase()}`,
-      initials: 'FB',
+      name: locale === 'km' ? 'មិនស្គាល់អ្នកផ្ដល់មតិ' : 'Unknown commenter',
+      handle: locale === 'km' ? 'Facebook មិនបានផ្ដល់ឈ្មោះ' : 'Facebook did not share a name',
+      initials: '?',
       ...palette,
     }
   }
@@ -59,7 +62,9 @@ function getAuthorInfo(authorRef: string, locale: Locale) {
 
   return {
     name: authorRef,
-    handle: `@${authorRef.toLowerCase().replace(/\s+/g, '_')}`,
+    // The name Meta gave is not a handle, and rendering it as one implied a
+    // Facebook username that was never supplied.
+    handle: '',
     initials: authorRef.slice(0, 2).toUpperCase(),
     ...palette,
   }
@@ -97,7 +102,8 @@ const ui = {
     source: 'Source post', type: 'Type', received: 'Received', details: 'Comment details', close: 'Close details', replyTo: 'Replying to',
     verdict: 'Automatic detection', context: 'Conversation context', action: 'Moderation action', correction: 'Label correction', video: 'Video', post: 'Post', openPost: 'Open source post',
     emptyConnected: 'No comments from your connected Page yet. Sync to fetch the latest ones.',
-    from: 'From', unknownAuthor: 'Unknown commenter', actions: 'Actions',
+    from: 'From',
+    page: 'Page', unknownAuthor: 'Unknown commenter', actions: 'Actions',
     onFacebook: 'on Facebook', kcmsOnly: 'KCMS only',
     actionFailed: 'That action could not be completed. Please try again.',
     notConnectedTitle: 'No Facebook Page connected.',
@@ -120,7 +126,8 @@ const ui = {
     source: 'ប្រភព Post', type: 'ប្រភេទ', received: 'ទទួលបាន', details: 'ព័ត៌មានមតិយោបល់', close: 'បិទព័ត៌មាន', replyTo: 'ឆ្លើយតបទៅ',
     verdict: 'ការរកឃើញស្វ័យប្រវត្តិ', context: 'បរិបទសន្ទនា', action: 'សកម្មភាពគ្រប់គ្រង', correction: 'ការកែស្លាក', video: 'វីដេអូ', post: 'Post', openPost: 'បើក Post ប្រភព',
     emptyConnected: 'មិនទាន់មានមតិយោបល់ពី Page ដែលបានភ្ជាប់ទេ។ សូមទាញយកដើម្បីទទួលបានមតិយោបល់ថ្មី។',
-    from: 'អ្នកផ្ដល់មតិ', unknownAuthor: 'មិនស្គាល់អ្នកផ្ដល់មតិ', actions: 'សកម្មភាព',
+    from: 'អ្នកផ្ដល់មតិ',
+    page: 'Page', unknownAuthor: 'មិនស្គាល់អ្នកផ្ដល់មតិ', actions: 'សកម្មភាព',
     onFacebook: 'នៅលើ Facebook', kcmsOnly: 'តែក្នុង KCMS',
     actionFailed: 'មិនអាចធ្វើសកម្មភាពនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។',
     notConnectedTitle: 'មិនទាន់ភ្ជាប់ Facebook Page ទេ។',
@@ -598,11 +605,17 @@ export function ModeratePage({ locale }: ModeratePageProps) {
           <div className="moderation-list">
             <div className="table-wrap">
               <table className="work-table moderation-table">
-                <thead><tr><th scope="col">{content.colComment}</th><th scope="col">{t.source}</th><th scope="col">{content.colSeverity}</th><th scope="col">{content.colTarget}</th><th scope="col">{content.colStatus}</th><th scope="col">{t.actions}</th></tr></thead>
+                <thead><tr><th scope="col">{content.colComment}</th><th scope="col">{t.source}</th><th scope="col">{t.page}</th><th scope="col">{content.colSeverity}</th><th scope="col">{content.colTarget}</th><th scope="col">{content.colStatus}</th><th scope="col">{t.actions}</th></tr></thead>
                 <tbody>{items.map((item) => {
                   const author = getAuthorInfo(item.author_ref, locale)
-                  const isRealFb = item.author_ref.startsWith('fb:')
-                  const profileUrl = isRealFb ? `https://facebook.com/${item.author_ref.slice(3)}` : null
+                  // Was https://facebook.com/<comment id>, which is not a
+                  // person and resolves to nothing. Meta gives no public profile
+                  // URL for a commenter, so this links to the comment in
+                  // context instead — which is what a moderator actually needs.
+                  const commentSuffix = item.comment_id.split('_').pop()
+                  const profileUrl = item.post_permalink && commentSuffix
+                    ? `${item.post_permalink}${item.post_permalink.includes('?') ? '&' : '?'}comment_id=${commentSuffix}`
+                    : null
                   const avatarIcon = (
                     <span
                       className="author-profile-icon"
@@ -630,21 +643,21 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                         <div className="comment-cell-wrap">
                           {profileUrl ? (
                             <a
-                              aria-label={`${t.from}: ${author.name} (${author.handle})`}
+                              aria-label={`${t.from}: ${author.name}`}
                               className="author-profile-btn"
                               href={profileUrl}
                               onClick={(event) => event.stopPropagation()}
                               rel="noreferrer"
                               target="_blank"
-                              title={`${author.name} (${author.handle}) — ${locale === 'km' ? 'មើលគណនី Facebook' : 'Open Facebook profile'}`}
+                              title={`${author.name}${author.handle ? ` — ${author.handle}` : ''} — ${locale === 'km' ? 'មើលមតិយោបល់នៅលើ Facebook' : 'Open this comment on Facebook'}`}
                             >
                               {avatarIcon}
                             </a>
                           ) : (
                             <span
-                              aria-label={`${t.from}: ${author.name} (${author.handle})`}
+                              aria-label={`${t.from}: ${author.name}`}
                               className="author-profile-btn is-static"
-                              title={`${author.name} (${author.handle})`}
+                              title={author.handle ? `${author.name} — ${author.handle}` : author.name}
                             >
                               {avatarIcon}
                             </span>
@@ -675,6 +688,9 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                           </span>
                         )}
                       </td>
+                      {/* A workspace can hold several Pages now, so the row has
+                          to say which one this came from. */}
+                      <td className="cell-page" title={item.page_name ?? undefined}>{item.page_name ?? '—'}</td>
                       <td className="cell-severity">
                         {item.severity && <span className={`work-chip severity-${item.severity}`}>{content.modSeverity[item.severity as keyof typeof content.modSeverity]}</span>}
                       </td>
