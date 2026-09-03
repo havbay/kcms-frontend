@@ -21,7 +21,7 @@ import {
 import { copy, type Locale } from './copy'
 import { useSession } from './session'
 import {
-  Avatar, Badge, Banner, Card, EmptyState, Icon, Meter, Page, PageHead, PageState,
+  Avatar, Badge, Banner, Card, EmptyState, Icon, Page, PageHead, PageState,
   SelectField,
 } from './ui'
 
@@ -53,12 +53,6 @@ const text = {
     permissionShort: 'Limited access',
     permissionWarning: 'Connected, but the token does not include a moderation task.',
     disconnect: 'Disconnect Page',
-    planCapacityTitle: 'Workspace capacity',
-    starterBadge: 'Starter · 3 Pages',
-    growthBadge: 'Growth · 10 Pages',
-    starterSubtitle: 'Up to 3 Facebook Page connections are included in this workspace.',
-    growthSubtitle: 'Up to 10 Facebook Page connections, with priority moderation.',
-    upgradeToGrowthCta: 'Upgrade to Growth',
     addConnectionTitle: 'Connect a Facebook Page',
     slotsLeft: (count: number) => `${count} slot${count === 1 ? '' : 's'} left`,
     availableSlot: 'Available',
@@ -80,15 +74,7 @@ const text = {
     facebookUnavailable: 'Facebook connection is not configured yet. Contact KCMS support.',
     teamTitle: 'Workspace Team',
     teamLead: 'Members who can review comments and take moderation actions.',
-    teamInviteTitle: 'Invite a Team Member',
-    teamInviteSubtitle: 'Create a one-time invitation link for a teammate to join this workspace.',
     teamMembersCount: (count: number) => `${count} member${count === 1 ? '' : 's'}`,
-    trustLockTitle: 'Encrypted at rest',
-    trustLockBody: 'Tokens are encrypted at rest and never shown in plain text.',
-    trustScopeTitle: 'Meta Graph API',
-    trustScopeBody: 'KCMS uses only the Page permissions granted through Meta.',
-    trustSyncTitle: 'Periodic synchronization',
-    trustSyncBody: 'New comments are collected while the moderation screen is open.',
     loading: 'Loading…',
   },
   km: {
@@ -114,12 +100,6 @@ const text = {
     permissionShort: 'សិទ្ធិមានកម្រិត',
     permissionWarning: 'បានភ្ជាប់ ប៉ុន្តែ token មិនមានសិទ្ធិគ្រប់គ្រងមតិយោបល់ទេ។',
     disconnect: 'ផ្ដាច់ Page',
-    planCapacityTitle: 'សមត្ថភាពកន្លែងធ្វើការ',
-    starterBadge: 'Starter · ៣ ទំព័រ',
-    growthBadge: 'Growth · ១០ ទំព័រ',
-    starterSubtitle: 'រួមបញ្ចូលការភ្ជាប់រហូតដល់ ៣ Facebook Pages ក្នុងកន្លែងធ្វើការនេះ។',
-    growthSubtitle: 'ភ្ជាប់រហូតដល់ ១០ Facebook Pages ជាមួយអាទិភាពខ្ពស់។',
-    upgradeToGrowthCta: 'ដំឡើងទៅ Growth',
     addConnectionTitle: 'ភ្ជាប់ Facebook Page',
     slotsLeft: (count: number) => `នៅសល់ ${count} កន្លែង`,
     availableSlot: 'ទំនេរ',
@@ -141,15 +121,7 @@ const text = {
     facebookUnavailable: 'ការភ្ជាប់ Facebook មិនទាន់បានកំណត់ទេ។ សូមទាក់ទងជំនួយ KCMS។',
     teamTitle: 'ក្រុមការងារកន្លែងធ្វើការ',
     teamLead: 'សមាជិកដែលអាចពិនិត្យមើលមតិយោបល់ និងធ្វើសកម្មភាពគ្រប់គ្រង។',
-    teamInviteTitle: 'អញ្ជើញសមាជិកក្រុម',
-    teamInviteSubtitle: 'បង្កើតតំណអញ្ជើញតែម្តងសម្រាប់សហការីដើម្បីចូលរួមកន្លែងធ្វើការនេះ។',
     teamMembersCount: (count: number) => `${count} នាក់`,
-    trustLockTitle: 'អ៊ិនគ្រីបពេលរក្សាទុក',
-    trustLockBody: 'Token ត្រូវបានអ៊ិនគ្រីប ហើយមិនបង្ហាញជាអក្សរធម្មតាឡើយ។',
-    trustScopeTitle: 'Meta Graph API',
-    trustScopeBody: 'KCMS ប្រើតែសិទ្ធិលើ Page ដែល Meta បានផ្ដល់ប៉ុណ្ណោះ។',
-    trustSyncTitle: 'សមកាលកម្មតាមកាលកំណត់',
-    trustSyncBody: 'មតិយោបល់ថ្មីត្រូវបានប្រមូល ខណៈអេក្រង់ត្រួតពិនិត្យបើក។',
     loading: 'កំពុងផ្ទុក…',
   },
 } as const
@@ -407,17 +379,12 @@ export function ConnectPage({ locale }: ConnectPageProps) {
   const atCap = connections.length >= pageLimit
   const members = team && Array.isArray(team.members) ? team.members : []
   const invitations = team && Array.isArray(team.invitations) ? team.invitations : []
-  const isGrowth = data.plan === 'GROWTH'
 
   return (
     <Page>
       <PageHead
         actions={
           <>
-            <Badge tone={isGrowth ? 'accent' : 'neutral'}>
-              <Icon className="ws-btn-icon" name="star" />
-              {isGrowth ? t.growthBadge : t.starterBadge}
-            </Badge>
             {!atCap && (
               <button
                 className="ws-btn"
@@ -429,17 +396,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
                 <span>{busy ? content.connAdding : content.connAdd}</span>
               </button>
             )}
-            {isOwner && (
-              <button
-                className="ws-btn"
-                disabled={teamBusy}
-                onClick={() => void inviteMember()}
-                type="button"
-              >
-                <Icon className="ws-btn-icon" name="plus" />
-                <span>{content.teamInvite}</span>
-              </button>
-            )}
           </>
         }
         lead={t.lead}
@@ -448,45 +404,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
 
       {/* ---- Facebook Pages -------------------------------------------- */}
       <div className="ws-stack">
-          <Card
-            actions={
-              !isGrowth && (
-                <a className="ws-btn" data-variant="secondary" href="/#pricing">
-                  <span>{t.upgradeToGrowthCta}</span>
-                  <Icon className="ws-btn-icon" name="arrowRight" />
-                </a>
-              )
-            }
-            description={isGrowth ? t.growthSubtitle : t.starterSubtitle}
-            title={t.planCapacityTitle}
-          >
-            <div className="ws-stack-tight">
-              <Meter
-                caption={t.pagesUsage(connections.length, pageLimit)}
-                label={content.connPagesUsed}
-                max={pageLimit}
-                value={connections.length}
-              />
-              <ul className="ws-slots">
-                {Array.from({ length: pageLimit }).map((_, index) => {
-                  const conn = connections[index]
-                  return (
-                    <li
-                      className="ws-slot"
-                      data-state={conn ? 'used' : 'free'}
-                      key={conn?.page_id ?? `slot-${index}`}
-                    >
-                      <Icon className="ws-btn-icon" name={conn ? 'check' : 'plus'} />
-                      <span className="ws-slot-name">
-                        {conn ? conn.page_name : `${content.connOpenSlot} ${index + 1}`}
-                      </span>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          </Card>
-
           {facebookError && (
             <Banner role="alert" tone="danger">{facebookError}</Banner>
           )}
@@ -585,30 +502,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
               </ul>
             )}
           </Card>
-
-          <ul className="ws-trust">
-            <li>
-              <Icon name="lock" />
-              <div>
-                <strong>{t.trustLockTitle}</strong>
-                <p>{t.trustLockBody}</p>
-              </div>
-            </li>
-            <li>
-              <Icon name="shield" />
-              <div>
-                <strong>{t.trustScopeTitle}</strong>
-                <p>{t.trustScopeBody}</p>
-              </div>
-            </li>
-            <li>
-              <Icon name="clock" />
-              <div>
-                <strong>{t.trustSyncTitle}</strong>
-                <p>{t.trustSyncBody}</p>
-              </div>
-            </li>
-          </ul>
       </div>
 
       {/* ---- Team ------------------------------------------------------- */}
@@ -616,7 +509,36 @@ export function ConnectPage({ locale }: ConnectPageProps) {
           {teamProblem && <Banner role="alert" tone="danger">{teamProblem}</Banner>}
 
           <Card
-            actions={<Badge tone="neutral">{t.teamMembersCount(members.length)}</Badge>}
+            actions={
+              <>
+                <Badge tone="neutral">{t.teamMembersCount(members.length)}</Badge>
+                {/* The role picker and the invite button sit with the members
+                    they govern: choosing a role and creating the link are one
+                    act, and inviting is what you do to this list. */}
+                {isOwner && (
+                  <div className="ws-invite-actions">
+                    <SelectField
+                      id="invite-role"
+                      label={content.teamInviteRole}
+                      onChange={(e) => setTeamRole(e.target.value as 'owner' | 'member')}
+                      value={teamRole}
+                    >
+                      <option value="member">{content.teamMember}</option>
+                      <option value="owner">{content.teamOwner}</option>
+                    </SelectField>
+                    <button
+                      className="ws-btn"
+                      disabled={teamBusy}
+                      onClick={() => void inviteMember()}
+                      type="button"
+                    >
+                      <Icon className="ws-btn-icon" name="plus" />
+                      <span>{content.teamInvite}</span>
+                    </button>
+                  </div>
+                )}
+              </>
+            }
             description={t.teamLead}
             title={t.teamTitle}
             footer={
@@ -682,28 +604,12 @@ export function ConnectPage({ locale }: ConnectPageProps) {
                 })}
               </ul>
             )}
-          </Card>
 
-          {/* The role picker sits beside the members it governs; the invite
-              action itself is the page's header button. A fresh link is shown
-              here because it can only ever be shown once. */}
-          {isOwner && (
-            <Card
-              actions={
-                <SelectField
-                  id="invite-role"
-                  label={content.teamInviteRole}
-                  onChange={(e) => setTeamRole(e.target.value as 'owner' | 'member')}
-                  value={teamRole}
-                >
-                  <option value="member">{content.teamMember}</option>
-                  <option value="owner">{content.teamOwner}</option>
-                </SelectField>
-              }
-              description={t.teamInviteSubtitle}
-              title={t.teamInviteTitle}
-            >
-              <div className="ws-stack-tight">
+            {/* A fresh link is shown here because it is only ever shown once,
+                and open invitations are rows in the same shape as members, so
+                the card reads as one list of people, pending or joined. */}
+            {isOwner && (
+              <div className="ws-stack-tight ws-invite-block">
                 {freshInvite && (
                   <>
                     <Banner icon="link" role="status" title={content.teamLinkTitle} tone="accent">
@@ -727,8 +633,6 @@ export function ConnectPage({ locale }: ConnectPageProps) {
                   </>
                 )}
 
-                {/* Open invitations are rows in the same shape as members, so
-                    the tab reads as one list of people, pending or joined. */}
                 <h3 className="ws-subhead">{content.connInviteOpen}</h3>
                 {invitations.length === 0 ? (
                   <p className="ws-card-note">{content.connInviteNone}</p>
@@ -767,8 +671,8 @@ export function ConnectPage({ locale }: ConnectPageProps) {
                   </ul>
                 )}
               </div>
-            </Card>
-          )}
+            )}
+          </Card>
       </div>
     </Page>
   )

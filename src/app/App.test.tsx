@@ -1,11 +1,18 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { App } from './App'
 
 describe('KCMS public landing page', () => {
+  // The app defaults an unseeded visitor to Khmer; these tests describe the
+  // English experience specifically, so they seed the choice a real
+  // English-preferring visitor would already have stored.
+  beforeEach(() => {
+    localStorage.setItem('kcms.locale', 'en')
+  })
+
   it('explains the product and gives visitors one primary next action', () => {
     render(<App />, { wrapper: MemoryRouter })
 

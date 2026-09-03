@@ -9,6 +9,10 @@ import { setSessionToken } from '../api/client'
 
 
 function renderAt(path: string) {
+  // The app defaults an unseeded visitor to Khmer; these tests assert on
+  // the English copy, so they seed the choice an English-preferring
+  // visitor would already have stored.
+  localStorage.setItem('kcms.locale', 'en')
   return render(
     <MemoryRouter initialEntries={[path]}>
       <SessionProvider><App /></SessionProvider>

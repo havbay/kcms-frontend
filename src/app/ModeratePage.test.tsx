@@ -118,17 +118,18 @@ describe('moderation work list', () => {
     const user = userEvent.setup()
     const fetchMock = mockApi({
       action: {
-        body: [{ kind: 'DELETE', actor: 'demo-client', occurred_at: '2026-08-30T10:05:00Z' }],
+        body: [{ kind: 'HIDE', actor: 'demo-client', occurred_at: '2026-08-30T10:05:00Z' }],
       },
     })
     renderPage()
 
     await user.click(await screen.findByRole('button', { name: /អ្នកនេះល្ងង់ណាស់/ }))
     const panel = screen.getByRole('complementary', { name: 'Comment details' })
-    await user.click(within(panel).getByRole('button', { name: 'Delete' }))
-    await user.click(within(panel).getByRole('button', { name: 'Delete permanently' }))
+    // Hide, not delete: a deleted comment leaves the pending queue, so there is
+    // no row left to reflect the action back onto.
+    await user.click(within(panel).getByRole('button', { name: 'Hide' }))
 
-    await waitFor(() => expect(within(panel).getByText(/DELETE/)).toBeVisible())
+    await waitFor(() => expect(within(panel).getByText(/HIDE/)).toBeVisible())
     const actionCall = fetchMock.mock.calls.find(
       ([url, init]) =>
         String(url).includes('/comments/c-004/actions') &&
@@ -394,6 +395,23 @@ describe('hide and unhide', () => {
     expect(JSON.parse(String((call?.[1] as RequestInit).body))).toEqual({ kind: 'DELETE' })
   })
 
+  it('moves a deleted comment out of the pending queue', async () => {
+    const user = userEvent.setup()
+    mockApi({
+      action: { body: [{ kind: 'DELETE', actor: 'demo', occurred_at: '2026-09-03T10:00:00Z' }] },
+    })
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]!)
+    await user.click(screen.getByRole('button', { name: 'Delete permanently' }))
+
+    // The comment is gone from Facebook and now counts as actioned, so it
+    // leaves Pending rather than sitting there with nothing left to do to it.
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(1))
+    expect(screen.queryByText(/សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់/)).not.toBeInTheDocument()
+  })
+
   it('lets a moderator back out of a delete', async () => {
     const user = userEvent.setup()
     const fetchMock = mockApi({})
@@ -427,6 +445,26 @@ describe('hide and unhide', () => {
         String(url).includes('/actions') && (init as RequestInit)?.method === 'POST',
     )
     expect(JSON.parse(String((call?.[1] as RequestInit).body))).toEqual({ kind: 'HIDE' })
+  })
+})
+
+
+describe('queue status tabs', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('opens on Pending and offers no unfiltered All queue', async () => {
+    const fetchMock = mockApi({})
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+
+    expect(screen.getByRole('tab', { name: /Pending/ })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.queryByRole('tab', { name: 'All' })).not.toBeInTheDocument()
+    // Pending is the default view, so the first request already asks for it.
+    expect(
+      fetchMock.mock.calls.some(([url]) => String(url).includes('review_status=PENDING')),
+    ).toBe(true)
   })
 })
 
@@ -500,5 +538,40 @@ describe('who commented and on which Page', () => {
       // facebook.com/<comment id> resolves to nobody.
       expect(href).not.toMatch(/facebook\.com\/122095233513453649_/)
     }
+  })
+})
+
+describe('quarantine countdown', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('shows a countdown badge for a comment hidden pending auto-delete', async () => {
+    const quarantined = {
+      ...WORK_LIST,
+      items: [
+        {
+          ...WORK_LIST.items[1]!,
+          latest_action: 'HIDE',
+          pending_delete_at: new Date(Date.now() + 5 * 60_000).toISOString(),
+        },
+        WORK_LIST.items[0]!,
+      ],
+    }
+    mockApi({ workList: quarantined })
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+
+    // Somewhere between just under and just over 5 minutes, formatted mm:ss.
+    expect(await screen.findByText(/Deletes in 4:5\d/)).toBeVisible()
+  })
+
+  it('does not show a countdown for a comment nobody has quarantined', async () => {
+    mockApi({})
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+
+    expect(screen.queryByText(/Deletes in/)).not.toBeInTheDocument()
   })
 })

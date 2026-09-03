@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { getSettings, renameSelf, type WorkspaceSettings } from '../api/client'
+import {
+  getSettings,
+  listFacebookConnections,
+  renameSelf,
+  type PageConnections,
+  type WorkspaceSettings,
+} from '../api/client'
 import { copy, type Locale } from './copy'
 import { useSession } from './session'
 import {
-  Avatar, Badge, Banner, Card, Fact, Icon, Page, PageHead, PageState, TextField,
+  Avatar, Badge, Banner, Card, Fact, Icon, Meter, Page, PageHead, PageState, TextField,
 } from './ui'
 
 type ProfilePageProps = {
@@ -23,6 +29,11 @@ export function ProfilePage({ locale, setLocale }: ProfilePageProps) {
   const [displayName, setDisplayName] = useState('')
   const [nameState, setNameState] = useState<SaveState>('idle')
   const [problem, setProblem] = useState<string | null>(null)
+  // The plan lives with the Page connections it limits, so the profile reads it
+  // from there. A workspace that cannot be read still has a usable profile, so
+  // this failing leaves the rest of the screen alone. `undefined` is still
+  // loading; `null` is a plan that could not be read.
+  const [plan, setPlan] = useState<PageConnections | null | undefined>(undefined)
 
   const load = useCallback(async () => {
     try {
@@ -34,6 +45,12 @@ export function ProfilePage({ locale, setLocale }: ProfilePageProps) {
     } finally {
       setLoaded(true)
     }
+  }, [])
+
+  useEffect(() => {
+    listFacebookConnections()
+      .then(setPlan)
+      .catch(() => setPlan(null))
   }, [])
 
   useEffect(() => {
@@ -66,6 +83,10 @@ export function ProfilePage({ locale, setLocale }: ProfilePageProps) {
 
   const isOwner = settings.your_role === 'owner'
   const isAdmin = Boolean(session.user?.is_platform_admin)
+  const isGrowth = plan?.plan === 'GROWTH'
+  const pageLimit = plan?.page_limit ?? 0
+  const pagesUsed = Array.isArray(plan?.connections) ? plan.connections.length : 0
+  const planName = isGrowth ? content.proPlanGrowth : content.proPlanStarter
 
   return (
     <Page>
@@ -143,11 +164,51 @@ export function ProfilePage({ locale, setLocale }: ProfilePageProps) {
         </Card>
       </div>
 
+      <Card
+        actions={
+          <>
+            {plan && (
+              <Badge tone={isGrowth ? 'accent' : 'neutral'}>
+                <Icon className="ws-btn-icon" name="star" />
+                {planName}
+              </Badge>
+            )}
+            {plan && !isGrowth && (
+              <a className="ws-btn" data-variant="secondary" href="/#pricing">
+                <span>{content.proPlanUpgrade}</span>
+                <Icon className="ws-btn-icon" name="arrowRight" />
+              </a>
+            )}
+          </>
+        }
+        description={content.proPlanLead}
+        title={content.proPlan}
+      >
+        {plan === undefined ? (
+          <p className="ws-card-note">{content.modLoading}</p>
+        ) : plan === null ? (
+          <p className="ws-card-note">{content.proPlanUnavailable}</p>
+        ) : (
+          <div className="ws-stack-tight">
+            <p className="ws-card-desc">
+              {isGrowth ? content.proPlanGrowthLead : content.proPlanStarterLead}
+            </p>
+            <Meter
+              caption={content.proPlanUsage(pagesUsed, pageLimit)}
+              label={content.proPlanPages}
+              max={pageLimit}
+              value={pagesUsed}
+            />
+          </div>
+        )}
+      </Card>
+
       <Card description={content.proDetailsLead} title={content.proDetails}>
         <dl className="ws-facts">
           <Fact term={content.proWorkspace}>{settings.workspace_name}</Fact>
           <Fact term={content.proRole}>{isOwner ? content.teamOwner : content.teamMember}</Fact>
           <Fact term={content.proAccess}>{isAdmin ? content.proAdmin : content.proStandard}</Fact>
+          <Fact term={content.proPlanCurrent}>{plan ? planName : '—'}</Fact>
           <Fact term={content.proUserId}>{session.user?.id ?? '—'}</Fact>
         </dl>
       </Card>

@@ -206,6 +206,10 @@ export interface paths {
          *     LEAVE changes nothing there and exists so that a decision to allow a
          *     comment is still recorded, which is a different fact from nobody having
          *     looked.
+         *
+         *     Any action here also cancels a pending auto-delete on this comment
+         *     (quarantine.sweep_once would otherwise delete it once the delay expires):
+         *     a human has now decided, so the countdown no longer applies.
          */
         post: operations["recordAction"];
         delete?: never;
@@ -411,6 +415,91 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/auto-delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set Auto Delete Delay
+         * @description How long a HARMFUL comment is quarantined before KCMS deletes it from
+         *     Facebook. Governs the whole workspace's Pages, so only an owner sets it —
+         *     same rule as renaming the workspace itself.
+         */
+        patch: operations["setAutoDeleteDelay"];
+        trace?: never;
+    };
+    "/api/v1/settings/auto-hide-offensive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set Auto Hide Offensive
+         * @description Whether an OFFENSIVE comment is hidden on Facebook immediately, ahead
+         *     of any human review. Governs the whole workspace, so owner-only.
+         */
+        patch: operations["setAutoHideOffensive"];
+        trace?: never;
+    };
+    "/api/v1/settings/keyword-allowlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set Keyword Allowlist
+         * @description Phrases that force SAFE, ahead of the blocklist and the pattern
+         *     matcher's own vocabulary alike.
+         */
+        patch: operations["setKeywordAllowlist"];
+        trace?: never;
+    };
+    "/api/v1/settings/keyword-blocklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set Keyword Blocklist
+         * @description Phrases that force HARMFUL. Loses to an allowlist match on the same
+         *     comment, but otherwise outranks the pattern matcher.
+         */
+        patch: operations["setKeywordBlocklist"];
         trace?: never;
     };
     "/api/v1/settings/keywords": {
@@ -1060,6 +1149,24 @@ export interface components {
             token: string;
             user: components["schemas"]["AuthUser"];
         };
+        /** SetAutoDeleteDelay */
+        SetAutoDeleteDelay: {
+            /**
+             * Delay Minutes
+             * @enum {integer}
+             */
+            delay_minutes: 0 | 5 | 30 | 60 | 720 | 1440;
+        };
+        /** SetKeywordList */
+        SetKeywordList: {
+            /** Keywords */
+            keywords: string[];
+        };
+        /** SetToggle */
+        SetToggle: {
+            /** Enabled */
+            enabled: boolean;
+        };
         /** SetupInvitationAccept */
         SetupInvitationAccept: {
             /** Display Name */
@@ -1202,6 +1309,8 @@ export interface components {
             page_name: string | null;
             /** Parent Text */
             parent_text: string | null;
+            /** Pending Delete At */
+            pending_delete_at: string | null;
             /** Post Kind */
             post_kind: string;
             /** Post Permalink */
@@ -1230,10 +1339,18 @@ export interface components {
         };
         /** WorkspaceSettings */
         WorkspaceSettings: {
+            /** Auto Delete Delay Minutes */
+            auto_delete_delay_minutes: number;
+            /** Auto Hide Offensive */
+            auto_hide_offensive: boolean;
             /** Display Name */
             display_name: string;
             /** Is Sandbox */
             is_sandbox: boolean;
+            /** Keyword Allowlist */
+            keyword_allowlist: string[];
+            /** Keyword Blocklist */
+            keyword_blocklist: string[];
             /** Sample Comments */
             sample_comments: number;
             /** Workspace Id */
@@ -1947,6 +2064,146 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceSettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    setAutoDeleteDelay: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetAutoDeleteDelay"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceSettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    setAutoHideOffensive: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetToggle"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceSettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    setKeywordAllowlist: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetKeywordList"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceSettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    setKeywordBlocklist: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetKeywordList"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

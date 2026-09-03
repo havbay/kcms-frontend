@@ -360,6 +360,36 @@ export function renameSelf(displayName: string): Promise<WorkspaceSettings> {
   })
 }
 
+export type AutoDeleteDelayMinutes = components['schemas']['SetAutoDeleteDelay']['delay_minutes']
+
+export function setAutoDeleteDelay(delayMinutes: AutoDeleteDelayMinutes): Promise<WorkspaceSettings> {
+  return request<WorkspaceSettings>('/api/v1/settings/auto-delete', {
+    method: 'PATCH',
+    body: JSON.stringify({ delay_minutes: delayMinutes }),
+  })
+}
+
+export function setAutoHideOffensive(enabled: boolean): Promise<WorkspaceSettings> {
+  return request<WorkspaceSettings>('/api/v1/settings/auto-hide-offensive', {
+    method: 'PATCH',
+    body: JSON.stringify({ enabled }),
+  })
+}
+
+export function setKeywordAllowlist(keywords: string[]): Promise<WorkspaceSettings> {
+  return request<WorkspaceSettings>('/api/v1/settings/keyword-allowlist', {
+    method: 'PATCH',
+    body: JSON.stringify({ keywords }),
+  })
+}
+
+export function setKeywordBlocklist(keywords: string[]): Promise<WorkspaceSettings> {
+  return request<WorkspaceSettings>('/api/v1/settings/keyword-blocklist', {
+    method: 'PATCH',
+    body: JSON.stringify({ keywords }),
+  })
+}
+
 /* ---- Moderation rules: this workspace's keywords -------------------------
  * Scoped to the workspace, never to the platform. Two severities only:
  * HARMFUL is taken off the Page automatically, OFFENSIVE goes to a reviewer.

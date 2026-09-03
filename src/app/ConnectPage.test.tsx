@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -275,7 +275,9 @@ describe('Workspace Team Management in unified view', () => {
 
     expect(await screen.findByText('Admin User')).toBeVisible()
     expect(screen.getByText('admin@kcms.local')).toBeVisible()
-    expect(screen.getByText('Invite a Team Member')).toBeVisible()
+    // Inviting is part of the team card, not a section of its own.
+    const team = screen.getByRole('region', { name: 'Workspace Team' })
+    expect(within(team).getByRole('button', { name: /Create invitation link/ })).toBeVisible()
   })
 })
 

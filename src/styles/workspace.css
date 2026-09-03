@@ -52,6 +52,11 @@
 .ws-page-title { max-width: none; margin: 0; color: var(--ws-ink); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
 .ws-page-lead { max-width: 56ch; margin: 0.3rem 0 0; color: var(--ws-ink-muted); font-size: 0.85rem; line-height: 1.6; }
 .ws-page-head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+/* The dashboard shell carries the landing page's own `.site` class (for its
+   shared Khmer line-height rules), so styles.css's `.site[lang='km'] h1`
+   — sized for the marketing hero — was winning over `.ws-page-title` by
+   specificity and blowing up every dashboard page title in Khmer. */
+.site[lang='km'] .ws-page-title { max-width: none; font-size: 1.4rem; line-height: 1.4; }
 .site[lang='km'] .ws-page-lead { line-height: 1.85; }
 
 /* Vertical stacks and column grids used inside panels. */
@@ -169,6 +174,81 @@
 .ws-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem; }
 .ws-save-state { color: var(--ws-accent); font-size: 0.76rem; font-weight: 600; }
 
+/* A phrase-per-line list (keyword allow/blocklist) is still a field, but
+   needs room to read several entries at once. */
+.ws-field textarea {
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--ws-line-strong);
+  border-radius: var(--ws-radius-sm);
+  background: var(--ws-surface);
+  color: var(--ws-ink);
+  font: inherit;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+.ws-field textarea:focus-visible { border-color: var(--ws-accent); outline: 2px solid rgba(11, 107, 99, 0.25); outline-offset: 1px; }
+.ws-field textarea:disabled { background: var(--ws-surface-sunken); color: var(--ws-ink-faint); cursor: not-allowed; }
+
+/* On/off switch. A native checkbox carries the semantics (role="switch" on
+   the element itself); this only restyles its appearance as a pill. The
+   thumb uses a spring-like overshoot easing on the way in and a plain ease
+   on the way back, rather than the same curve both directions — that
+   asymmetry is what reads as "springy" instead of just fast. */
+.ws-toggle-field .ws-field-label { font-weight: 600; cursor: pointer; }
+.ws-toggle-row { display: flex; align-items: center; gap: 0.65rem; }
+.ws-field .ws-toggle-input {
+  appearance: none;
+  flex: none;
+  width: 2.75rem;
+  height: 1.55rem;
+  margin: 0;
+  border: 1px solid var(--ws-line-strong);
+  border-radius: var(--ws-radius-pill);
+  background: var(--ws-surface-sunken);
+  cursor: pointer;
+  position: relative;
+  transition: background 220ms ease, border-color 220ms ease;
+}
+.ws-field .ws-toggle-input:hover:not(:disabled) { border-color: var(--ws-ink-faint); }
+.ws-field .ws-toggle-input:checked:hover:not(:disabled) { background: var(--ws-accent-deep); border-color: var(--ws-accent-deep); }
+.ws-field .ws-toggle-input::before {
+  content: '';
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: var(--ws-surface);
+  box-shadow: 0 1px 2px rgba(24, 48, 51, 0.35);
+  transition: transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 140ms ease, box-shadow 140ms ease;
+}
+.ws-field .ws-toggle-input:checked { background: var(--ws-accent); border-color: var(--ws-accent); }
+.ws-field .ws-toggle-input:checked::before { transform: translateX(1.2rem); }
+/* A brief stretch on press, both directions — the small physical cue that
+   makes a flip feel deliberate rather than instantaneous. */
+.ws-field .ws-toggle-input:active:not(:disabled)::before { width: 1.4rem; }
+.ws-field .ws-toggle-input:checked:active:not(:disabled)::before { transform: translateX(0.95rem); }
+.ws-field .ws-toggle-input:focus-visible { outline: 2px solid rgba(11, 107, 99, 0.35); outline-offset: 2px; }
+.ws-field .ws-toggle-input:disabled { cursor: not-allowed; opacity: 0.55; }
+@media (prefers-reduced-motion: reduce) {
+  .ws-field .ws-toggle-input,
+  .ws-field .ws-toggle-input::before { transition: none; }
+}
+
+/* Several distinct settings sharing one Card (e.g. Advanced moderation) each
+   get their own rule, so a toggle's hint doesn't run straight into the next
+   field's label with no break. No rule above the first section. */
+.ws-settings-section + .ws-settings-section {
+  margin-top: 1.35rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid var(--ws-line);
+}
+
 /* ---- Banners ------------------------------------------------------------- */
 .ws-banner { display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.8rem 0.95rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface-sunken); }
 .ws-banner[data-tone='accent'] { border-color: var(--ws-line-accent); background: var(--ws-surface-accent); }
@@ -192,13 +272,6 @@
 .ws-meter-fill { display: block; height: 100%; border-radius: inherit; background: var(--ws-accent); transition: width 300ms ease; }
 .ws-meter-fill[data-tone='amber'] { background: var(--ws-amber); }
 .ws-meter-fill[data-tone='danger'] { background: var(--ws-danger); }
-
-/* ---- Slot chips ---------------------------------------------------------- */
-.ws-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
-.ws-slot { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.7rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface); font-size: 0.78rem; }
-.ws-slot[data-state='free'] { border-style: dashed; background: var(--ws-surface-sunken); color: var(--ws-ink-faint); }
-.ws-slot[data-state='used'] { border-color: var(--ws-line-accent); background: var(--ws-surface-accent); color: #075049; font-weight: 600; }
-.ws-slot-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---- Choice list (radio cards) ------------------------------------------- */
 .ws-choices { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
@@ -226,12 +299,11 @@
 .ws-empty-title { margin: 0; color: var(--ws-ink); font-size: 0.88rem; font-weight: 650; }
 .ws-empty-text { max-width: 42ch; margin: 0; color: var(--ws-ink-muted); font-size: 0.79rem; line-height: 1.55; }
 
-/* ---- Trust strip --------------------------------------------------------- */
-.ws-trust { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
-.ws-trust li { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.8rem 0.9rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface-sunken); }
-.ws-trust svg { width: 1.05rem; height: 1.05rem; margin-top: 0.1rem; flex-shrink: 0; color: var(--ws-accent); }
-.ws-trust strong { display: block; color: var(--ws-ink); font-size: 0.8rem; font-weight: 650; }
-.ws-trust p { margin: 0.15rem 0 0; color: var(--ws-ink-muted); font-size: 0.76rem; line-height: 1.5; }
+/* ---- Invite actions ----------------------------------------------------- */
+.ws-invite-actions { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 0.6rem; }
+/* Invitations share the members card, so a rule separates the people who
+   have joined from the ones who have only been asked. */
+.ws-invite-block { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--ws-line); }
 
 /* ---- Page state (loading / error) ---------------------------------------- */
 .ws-state { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 4rem 1rem; text-align: center; color: var(--ws-ink-muted); font-size: 0.85rem; }
