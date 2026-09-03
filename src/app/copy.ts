@@ -277,7 +277,11 @@ export const copy = {
     modCorrectTarget: 'Target',
     modCorrected: 'Corrected to',
     modLeave: 'Leave visible',
+    modHide: 'Hide',
+    modUnhide: 'Unhide',
     modDelete: 'Delete',
+    modDeleteConfirm: 'Delete permanently',
+    modCancel: 'Cancel',
     modActioned: 'Last action',
     modBy: 'by',
     modReasons: {
@@ -715,7 +719,11 @@ export const copy = {
     modCorrectTarget: 'គោលដៅ',
     modCorrected: 'បានកែទៅជា',
     modLeave: 'ទុកឱ្យបង្ហាញ',
+    modHide: 'លាក់',
+    modUnhide: 'បង្ហាញវិញ',
     modDelete: 'លុប',
+    modDeleteConfirm: 'លុបជាអចិន្ត្រៃយ៍',
+    modCancel: 'បោះបង់',
     modActioned: 'សកម្មភាពចុងក្រោយ',
     modBy: 'ដោយ',
     modReasons: {

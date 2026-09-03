@@ -132,7 +132,10 @@ export function getSummary(): Promise<Summary> {
 export function recordAction(commentId: string, kind: ActionKind): Promise<HistoryEntry[]> {
   return request<HistoryEntry[]>(`/api/v1/comments/${encodeURIComponent(commentId)}/actions`, {
     method: 'POST',
-    body: JSON.stringify({ kind, actor: 'demo-client' }),
+    // No actor: the API attributes the action to the signed-in user. Sending
+    // one implied a moderator's name was the client's to choose, and the
+    // server discarded it anyway.
+    body: JSON.stringify({ kind }),
   })
 }
 
@@ -149,7 +152,8 @@ export function recordCorrection(
 ): Promise<CorrectionResponse> {
   return request<CorrectionResponse>(
     `/api/v1/comments/${encodeURIComponent(commentId)}/corrections`,
-    { method: 'POST', body: JSON.stringify({ severity, target, actor: 'demo-client' }) },
+    // Same as recordAction: attribution is the server's, from the session.
+    { method: 'POST', body: JSON.stringify({ severity, target }) },
   )
 }
 

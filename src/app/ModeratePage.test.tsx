@@ -122,6 +122,7 @@ describe('moderation work list', () => {
     await user.click(await screen.findByRole('button', { name: /អ្នកនេះល្ងង់ណាស់/ }))
     const panel = screen.getByRole('complementary', { name: 'Comment details' })
     await user.click(within(panel).getByRole('button', { name: 'Delete' }))
+    await user.click(within(panel).getByRole('button', { name: 'Delete permanently' }))
 
     await waitFor(() => expect(within(panel).getByText(/DELETE/)).toBeVisible())
     const actionCall = fetchMock.mock.calls.find(
@@ -268,7 +269,8 @@ describe('syncing from the connected Page', () => {
 
     renderPage()
     const rows = await screen.findAllByRole('row')
-    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]!)
+    // Hide is the reversible action, so it needs no confirmation to reach the API.
+    await user.click(screen.getAllByRole('button', { name: 'Hide' })[0]!)
 
     expect(await screen.findByText('A Page cannot hide its own comments.')).toBeVisible()
     // The queue survives: a refused action is about one comment, not the list.
@@ -322,5 +324,104 @@ describe('source post link', () => {
     renderPage()
     await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(1))
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  })
+})
+
+describe('hide and unhide', () => {
+  beforeEach(() => vi.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
+
+  it('offers Hide on a comment that has not been hidden', async () => {
+    const user = userEvent.setup()
+    const fetchMock = mockApi({
+      action: { body: [{ kind: 'HIDE', actor: 'demo', occurred_at: '2026-09-03T10:00:00Z' }] },
+    })
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+    await user.click(screen.getAllByRole('button', { name: 'Hide' })[0]!)
+
+    const call = fetchMock.mock.calls.find(
+      ([url, init]) =>
+        String(url).includes('/actions') && (init as RequestInit)?.method === 'POST',
+    )
+    expect(JSON.parse(String((call?.[1] as RequestInit).body))).toEqual({ kind: 'HIDE' })
+  })
+
+  it('offers Unhide instead once the comment is hidden', async () => {
+    const hidden = {
+      ...WORK_LIST,
+      total: 1,
+      items: [{ ...WORK_LIST.items[0]!, latest_action: 'HIDE', latest_action_on_facebook: true }],
+    }
+    mockApi({ workList: hidden })
+
+    renderPage()
+
+    // Unhide only means something on a hidden comment, so Hide is not offered.
+    expect(await screen.findByRole('button', { name: 'Unhide' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Hide' })).not.toBeInTheDocument()
+  })
+
+  it('asks before deleting, because deletion cannot be undone', async () => {
+    const user = userEvent.setup()
+    const fetchMock = mockApi({
+      action: { body: [{ kind: 'DELETE', actor: 'demo', occurred_at: '2026-09-03T10:00:00Z' }] },
+    })
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]!)
+
+    // One click arms it and sends nothing. These are real comments on a
+    // customer's Page and Facebook cannot restore them.
+    expect(
+      fetchMock.mock.calls.some(
+        ([url, init]) =>
+          String(url).includes('/actions') && (init as RequestInit)?.method === 'POST',
+      ),
+    ).toBe(false)
+
+    await user.click(screen.getByRole('button', { name: 'Delete permanently' }))
+    const call = fetchMock.mock.calls.find(
+      ([url, init]) =>
+        String(url).includes('/actions') && (init as RequestInit)?.method === 'POST',
+    )
+    expect(JSON.parse(String((call?.[1] as RequestInit).body))).toEqual({ kind: 'DELETE' })
+  })
+
+  it('lets a moderator back out of a delete', async () => {
+    const user = userEvent.setup()
+    const fetchMock = mockApi({})
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+    await user.click(screen.getAllByRole('button', { name: 'Delete' })[0]!)
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(
+      fetchMock.mock.calls.some(
+        ([url, init]) =>
+          String(url).includes('/actions') && (init as RequestInit)?.method === 'POST',
+      ),
+    ).toBe(false)
+    expect(screen.getAllByRole('button', { name: 'Delete' }).length).toBeGreaterThan(0)
+  })
+
+  it('does not ask before hiding, which is reversible', async () => {
+    const user = userEvent.setup()
+    const fetchMock = mockApi({
+      action: { body: [{ kind: 'HIDE', actor: 'demo', occurred_at: '2026-09-03T10:00:00Z' }] },
+    })
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+    await user.click(screen.getAllByRole('button', { name: 'Hide' })[0]!)
+
+    const call = fetchMock.mock.calls.find(
+      ([url, init]) =>
+        String(url).includes('/actions') && (init as RequestInit)?.method === 'POST',
+    )
+    expect(JSON.parse(String((call?.[1] as RequestInit).body))).toEqual({ kind: 'HIDE' })
   })
 })

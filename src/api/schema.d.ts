@@ -196,13 +196,16 @@ export interface paths {
          * @description Records a moderation Action. Actions are append-only and reversible,
          *     and never become training labels.
          *
-         *     When the comment came from a connected Facebook Page, DELETE is applied on
-         *     Facebook as well. The Action row and the Facebook state are written
-         *     together: if Facebook refuses, the row is rolled back, because an Action
-         *     records what actually happened to the comment.
+         *     When the comment came from a connected Facebook Page, HIDE, UNHIDE and
+         *     DELETE are applied on Facebook as well. The Action row and the Facebook
+         *     state are written together: if Facebook refuses, the row is rolled back,
+         *     because an Action records what actually happened to the comment.
          *
-         *     DELETE is irreversible on Facebook's side. LEAVE changes nothing there and
-         *     exists so that a decision to allow a comment is still recorded.
+         *     HIDE is reversible through UNHIDE and is the option to reach for when the
+         *     classifier's judgement is uncertain. DELETE cannot be undone on Facebook.
+         *     LEAVE changes nothing there and exists so that a decision to allow a
+         *     comment is still recorded, which is a different fact from nobody having
+         *     looked.
          */
         post: operations["recordAction"];
         delete?: never;
@@ -637,7 +640,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "LEAVE" | "DELETE";
+            kind: "LEAVE" | "HIDE" | "UNHIDE" | "DELETE";
         };
         /** AdminPilotRequest */
         AdminPilotRequest: {
@@ -1439,7 +1442,7 @@ export interface operations {
                 query?: string | null;
                 severity?: ("SAFE" | "OFFENSIVE" | "HARMFUL") | null;
                 target?: ("PERSON" | "INSTITUTION" | "NEITHER") | null;
-                surfaced_reason?: ("triage" | "institution_sample" | "novel_language" | "uncertainty" | "cleared") | null;
+                surfaced_reason?: ("triage" | "institution_sample" | "novel_language" | "uncertainty") | null;
                 review_status?: ("PENDING" | "ACTIONED") | null;
                 sort?: "PRIORITY" | "NEWEST" | "OLDEST";
             };
