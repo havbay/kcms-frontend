@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom'
 
 import { App } from './app/App'
 import { SessionProvider } from './app/session'
+import './sentry'
 import './styles.css'
 import './styles/workspace.css'
 import './styles/tailwind.css'
