@@ -54,9 +54,8 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
         </button>
         <nav aria-label="Primary navigation" className="primary-navigation" data-open={menuOpen} id="primary-navigation">
           <a className="nav-link" href="#how-it-works">{content.howItWorks}</a>
-          <a className="nav-link" href="#human-control">{content.navHumanControl}</a>
+          <a className="nav-link" href="#responsible-moderation">{content.navHumanControl}</a>
           <a className="nav-link" href="#early-access">{content.accessEyebrow}</a>
-          <a className="nav-link nav-link-demo" href="/app">{content.openDemo}</a>
           <button
             aria-pressed={locale === 'km'}
             className="language-toggle"
@@ -159,7 +158,6 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
                 </span>
                 <span aria-hidden="true" className="overview-progress"><i className="overview-animated" /></span>
                 <span className="overview-actions">
-                  <a className="overview-play" href="/app"><i aria-hidden="true">↗</i>{content.overviewDemoCta}</a>
                   <button
                     aria-label={overviewPaused ? content.overviewPlay : content.overviewPause}
                     className="overview-pause"
@@ -227,7 +225,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
           </ul>
         </section>
 
-        <section aria-labelledby="control-heading" className="control-section" id="human-control">
+        <section aria-labelledby="control-heading" className="control-section" id="responsible-moderation">
           <div className="control-inner">
             <div className="control-intro">
               <p className="eyebrow"><span aria-hidden="true" />{content.controlEyebrow}</p>

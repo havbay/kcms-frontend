@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
 
+test.beforeEach(async ({ page }) => {
+  // The product defaults new visitors to Khmer; these browser assertions
+  // describe the English path unless a test explicitly switches language.
+  await page.addInitScript(() => localStorage.setItem('kcms.locale', 'en'))
+})
+
 test('desktop hero communicates the human-review workflow without overflow', async ({
   page,
 }) => {
@@ -87,7 +93,7 @@ test('desktop visitor reaches early access and footer without overflow', async (
   })
   await expect(access).toContainText('Starter')
   await expect(access).toContainText('$15/mo')
-  await expect(access.getByRole('link', { name: /Request pilot access/ }).first()).toBeVisible()
+  await expect(access.getByRole('link', { name: /Start free trial/ }).first()).toBeVisible()
 
   const footer = page.getByRole('contentinfo')
   await expect(footer).toContainText('Versioned pattern matching')
@@ -159,7 +165,7 @@ test('service overview and FAQ work without horizontal overflow', async ({ page 
     })
     await expect(overview.getByText('Hide confirmed on Facebook', { exact: true }).first()).toBeVisible()
     await expect(overview.getByText('Unhide restores the comment', { exact: true }).first()).toBeVisible()
-    await expect(overview.getByRole('link', { name: 'Open the client workspace' })).toBeVisible()
+    await expect(overview.getByRole('link', { name: 'Open the client workspace' })).toHaveCount(0)
 
     const faq = page.getByRole('region', { name: 'Questions before connecting a Page.' })
     const pricing = faq.getByRole('button', { name: 'How much does KCMS cost?' })
@@ -180,7 +186,7 @@ test('unbuilt routes explain themselves instead of rendering blank', async ({ pa
     await page.goto(path)
     const body = (await page.locator('body').innerText()).trim()
     expect(body, `${path} rendered blank`).not.toBe('')
-    await expect(page.getByRole('link', { name: /Open the demo/ })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Start free trial/ })).toBeVisible()
   }
 })
 
@@ -199,20 +205,28 @@ test('a visitor can submit a pilot request without creating an account first', a
   await expect(page.getByRole('heading', { name: 'Request received' })).toBeVisible()
 })
 
-test('a visitor can reach the moderation demo from the landing page', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 })
-  await page.goto('/')
-  await page.getByRole('navigation', { name: 'Primary navigation' })
-    .getByRole('link', { name: 'Open the demo' }).click()
-  // The dashboard is guarded, so the demo link lands on sign-in.
-  await expect(page).toHaveURL(/\/sign-in$/)
-  await expect(page.getByRole('heading', { name: 'Sign in to KCMS' })).toBeVisible()
-})
-
 test('the dashboard requires a session and bounces anonymous visitors', async ({ page }) => {
   await page.goto('/app')
   await expect(page).toHaveURL(/\/sign-in$/)
   await expect(page.getByRole('heading', { name: 'Sign in to KCMS' })).toBeVisible()
+})
+
+test('Clerk sign-in and sign-up surfaces are centered', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+
+  for (const path of ['/sign-in', '/sign-up']) {
+    await page.goto(path)
+    const shell = page.locator('.clerk-auth-shell')
+    await expect(shell).toBeVisible()
+
+    const box = await shell.boundingBox()
+    expect(box).not.toBeNull()
+    expect(Math.abs((box!.x + box!.width / 2) - 720)).toBeLessThanOrEqual(1)
+    expect(Math.abs((box!.y + box!.height / 2) - 500)).toBeLessThanOrEqual(1)
+    expect(await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+    )).toBe(true)
+  }
 })
 
 test('sign-in offers email, and hides Telegram until a bot is configured', async ({ page }) => {

@@ -25,8 +25,8 @@ describe('KCMS public landing page', () => {
     expect(
       screen.getByText(/humans decide every moderation action/i),
     ).toBeInTheDocument()
-    for (const link of screen.getAllByRole('link', { name: 'Request access' })) {
-      expect(link).toHaveAttribute('href', '/request-access')
+    for (const link of screen.getAllByRole('link', { name: 'Start free trial' })) {
+      expect(link).toHaveAttribute('href', '/sign-up')
     }
   })
 
@@ -68,9 +68,9 @@ describe('KCMS public landing page', () => {
       }),
     ).toBeInTheDocument()
     for (const link of screen.getAllByRole('link', {
-      name: 'ស្នើសុំប្រើប្រាស់',
+      name: 'សាកល្បងឥតគិតថ្លៃ',
     })) {
-      expect(link).toHaveAttribute('href', '/request-access')
+      expect(link).toHaveAttribute('href', '/sign-up')
     }
     expect(
       screen.getByRole('button', { name: 'English' }).querySelector('img'),
@@ -159,10 +159,10 @@ describe('KCMS public landing page', () => {
     expect(access).toHaveTextContent('$15/mo')
     expect(access).toHaveTextContent('Khmer & Khmerlish comment moderation')
     expect(access).toHaveTextContent('Price per Page drops as you grow')
-    expect(within(access).getAllByRole('link', { name: /Request pilot access/ })).toHaveLength(2)
+    expect(within(access).getAllByRole('link', { name: /Start free trial/ })).toHaveLength(3)
     expect(
-      within(access).getAllByRole('link', { name: /Request pilot access/ })[0],
-    ).toHaveAttribute('href', '/request-access')
+      within(access).getAllByRole('link', { name: /Start free trial/ })[0],
+    ).toHaveAttribute('href', '/sign-up')
   })
 
   it('closes the page with a footer that states prototype status', () => {
@@ -187,7 +187,7 @@ describe('KCMS public landing page', () => {
       name: 'ចាប់ផ្តើមសាកល្បងជាមួយទំព័រ និងក្រុមរបស់អ្នក។',
     })
 
-    expect(access).toHaveTextContent('ការចូលប្រើសាកល្បង')
+    expect(access).toHaveTextContent('ការចូលប្រើដំបូង')
     expect(access).toHaveTextContent('ចាប់ផ្តើម')
     expect(access).toHaveTextContent('$15/ខែ')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('ស្ថានភាព Prototype')
@@ -209,14 +209,14 @@ describe('KCMS public landing page', () => {
     expect(khmer).toHaveTextContent('Needs review')
   })
 
-  it('states every human-control guarantee including the no-self-training rule', () => {
+  it('states every responsible-moderation guarantee including the no-self-training rule', () => {
     render(<App />, { wrapper: MemoryRouter })
 
     const control = screen.getByRole('region', {
       name: 'You decide what KCMS is allowed to do.',
     })
 
-    expect(control).toHaveAttribute('id', 'human-control')
+    expect(control).toHaveAttribute('id', 'responsible-moderation')
     expect(control).toHaveTextContent('Automatic hiding is off today')
     expect(control).toHaveTextContent('Every hide and unhide is performed by a person')
     expect(control).toHaveTextContent('Actions are reversible')
@@ -227,12 +227,12 @@ describe('KCMS public landing page', () => {
     expect(control).toHaveTextContent('Messenger and Instagram are not connected yet')
   })
 
-  it('asks for a pilot only after establishing Khmer capability and human control', () => {
+  it('asks for a pilot only after establishing Khmer capability and responsible moderation', () => {
     const { container } = render(<App />, { wrapper: MemoryRouter })
 
     const ids = Array.from(container.querySelectorAll('main > section')).map((s) => s.id)
 
-    expect(ids).toEqual(['', 'service-overview', 'how-it-works', 'khmer-context', 'human-control', 'early-access', 'faq'])
+    expect(ids).toEqual(['', 'service-overview', 'how-it-works', 'khmer-context', 'responsible-moderation', 'early-access', 'faq'])
   })
 
   it('offers an honest looping service overview without publishing a broken video', async () => {
@@ -248,7 +248,7 @@ describe('KCMS public landing page', () => {
     expect(overview).toHaveTextContent('Human review')
     expect(overview).toHaveTextContent('Hide confirmed on Facebook')
     expect(overview).toHaveTextContent('Unhide restores the comment')
-    expect(within(overview).getByRole('link', { name: 'Open the client workspace' })).toHaveAttribute('href', '/app')
+    expect(within(overview).queryByRole('link', { name: 'Open the client workspace' })).not.toBeInTheDocument()
     const pause = within(overview).getByRole('button', { name: 'Pause animation' })
     await user.click(pause)
     expect(within(overview).getByRole('button', { name: 'Play animation' })).toBeInTheDocument()
@@ -274,7 +274,7 @@ describe('KCMS public landing page', () => {
     expect(faq).not.toHaveTextContent('team size')
   })
 
-  it('translates the Khmer context and human control sections', async () => {
+  it('translates the Khmer context and responsible moderation sections', async () => {
     const user = userEvent.setup()
     render(<App />, { wrapper: MemoryRouter })
 

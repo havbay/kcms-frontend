@@ -730,6 +730,14 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                       </td>
                       <td className="cell-actions" onClick={(event) => event.stopPropagation()}>
                         <div className="row-actions">
+                          <button
+                            className="button button-small"
+                            disabled={pendingAction === item.comment_id}
+                            onClick={() => void act(item.comment_id, item.latest_action === 'HIDE' ? 'UNHIDE' : 'HIDE')}
+                            type="button"
+                          >
+                            {item.latest_action === 'HIDE' ? content.modUnhide : content.modHide}
+                          </button>
                           <button className="button button-small button-quiet" disabled={pendingAction === item.comment_id} onClick={() => void act(item.comment_id, 'LEAVE')} type="button">{content.modLeave}</button>
                           {confirmDelete === item.comment_id ? (
                             <>

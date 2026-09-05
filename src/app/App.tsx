@@ -72,8 +72,11 @@ export function App() {
       <Route path="/moderate" element={<Navigate replace to="/app/moderate" />} />
 
       <Route path="/request-access" element={<RequestAccessPage {...shared} />} />
-      <Route path="/sign-in" element={<SignInPage {...shared} />} />
-      <Route path="/sign-up" element={<ClerkAuthPage mode="sign-up" />} />
+      {/* Clerk uses nested callback paths during verification and SSO. Keep
+          those paths inside the auth surface instead of sending them to the
+          generic not-found page. */}
+      <Route path="/sign-in/*" element={<SignInPage {...shared} />} />
+      <Route path="/sign-up/*" element={<ClerkAuthPage mode="sign-up" />} />
       {/* Never leave a route blank: the SPA rewrite makes every path return 200. */}
       <Route path="*" element={<NoticePage kind="not-found" {...shared} />} />
     </Routes>

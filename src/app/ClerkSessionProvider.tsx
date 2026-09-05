@@ -1,13 +1,16 @@
-import { useAuth, useUser } from '@clerk/clerk-react'
+import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { exchangeClerkSession, setSessionToken, type AuthUser } from '../api/client'
+import { exchangeClerkSession, setSessionToken, signOut as apiSignOut, type AuthUser } from '../api/client'
 import { SessionContext } from './session'
 
 export function ClerkSessionProvider({ children }: { children: ReactNode }) {
   const { getToken, isLoaded, isSignedIn } = useAuth()
+  const { signOut: clerkSignOut } = useClerk()
   const { user } = useUser()
+  const navigate = useNavigate()
   const [kcmsUser, setKcmsUser] = useState<AuthUser | null>(null)
   const [status, setStatus] = useState<'checking' | 'signed-in' | 'signed-out'>('checking')
 
@@ -41,9 +44,20 @@ export function ClerkSessionProvider({ children }: { children: ReactNode }) {
     user: kcmsUser,
     status,
     signIn: () => {},
-    signOut: async () => { setSessionToken(null); setKcmsUser(null); setStatus('signed-out') },
+    signOut: async () => {
+      try {
+        await apiSignOut()
+      } catch {
+        // A missing/expired KCMS session must not keep the Clerk identity alive.
+      }
+      await clerkSignOut()
+      setSessionToken(null)
+      setKcmsUser(null)
+      setStatus('signed-out')
+      navigate('/', { replace: true })
+    },
     refresh: async () => {},
-  }), [kcmsUser, status])
+  }), [clerkSignOut, kcmsUser, navigate, status])
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
 }

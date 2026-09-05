@@ -22,7 +22,7 @@ Landing -> understand the promise -> Request access
 
 1. KCMS identity and language control.
 2. A direct Khmer-comment moderation promise.
-3. Human-control disclosure.
+3. Responsible-moderation disclosure.
 4. Request Access primary action.
 5. Comment Pathway product proof.
 

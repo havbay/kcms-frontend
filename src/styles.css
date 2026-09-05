@@ -490,8 +490,6 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   .notice-actions { align-items: stretch; flex-direction: column; gap: 0.9rem; }
   .notice-actions .text-link { justify-content: center; }
 }
-.nav-link-demo { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--mekong-teal); font-weight: 750; }
-.nav-link-demo::before { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--mekong-teal); content: ''; }
 
 /* ---- Client dashboard --------------------------------------------------- */
 .dashboard { display: grid; grid-template-columns: 14.5rem minmax(0, 1fr); min-height: 100vh; }
@@ -3604,6 +3602,18 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   width: min(100% - 3rem, 72rem);
   margin-inline: auto;
   padding-block: 1.5rem 1rem;
+}
+
+.clerk-auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background: radial-gradient(circle at 50% 0%, rgba(11, 107, 99, 0.07) 0%, transparent 60%), var(--rice-paper);
+}
+
+.clerk-auth-shell > * {
+  width: min(100%, 29rem);
 }
 
 /* Auth / Onboarding / Notice Card Container */

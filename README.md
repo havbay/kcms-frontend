@@ -34,7 +34,7 @@ Header ─▶ Hero + Comment Pathway
        ─▶ Service overview      interactive preview; optional real video
        ─▶ How KCMS works        three handoffs, Page to human decision
        ─▶ Built for Khmer       institution complaint vs person-directed abuse
-       ─▶ Human control         five guarantees, current scope
+       ─▶ Responsible moderation five guarantees, current scope
        ─▶ Early access          pilot card, no invented price tiers
        ─▶ FAQ                   automation, access, data and pricing
        ─▶ Footer

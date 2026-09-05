@@ -49,7 +49,7 @@ export function NoticePage({ kind, locale, setLocale }: NoticePageProps) {
         <p>{body}</p>
         {hint && <p className="notice-hint">{hint}</p>}
         <div className="notice-actions">
-          <Link className="button" to="/moderate">{content.openDemo}<span aria-hidden="true">↗</span></Link>
+          <Link className="button" to="/sign-up">{content.startTrial}<span aria-hidden="true">↗</span></Link>
           <Link className="text-link" to="/">{content.backHome}</Link>
         </div>
       </main>
