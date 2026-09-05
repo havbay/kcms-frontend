@@ -93,3 +93,39 @@ describe('the sidebar account card', () => {
     expect(within(card).queryByText('Growth')).toBeNull()
   })
 })
+
+describe('dashboard comment polling', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks()
+    vi.useFakeTimers()
+    setSessionToken('token-1')
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+    setSessionToken(null)
+  })
+
+  it('syncs connected Pages after one minute while the dashboard is open', async () => {
+    const requests: string[] = []
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input)
+      requests.push(url)
+      if (url.includes('/sync')) {
+        return new Response(JSON.stringify({ fetched: 1, imported: 1, page_id: 'page-1', page_name: 'Demo Page', last_synced_at: null }), { status: 200 })
+      }
+      if (url.includes('/facebook/connections')) {
+        return new Response(JSON.stringify({ connections: [{ page_id: 'page-1', page_name: 'Demo Page' }], page_limit: 1, plan: 'TRIAL' }), { status: 200 })
+      }
+      if (url.includes('/auth/me') || url.includes('/me')) {
+        return new Response(JSON.stringify(USER), { status: 200 })
+      }
+      return new Response(JSON.stringify(SETTINGS), { status: 200 })
+    })
+
+    renderLayout()
+    await vi.advanceTimersByTimeAsync(60_000)
+
+    expect(requests.filter((url) => url.includes('/sync'))).toHaveLength(1)
+  })
+})

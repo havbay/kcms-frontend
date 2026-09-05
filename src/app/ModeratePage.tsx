@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import {
   ApiError,
@@ -15,8 +15,6 @@ import { copy, type Locale } from './copy'
 
 type ModeratePageProps = { locale: Locale }
 type LoadState = 'loading' | 'ready' | 'error'
-
-const SYNC_INTERVAL_MS = 60_000
 
 const AVATAR_PALETTES = [
   { bg: 'rgba(11, 107, 99, 0.12)', color: '#075049', border: 'rgba(11, 107, 99, 0.25)' },
@@ -315,20 +313,15 @@ export function ModeratePage({ locale }: ModeratePageProps) {
       .catch(() => setConnected(null))
   }, [])
 
-  const syncingRef = useRef(false)
+  // DashboardLayout owns the one background poller so navigation does not
+  // stop ingestion and Moderate does not create a duplicate Meta request.
   useEffect(() => {
-    syncingRef.current = syncing
-  }, [syncing])
-  // Poll for new comments while this screen is open. A hidden tab is skipped
-  // so a forgotten background tab does not spend the Page's Graph quota, and
-  // an in-flight sync suppresses the next tick rather than stacking calls.
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (document.visibilityState !== 'visible' || syncingRef.current) return
-      void sync(true)
-    }, SYNC_INTERVAL_MS)
-    return () => clearInterval(timer)
-  }, [sync])
+    const refreshAfterBackgroundSync = () => {
+      void load(offset, filters, pageSize)
+    }
+    window.addEventListener('kcms:comments-synced', refreshAfterBackgroundSync)
+    return () => window.removeEventListener('kcms:comments-synced', refreshAfterBackgroundSync)
+  }, [filters, load, offset, pageSize])
 
   function applyFilters(event: React.FormEvent) {
     event.preventDefault()

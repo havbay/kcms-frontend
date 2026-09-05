@@ -304,6 +304,17 @@ export function syncFacebookComments(pageId: string): Promise<SyncResult> {
   )
 }
 
+/** Sync every Page in the current workspace. The authenticated dashboard owns
+ * the background poller so navigation does not stop ingestion. */
+export async function syncConnectedFacebookPages(): Promise<number> {
+  const found = await listFacebookConnections()
+  let imported = 0
+  for (const connection of found.connections) {
+    imported += (await syncFacebookComments(connection.page_id)).imported
+  }
+  return imported
+}
+
 export function disconnectFacebookPage(pageId: string): Promise<void> {
   return request<void>(`/api/v1/facebook/connections/${encodeURIComponent(pageId)}`, {
     method: 'DELETE',

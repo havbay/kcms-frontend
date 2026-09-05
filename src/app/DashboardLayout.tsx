@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 
-import { getSettings, listFacebookConnections, type PageConnections } from '../api/client'
+import { getSettings, listFacebookConnections, syncConnectedFacebookPages, type PageConnections } from '../api/client'
 import { copy, type Locale } from './copy'
 import { useSession } from './session'
 
@@ -96,6 +96,34 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
   const [plan, setPlan] = useState<PageConnections['plan'] | null>(null)
   const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null)
   const [trialExpired, setTrialExpired] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    let inFlight = false
+
+    async function pollComments() {
+      if (!mounted || document.visibilityState !== 'visible' || inFlight) return
+      inFlight = true
+      try {
+        const imported = await syncConnectedFacebookPages()
+        if (mounted) {
+          window.dispatchEvent(new CustomEvent('kcms:comments-synced', { detail: { imported } }))
+        }
+      } catch {
+        // The Moderate screen owns the visible manual-sync error. Background
+        // polling stays quiet so a temporary Meta or network failure does not
+        // take over an unrelated dashboard screen.
+      } finally {
+        inFlight = false
+      }
+    }
+
+    const timer = window.setInterval(() => { void pollComments() }, 60_000)
+    return () => {
+      mounted = false
+      window.clearInterval(timer)
+    }
+  }, [session.user])
 
   useEffect(() => {
     let mounted = true
