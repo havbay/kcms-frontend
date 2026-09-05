@@ -94,12 +94,17 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
   // carries it everywhere. It is left out entirely rather than guessed at when
   // it cannot be read.
   const [plan, setPlan] = useState<PageConnections['plan'] | null>(null)
+  const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null)
+  const [trialExpired, setTrialExpired] = useState(false)
 
   useEffect(() => {
     let mounted = true
     getSettings().then((settings) => {
       if (!mounted) return
       setWorkspaceName(settings.workspace_name)
+      const expiresAt = settings.plan === 'TRIAL' ? settings.trial_expires_at : null
+      setTrialExpiresAt(expiresAt)
+      setTrialExpired(Boolean(expiresAt && new Date(expiresAt).getTime() <= Date.now()))
     }).catch(() => {
       // ignore
     })
@@ -260,6 +265,13 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
       </aside>
 
       <div className="dash-main">
+        {trialExpiresAt && (
+          <div className={`trial-banner${trialExpired ? ' is-expired' : ''}`} role="status">
+            {trialExpired
+              ? content.trialExpired
+              : `${content.trialActive} · ${new Date(trialExpiresAt).toLocaleDateString()}`}
+          </div>
+        )}
         {children}
       </div>
     </div>

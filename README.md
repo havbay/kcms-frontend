@@ -54,8 +54,14 @@ The public-to-client onboarding flow is also implemented:
 /app ───────────▶ authenticated client workspace
 ```
 
-There is no public self-signup route. No password is emailed. When transactional email is not configured, the
-Platform Administrator receives a copyable one-time setup URL instead.
+Public signup uses Clerk with email/password, Google, or Facebook account login.
+Telegram is excluded. Each new account receives one seven-day trial workspace;
+the trial can connect one Facebook Page and use the same core moderation flow.
+Clerk Facebook login is KCMS identity only; Page access still uses the separate
+Meta authorization in Page Management.
+
+Set `VITE_CLERK_PUBLISHABLE_KEY` to enable the Clerk sign-in/sign-up screens.
+Without it, the legacy local auth screen remains available for development.
 
 Set `VITE_OVERVIEW_VIDEO_URL` to a public MP4/WebM URL to replace the overview
 poster with native video controls. When it is unset, the page links to the real

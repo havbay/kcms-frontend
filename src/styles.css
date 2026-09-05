@@ -2842,6 +2842,21 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   padding-top: 0.55rem;
   border-top: 1px solid rgba(24, 48, 51, 0.08);
 }
+.trial-banner {
+  margin: 0.75rem 1rem 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(194, 106, 10, 0.28);
+  border-radius: 0.55rem;
+  background: rgba(194, 106, 10, 0.09);
+  color: #7a4308;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+.trial-banner.is-expired {
+  border-color: rgba(180, 35, 24, 0.28);
+  background: rgba(180, 35, 24, 0.08);
+  color: #8e1d16;
+}
 .dash-language {
   display: inline-flex;
   align-items: center;
