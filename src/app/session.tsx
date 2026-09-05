@@ -9,15 +9,9 @@ import {
   signOut as apiSignOut,
 } from '../api/client'
 
-type SessionState = {
-  user: AuthUser | null
-  status: 'checking' | 'signed-in' | 'signed-out'
-  signIn: (token: string, user: AuthUser) => void
-  signOut: () => Promise<void>
-  refresh: () => Promise<void>
-}
+import type { SessionState } from './session-context'
 
-const SessionContext = createContext<SessionState | null>(null)
+export const SessionContext = createContext<SessionState | null>(null)
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)

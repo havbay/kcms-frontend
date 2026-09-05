@@ -5,6 +5,7 @@ import {
   ApiError, listAuthProviders, type Providers, signIn, signInWithTelegram,
 } from '../api/client'
 import { AuthField } from './AuthField'
+import { ClerkAuthPage } from './ClerkAuthPage'
 import { copy, type Locale } from './copy'
 import { useSession } from './session'
 
@@ -14,6 +15,11 @@ type SignInPageProps = {
 }
 
 export function SignInPage({ locale, setLocale }: SignInPageProps) {
+  if (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) return <ClerkAuthPage mode="sign-in" />
+  return <LegacySignInPage locale={locale} setLocale={setLocale} />
+}
+
+function LegacySignInPage({ locale, setLocale }: SignInPageProps) {
   const content = copy[locale]
   const session = useSession()
   const [email, setEmail] = useState('')

@@ -75,7 +75,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             {content.language}
           </button>
           <a className="nav-link" href="/sign-in">{content.signIn}</a>
-            <a className="button button-small" href="/request-access">{content.requestAccess}</a>
+            <a className="button button-small" href="/sign-up">{content.startTrial}</a>
           </nav>
         </header>
       </div>
@@ -95,7 +95,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             <h1 id="landing-heading">{content.heading}</h1>
             <p className="hero-description">{content.description}</p>
             <div className="hero-actions">
-              <a className="button" href="/request-access">{content.requestAccess}<span aria-hidden="true">↗</span></a>
+              <a className="button" href="/sign-up">{content.startTrial}<span aria-hidden="true">↗</span></a>
               <a className="text-link" href="#how-it-works">{content.seeHow}<span aria-hidden="true">↓</span></a>
             </div>
             <ul aria-label="KCMS scope" className="scope-list">
@@ -282,7 +282,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
                     </ul>
                   </div>
 
-                  <a className="button button-block" href="/request-access">{plan.cta}<span aria-hidden="true">↗</span></a>
+                  <a className="button button-block" href="/sign-up">{content.startTrial}<span aria-hidden="true">↗</span></a>
                 </article>
             ))}
           </div>
@@ -342,7 +342,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             <div className="footer-column">
               <h2>{content.footerAccess}</h2>
               <ul>
-                <li><a href="/request-access">{content.requestAccess}</a></li>
+                <li><a href="/sign-up">{content.startTrial}</a></li>
                 <li><a href="/sign-in">{content.signIn}</a></li>
               </ul>
             </div>

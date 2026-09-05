@@ -179,6 +179,24 @@ export function signInWithTelegram(payload: Record<string, string>): Promise<Ses
   })
 }
 
+export function exchangeClerkSession(clerkToken: string): Promise<Session> {
+  return requestWithBearer<Session>('/api/v1/auth/clerk', clerkToken, { method: 'POST' })
+}
+
+async function requestWithBearer<T>(path: string, token: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...init?.headers,
+    },
+  })
+  if (!response.ok) throw new ApiError(response.status, `request failed with ${response.status}`)
+  const body = await response.text()
+  return (body ? JSON.parse(body) : undefined) as T
+}
+
 export function getCurrentUser(): Promise<AuthUser> {
   return request<AuthUser>('/api/v1/auth/me')
 }

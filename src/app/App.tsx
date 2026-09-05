@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import type { Locale } from './copy'
 import { AdminRequestsPage } from './AdminRequestsPage'
 import { ConnectPage } from './ConnectPage'
+import { ClerkAuthPage } from './ClerkAuthPage'
 import { DashboardLayout } from './DashboardLayout'
 import { JoinPage } from './JoinPage'
 import { LandingPage } from './LandingPage'
@@ -72,6 +73,7 @@ export function App() {
 
       <Route path="/request-access" element={<RequestAccessPage {...shared} />} />
       <Route path="/sign-in" element={<SignInPage {...shared} />} />
+      <Route path="/sign-up" element={<ClerkAuthPage mode="sign-up" />} />
       {/* Never leave a route blank: the SPA rewrite makes every path return 200. */}
       <Route path="*" element={<NoticePage kind="not-found" {...shared} />} />
     </Routes>

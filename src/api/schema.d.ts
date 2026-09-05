@@ -38,6 +38,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/clerk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign In With Clerk
+         * @description Exchange a verified Clerk session for KCMS's workspace-scoped session.
+         */
+        post: operations["signInWithClerk"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -1351,8 +1371,17 @@ export interface components {
             keyword_allowlist: string[];
             /** Keyword Blocklist */
             keyword_blocklist: string[];
+            /**
+             * Plan
+             * @enum {string}
+             */
+            plan: "TRIAL" | "STARTER" | "GROWTH";
             /** Sample Comments */
             sample_comments: number;
+            /** Trial Expires At */
+            trial_expires_at: string | null;
+            /** Trial Started At */
+            trial_started_at: string | null;
             /** Workspace Id */
             workspace_id: string;
             /** Workspace Name */
@@ -1426,6 +1455,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PilotDecisionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    signInWithClerk: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
                 };
             };
             /** @description Validation Error */
