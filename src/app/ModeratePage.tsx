@@ -246,7 +246,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
         latest_action: latest?.kind ?? item.latest_action,
         latest_actor: latest?.actor ?? item.latest_actor,
         latest_action_at: latest?.occurred_at ?? item.latest_action_at,
-        latest_action_on_facebook: connected === true,
+        latest_action_on_facebook: latest?.provider_applied ?? item.latest_action_on_facebook,
       } : item))
     } catch (caught) {
       // A refused action is about one comment. Replacing the whole screen with

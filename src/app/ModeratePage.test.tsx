@@ -445,6 +445,21 @@ describe('hide and unhide', () => {
     )
     expect(JSON.parse(String((call?.[1] as RequestInit).body))).toEqual({ kind: 'HIDE' })
   })
+
+  it('uses the provider result instead of assuming a connected page was reached', async () => {
+    const user = userEvent.setup()
+    mockApi({
+      connection: { state: 'CONNECTED', can_moderate: true },
+      action: { body: [{ kind: 'HIDE', actor: 'demo', occurred_at: '2026-09-03T10:00:00Z', provider_applied: false }] },
+    })
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+    await user.click(screen.getAllByRole('button', { name: 'Hide' })[0]!)
+
+    expect(await screen.findByText('KCMS only')).toBeVisible()
+    expect(screen.queryByText('on Facebook')).not.toBeInTheDocument()
+  })
 })
 
 

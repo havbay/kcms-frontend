@@ -1130,6 +1130,8 @@ export interface components {
              * Format: date-time
              */
             occurred_at: string;
+            /** Provider Applied */
+            provider_applied: boolean;
         };
         /** Invitation */
         Invitation: {
