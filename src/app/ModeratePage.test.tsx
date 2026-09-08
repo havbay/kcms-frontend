@@ -96,7 +96,7 @@ describe('moderation work list', () => {
     expect(rows[1]).toHaveAttribute('data-reason', 'triage')
 
     await user.click(within(rows[0]!).getByRole('button', { name: /សេវាកម្ម/ }))
-    expect(screen.getByText(/Aimed at an organization — never hidden automatically/)).toBeVisible()
+    expect(screen.getAllByText(/Aimed at an organization — never hidden automatically/).length).toBeGreaterThan(0)
   })
 
   it('keeps institution criticism visually distinct from targeted harm', async () => {
@@ -452,17 +452,47 @@ describe('queue status tabs', () => {
   beforeEach(() => vi.restoreAllMocks())
   afterEach(() => vi.restoreAllMocks())
 
-  it('opens on Pending and offers no unfiltered All queue', async () => {
+  it('opens on Pending and offers an All comments audit view', async () => {
     const fetchMock = mockApi({})
 
     renderPage()
     await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
 
     expect(screen.getByRole('tab', { name: /Pending/ })).toHaveAttribute('aria-selected', 'true')
-    expect(screen.queryByRole('tab', { name: 'All' })).not.toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'All comments' })).toHaveAttribute('aria-selected', 'false')
     // Pending is the default view, so the first request already asks for it.
     expect(
       fetchMock.mock.calls.some(([url]) => String(url).includes('review_status=PENDING')),
+    ).toBe(true)
+  })
+
+  it('shows cleared comments in the All comments audit view', async () => {
+    const user = userEvent.setup()
+    const cleared = {
+      ...WORK_LIST.items[0]!,
+      comment_id: 'fb-cleared',
+      text: 'សួស្តី ខ្ញុំចង់សួរអំពីតម្លៃ',
+      severity: 'SAFE',
+      surfaced_reason: 'cleared',
+      latest_action: null,
+    }
+    const allComments = { ...WORK_LIST, total: 3, items: [cleared, ...WORK_LIST.items] }
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      const body = url.includes('review_status=ALL') ? allComments : WORK_LIST
+      return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
+    })
+
+    renderPage()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+
+    await user.click(screen.getByRole('tab', { name: 'All comments' }))
+
+    expect(await screen.findByText('សួស្តី ខ្ញុំចង់សួរអំពីតម្លៃ')).toBeVisible()
+    expect(screen.getAllByText('No risk pattern matched').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Safe').length).toBeGreaterThan(0)
+    expect(
+      fetchMock.mock.calls.some(([url]) => String(url).includes('review_status=ALL')),
     ).toBe(true)
   })
 })

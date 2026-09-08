@@ -107,7 +107,7 @@ export type CommentFilters = {
   severity?: 'SAFE' | 'OFFENSIVE' | 'HARMFUL'
   target?: 'PERSON' | 'INSTITUTION' | 'NEITHER'
   surfacedReason?: 'triage' | 'institution_sample' | 'novel_language' | 'uncertainty' | 'cleared'
-  reviewStatus?: 'PENDING' | 'ACTIONED'
+  reviewStatus?: 'PENDING' | 'ACTIONED' | 'ALL'
   sort?: 'PRIORITY' | 'NEWEST' | 'OLDEST'
 }
 

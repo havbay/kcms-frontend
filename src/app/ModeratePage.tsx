@@ -126,12 +126,14 @@ function QuarantineCountdown({ until, locale }: { until: string; locale: Locale 
 const ui = {
   en: {
     search: 'Search comments', status: 'Review status', severity: 'Severity', target: 'Target', reason: 'Why surfaced', sort: 'Sort by',
-    all: 'All', pending: 'Pending', actioned: 'Actioned', priority: 'Priority', newest: 'Newest', oldest: 'Oldest', apply: 'Apply filters', reset: 'Reset',
+    all: 'All', allComments: 'All comments', pending: 'Pending', actioned: 'Actioned', priority: 'Priority', newest: 'Newest', oldest: 'Oldest', apply: 'Apply filters', reset: 'Reset',
     source: 'Source post', type: 'Type', received: 'Received', details: 'Comment details', close: 'Close details', replyTo: 'Replying to',
     verdict: 'Automatic detection', context: 'Conversation context', action: 'Moderation action', correction: 'Label correction', video: 'Video', post: 'Post', openPost: 'Open source post',
-    emptyConnected: 'No comments from your connected Page yet. Sync to fetch the latest ones.',
+    emptyConnected: 'No comments have been imported yet. Sync to fetch comments from Facebook.',
+    emptyPending: 'No comments currently need review. Open All comments to inspect safe comments.',
+    emptyAll: 'No comments have been imported yet. Sync to fetch comments from Facebook.',
     from: 'From',
-    page: 'Page', unknownAuthor: 'Unknown commenter', actions: 'Actions',
+    page: 'Page', unknownAuthor: 'Unknown commenter', actions: 'Actions', statusSafe: 'Safe',
     onFacebook: 'on Facebook', kcmsOnly: 'KCMS only',
     actionFailed: 'That action could not be completed. Please try again.',
     untitledPost: 'Untitled post',
@@ -148,12 +150,14 @@ const ui = {
   },
   km: {
     search: 'ស្វែងរកមតិយោបល់', status: 'ស្ថានភាពពិនិត្យ', severity: 'កម្រិត', target: 'គោលដៅ', reason: 'ហេតុផលបង្ហាញ', sort: 'តម្រៀបតាម',
-    all: 'ទាំងអស់', pending: 'រង់ចាំ', actioned: 'បានធ្វើ', priority: 'អាទិភាព', newest: 'ថ្មីបំផុត', oldest: 'ចាស់បំផុត', apply: 'ប្រើតម្រង', reset: 'សម្អាត',
+    all: 'ទាំងអស់', allComments: 'មតិយោបល់ទាំងអស់', pending: 'រង់ចាំ', actioned: 'បានធ្វើ', priority: 'អាទិភាព', newest: 'ថ្មីបំផុត', oldest: 'ចាស់បំផុត', apply: 'ប្រើតម្រង', reset: 'សម្អាត',
     source: 'ប្រភព Post', type: 'ប្រភេទ', received: 'ទទួលបាន', details: 'ព័ត៌មានមតិយោបល់', close: 'បិទព័ត៌មាន', replyTo: 'ឆ្លើយតបទៅ',
     verdict: 'ការរកឃើញស្វ័យប្រវត្តិ', context: 'បរិបទសន្ទនា', action: 'សកម្មភាពគ្រប់គ្រង', correction: 'ការកែស្លាក', video: 'វីដេអូ', post: 'Post', openPost: 'បើក Post ប្រភព',
-    emptyConnected: 'មិនទាន់មានមតិយោបល់ពី Page ដែលបានភ្ជាប់ទេ។ សូមទាញយកដើម្បីទទួលបានមតិយោបល់ថ្មី។',
+    emptyConnected: 'មិនទាន់មានមតិយោបល់ត្រូវបាននាំចូលទេ។ សូមទាញយកមតិយោបល់ពី Facebook។',
+    emptyPending: 'មិនមានមតិយោបល់ត្រូវពិនិត្យនៅពេលនេះទេ។ បើកមតិយោបល់ទាំងអស់ ដើម្បីមើលមតិយោបល់ដែលមានសុវត្ថិភាព។',
+    emptyAll: 'មិនទាន់មានមតិយោបល់ត្រូវបាននាំចូលទេ។ សូមទាញយកមតិយោបល់ពី Facebook។',
     from: 'អ្នកផ្ដល់មតិ',
-    page: 'Page', unknownAuthor: 'មិនស្គាល់អ្នកផ្ដល់មតិ', actions: 'សកម្មភាព',
+    page: 'Page', unknownAuthor: 'មិនស្គាល់អ្នកផ្ដល់មតិ', actions: 'សកម្មភាព', statusSafe: 'សុវត្ថិភាព',
     onFacebook: 'នៅលើ Facebook', kcmsOnly: 'តែក្នុង KCMS',
     actionFailed: 'មិនអាចធ្វើសកម្មភាពនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។',
     untitledPost: 'Post គ្មានចំណងជើង',
@@ -183,7 +187,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
   const [pendingAction, setPendingAction] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [reviewStatus, setReviewStatus] = useState('PENDING')
+  const [reviewStatus, setReviewStatus] = useState<CommentFilters['reviewStatus']>('PENDING')
   const [severity, setSeverity] = useState('')
   const [target, setTarget] = useState('')
   const [reason, setReason] = useState('')
@@ -324,7 +328,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
     setOffset(0)
     setFilters({
       query: search.trim() || undefined,
-      reviewStatus: (reviewStatus || undefined) as CommentFilters['reviewStatus'],
+      reviewStatus,
       severity: (severity || undefined) as CommentFilters['severity'],
       target: (target || undefined) as CommentFilters['target'],
       surfacedReason: (reason || undefined) as CommentFilters['surfacedReason'],
@@ -393,6 +397,20 @@ export function ModeratePage({ locale }: ModeratePageProps) {
           >
             <span>{t.actioned}</span>
             {reviewStatus === 'ACTIONED' && <span className="mod-tab-badge is-actioned">{total}</span>}
+          </button>
+          <button
+            aria-selected={reviewStatus === 'ALL'}
+            className={`mod-tab-btn ${reviewStatus === 'ALL' ? 'is-active' : ''}`}
+            onClick={() => {
+              setReviewStatus('ALL')
+              setOffset(0)
+              setFilters((prev) => ({ ...prev, reviewStatus: 'ALL' }))
+            }}
+            role="tab"
+            type="button"
+          >
+            <span>{t.allComments}</span>
+            {reviewStatus === 'ALL' && <span className="mod-tab-badge is-all">{total}</span>}
           </button>
         </div>
 
@@ -476,9 +494,10 @@ export function ModeratePage({ locale }: ModeratePageProps) {
       <form className={`moderation-filters ${isFiltersOpen ? 'is-open' : 'is-collapsed'}`} onSubmit={applyFilters}>
         <label className="filter-status-select">
           <span>{t.status}</span>
-          <select onChange={(event) => setReviewStatus(event.target.value)} value={reviewStatus}>
+          <select onChange={(event) => setReviewStatus(event.target.value as CommentFilters['reviewStatus'])} value={reviewStatus}>
             <option value="PENDING">{t.pending}</option>
             <option value="ACTIONED">{t.actioned}</option>
+            <option value="ALL">{t.allComments}</option>
           </select>
         </label>
         <label className="filter-field">
@@ -507,6 +526,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
             <option value="institution_sample">{content.modReasons.institution_sample}</option>
             <option value="novel_language">{content.modReasons.novel_language}</option>
             <option value="uncertainty">{content.modReasons.uncertainty}</option>
+            <option value="cleared">{content.modReasons.cleared}</option>
           </select>
         </label>
         <label className="filter-field">
@@ -590,10 +610,23 @@ export function ModeratePage({ locale }: ModeratePageProps) {
            and has a different next step. */
         connected ? (
           <div className="work-empty">
-            <p>{t.emptyConnected}</p>
-            <button className="button button-small" disabled={syncing} onClick={() => void sync(false)} type="button">
-              {syncing ? t.syncing : t.sync}
-            </button>
+            <p>{reviewStatus === 'PENDING' ? t.emptyPending : t.emptyAll}</p>
+            <div className="work-empty-actions">
+              {reviewStatus === 'PENDING' && (
+                <button className="button button-small" onClick={() => {
+                  setReviewStatus('ALL')
+                  setOffset(0)
+                  setFilters((prev) => ({ ...prev, reviewStatus: 'ALL' }))
+                }} type="button">
+                  {t.allComments}
+                </button>
+              )}
+              {reviewStatus !== 'ACTIONED' && (
+                <button className="button button-small button-quiet" disabled={syncing} onClick={() => void sync(false)} type="button">
+                  {syncing ? t.syncing : t.sync}
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <p className="work-status">{content.modEmpty}</p>
@@ -603,9 +636,13 @@ export function ModeratePage({ locale }: ModeratePageProps) {
           <div className="moderation-list">
             <div className="table-wrap">
               <table className="work-table moderation-table">
-                <thead><tr><th scope="col">{content.colComment}</th><th scope="col">{t.source}</th><th scope="col">{t.page}</th><th scope="col">{content.colSeverity}</th><th scope="col">{content.colTarget}</th><th scope="col">{content.colStatus}</th><th scope="col">{t.actions}</th></tr></thead>
+                <thead><tr><th scope="col">{content.colComment}</th><th scope="col">{t.source}</th><th scope="col">{t.page}</th><th scope="col">{content.colSeverity}</th><th scope="col">{content.colTarget}</th><th scope="col">{t.reason}</th><th scope="col">{content.colStatus}</th><th scope="col">{t.actions}</th></tr></thead>
                 <tbody>{items.map((item) => {
                   const author = getAuthorInfo(item.author_ref, locale)
+                  const reasonLabel = item.surfaced_reason
+                    ? content.modReasons[item.surfaced_reason as keyof typeof content.modReasons]
+                    : '—'
+                  const isCleared = item.surfaced_reason === 'cleared' && !item.latest_action
                   // Was https://facebook.com/<comment id>, which is not a
                   // person and resolves to nothing. Meta gives no public profile
                   // URL for a commenter, so this links to the comment in
@@ -695,10 +732,13 @@ export function ModeratePage({ locale }: ModeratePageProps) {
                       <td className="cell-target">
                         {item.target && <span className={`work-chip target-${item.target}`}>{content.modTarget[item.target as keyof typeof content.modTarget]}</span>}
                       </td>
+                      <td className="cell-reason">
+                        <span className={`work-chip reason-${item.surfaced_reason ?? 'unknown'}`}>{reasonLabel}</span>
+                      </td>
                       <td className="cell-status">
-                        <div className={`status-pill ${item.latest_action ? 'is-done' : 'is-pending'}`}>
+                        <div className={`status-pill ${item.latest_action ? 'is-done' : isCleared ? 'is-safe' : 'is-pending'}`}>
                           <span className="status-pill-dot" />
-                          <span>{item.latest_action ?? content.statusPending}</span>
+                          <span>{item.latest_action ?? (isCleared ? t.statusSafe : content.statusPending)}</span>
                         </div>
                         {/* A delete that never reached Facebook is not the same
                             outcome, and showing one status for both let a sample
@@ -818,7 +858,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
               </header>
               <section className="detail-section"><h2>{content.colComment}</h2><blockquote lang="km">{selected.text}</blockquote></section>
               <section className="detail-section"><h2>{t.context}</h2><dl className="detail-facts"><div><dt>{t.source}</dt><dd lang="km">{formatPostCaption(selected.post_text, '—')}</dd></div><div><dt>{t.type}</dt><dd>{selected.post_kind === 'VIDEO' ? t.video : t.post}</dd></div>{selected.parent_text && <div><dt>{t.replyTo}</dt><dd lang="km">{selected.parent_text}</dd></div>}</dl>{selected.post_permalink && <a className="detail-link" href={selected.post_permalink} rel="noreferrer" target="_blank">{t.openPost}</a>}</section>
-              <section className="detail-section"><h2>{t.verdict}</h2><dl className="detail-facts"><div><dt>{content.colSeverity}</dt><dd>{selected.severity ? content.modSeverity[selected.severity as keyof typeof content.modSeverity] : '—'} · {Math.round((selected.severity_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.colTarget}</dt><dd>{selected.target ? content.modTarget[selected.target as keyof typeof content.modTarget] : '—'} · {Math.round((selected.target_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.pattern}</dt><dd>{selected.model_version}</dd></div>{selected.rationale && <div><dt>{content.modWhySurfaced}</dt><dd>{selected.rationale}</dd></div>}{selected.corrected_severity && <div><dt>{content.modCorrected}</dt><dd>{content.modSeverity[selected.corrected_severity as keyof typeof content.modSeverity]} · {content.modTarget[selected.corrected_target as keyof typeof content.modTarget]}</dd></div>}{selected.latest_action && <div><dt>{content.modActioned}</dt><dd>{selected.latest_action} {content.modBy} {selected.latest_actor}</dd></div>}{selected.pending_delete_at && <div><dt>{content.modQuarantined}</dt><dd><QuarantineCountdown locale={locale} until={selected.pending_delete_at} /></dd></div>}</dl></section>
+              <section className="detail-section"><h2>{t.verdict}</h2><dl className="detail-facts"><div><dt>{content.colSeverity}</dt><dd>{selected.severity ? content.modSeverity[selected.severity as keyof typeof content.modSeverity] : '—'} · {Math.round((selected.severity_confidence ?? 0) * 100)}%</dd></div><div><dt>{content.colTarget}</dt><dd>{selected.target ? content.modTarget[selected.target as keyof typeof content.modTarget] : '—'} · {Math.round((selected.target_confidence ?? 0) * 100)}%</dd></div>{selected.surfaced_reason && <div><dt>{t.reason}</dt><dd>{content.modReasons[selected.surfaced_reason as keyof typeof content.modReasons]}</dd></div>}<div><dt>{content.pattern}</dt><dd>{selected.model_version}</dd></div>{selected.rationale && <div><dt>{content.modWhySurfaced}</dt><dd>{selected.rationale}</dd></div>}{selected.corrected_severity && <div><dt>{content.modCorrected}</dt><dd>{content.modSeverity[selected.corrected_severity as keyof typeof content.modSeverity]} · {content.modTarget[selected.corrected_target as keyof typeof content.modTarget]}</dd></div>}{selected.latest_action && <div><dt>{content.modActioned}</dt><dd>{selected.latest_action} {content.modBy} {selected.latest_actor}</dd></div>}{selected.pending_delete_at && <div><dt>{content.modQuarantined}</dt><dd><QuarantineCountdown locale={locale} until={selected.pending_delete_at} /></dd></div>}</dl></section>
               <section className="detail-section"><h2>{t.action}</h2><div className="moderation-actions">{selected.latest_action === 'HIDE' ? (<button className="button button-small" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'UNHIDE')} type="button">{content.modUnhide}</button>) : (<button className="button button-small" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'HIDE')} type="button">{content.modHide}</button>)}<button className="button button-small button-quiet" disabled={pendingAction === selected.comment_id} onClick={() => void act(selected.comment_id, 'LEAVE')} type="button">{content.modLeave}</button>{confirmDelete === selected.comment_id ? (<><button className="button button-small button-action-delete" disabled={pendingAction === selected.comment_id} onClick={() => { setConfirmDelete(null); void act(selected.comment_id, 'DELETE') }} type="button">{content.modDeleteConfirm}</button><button className="button button-small button-quiet" onClick={() => setConfirmDelete(null)} type="button">{content.modCancel}</button></>) : (<button className="button button-small button-action-delete" disabled={pendingAction === selected.comment_id} onClick={() => setConfirmDelete(selected.comment_id)} type="button">{content.modDelete}</button>)}</div></section>
               <section className="detail-section"><h2>{t.correction}</h2><CorrectionForm commentId={selected.comment_id} currentSeverity={selected.severity} currentTarget={selected.target} locale={locale} onSaved={(newSeverity, newTarget) => setItems((current) => current.map((row) => row.comment_id === selected.comment_id ? { ...row, corrected_severity: newSeverity, corrected_target: newTarget, corrected_by: 'you' } : row))} /></section>
             </aside>

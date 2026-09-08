@@ -2458,6 +2458,11 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   color: #12633e;
   border: 1px solid rgba(26, 127, 82, 0.25);
 }
+.status-pill.is-safe {
+  background: rgba(11, 107, 99, 0.08);
+  color: var(--mekong-teal);
+  border: 1px solid rgba(11, 107, 99, 0.2);
+}
 .status-pill-dot {
   width: 0.35rem;
   height: 0.35rem;
@@ -2653,6 +2658,7 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
 .provider-glyph { width: 1.05rem; height: 1.05rem; flex: none; }
 
 .work-empty { display: grid; justify-items: start; gap: 0.6rem; padding: 1.1rem 0; color: var(--muted); }
+.work-empty-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
 /* ==========================================================================
    MODERN DASHBOARD & MODERATION DESIGN SYSTEM (V2)
@@ -3539,6 +3545,18 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   background: rgba(180, 35, 24, 0.12);
   color: #931c12;
   border: 1px solid rgba(180, 35, 24, 0.28);
+}
+.cell-reason { width: 13rem; }
+.cell-reason .work-chip {
+  max-width: 12rem;
+  white-space: normal;
+  line-height: 1.35;
+  text-align: left;
+}
+.work-chip.reason-cleared {
+  background: rgba(11, 107, 99, 0.07);
+  color: #12635e;
+  border: 1px solid rgba(11, 107, 99, 0.18);
 }
 .source-kind {
   display: inline-block;

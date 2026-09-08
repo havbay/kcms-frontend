@@ -2212,8 +2212,8 @@ export interface operations {
                 query?: string | null;
                 severity?: ("SAFE" | "OFFENSIVE" | "HARMFUL") | null;
                 target?: ("PERSON" | "INSTITUTION" | "NEITHER") | null;
-                surfaced_reason?: ("triage" | "institution_sample" | "novel_language" | "uncertainty") | null;
-                review_status?: ("PENDING" | "ACTIONED") | null;
+                surfaced_reason?: ("triage" | "institution_sample" | "novel_language" | "uncertainty" | "cleared") | null;
+                review_status?: ("PENDING" | "ACTIONED" | "ALL") | null;
                 sort?: "PRIORITY" | "NEWEST" | "OLDEST";
             };
             header?: {
