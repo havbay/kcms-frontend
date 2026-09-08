@@ -51,7 +51,7 @@ const text = {
     facebookMethod: 'Connected with Facebook',
     ready: 'Ready to moderate',
     permissionShort: 'Limited access',
-    permissionWarning: 'Connected, but the token does not include a moderation task.',
+    openPage: 'Open Facebook Page',
     disconnect: 'Disconnect Page',
     addConnectionTitle: 'Connect a Facebook Page',
     slotsLeft: (count: number) => `${count} slot${count === 1 ? '' : 's'} left`,
@@ -98,7 +98,7 @@ const text = {
     facebookMethod: 'បានភ្ជាប់ជាមួយ Facebook',
     ready: 'អាចគ្រប់គ្រងមតិយោបល់បាន',
     permissionShort: 'សិទ្ធិមានកម្រិត',
-    permissionWarning: 'បានភ្ជាប់ ប៉ុន្តែ token មិនមានសិទ្ធិគ្រប់គ្រងមតិយោបល់ទេ។',
+    openPage: 'បើក Facebook Page',
     disconnect: 'ផ្ដាច់ Page',
     addConnectionTitle: 'ភ្ជាប់ Facebook Page',
     slotsLeft: (count: number) => `នៅសល់ ${count} កន្លែង`,
@@ -480,12 +480,17 @@ export function ConnectPage({ locale }: ConnectPageProps) {
                           )}
                           <Badge tone="neutral">{content.connMethodFacebook}</Badge>
                         </div>
-                        {conn.can_moderate === false && (
-                          <p className="ws-row-sub">{t.permissionWarning}</p>
-                        )}
                       </div>
                     </div>
                     <div className="ws-row-meta">
+                      <a
+                        className="ws-link-btn"
+                        href={`https://www.facebook.com/${encodeURIComponent(conn.page_id)}`}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        {t.openPage}
+                      </a>
                       <button
                         className="ws-btn"
                         data-size="sm"

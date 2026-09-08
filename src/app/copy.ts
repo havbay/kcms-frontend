@@ -1,7 +1,7 @@
 export const copy = {
   en: {
     howItWorks: 'How KCMS works', signIn: 'Sign in', language: 'ភាសាខ្មែរ',
-    eyebrow: 'Khmer-first comment moderation',
+    eyebrow: 'Khmer-first content moderation',
     heading: 'Moderate Khmer comments with context—not guesswork.',
     description: 'Find harmful comments and scams faster. KCMS helps your team prioritize what needs attention, while humans decide every moderation action.',
     requestAccess: 'Request access', startTrial: 'Start free trial', seeHow: 'See how it works',
@@ -509,7 +509,7 @@ export const copy = {
   },
   km: {
     howItWorks: 'របៀបដំណើរការ', signIn: 'ចូលប្រើ', language: 'English',
-    eyebrow: 'ការគ្រប់គ្រងមតិយោបល់ខ្មែរជាចម្បង',
+    eyebrow: 'ការគ្រប់គ្រងមាតិកាខ្មែរជាចម្បង',
     heading: 'គ្រប់គ្រងមតិយោបល់ខ្មែរ ដោយយល់ពីបរិបទ មិនមែនការស្មាន។',
     description: 'ស្វែងរកមតិយោបល់បង្កគ្រោះថ្នាក់ និងការបោកប្រាស់បានលឿនជាងមុន។ KCMS ជួយក្រុមរបស់អ្នកកំណត់អាទិភាព ខណៈមនុស្សជាអ្នកសម្រេចចិត្តលើសកម្មភាពគ្រប់យ៉ាង។',
     requestAccess: 'ស្នើសុំប្រើប្រាស់', startTrial: 'សាកល្បងឥតគិតថ្លៃ', seeHow: 'មើលរបៀបដំណើរការ',

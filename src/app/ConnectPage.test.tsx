@@ -116,6 +116,10 @@ describe('Facebook Page connection', () => {
 
     await waitFor(() => expect(screen.getAllByText('Community Page').length).toBeGreaterThan(0))
     expect(screen.getByText('Ready to moderate')).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Open Facebook Page' })).toHaveAttribute(
+      'href',
+      'https://www.facebook.com/page-456',
+    )
     expect(screen.getByRole('button', { name: 'Disconnect Page' })).toBeVisible()
   })
 })
