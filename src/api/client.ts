@@ -449,3 +449,71 @@ export function removeKeyword(keyword: string): Promise<void> {
     { method: 'DELETE' },
   )
 }
+
+/* ---- Automated replies --------------------------------------------------
+ * Configuration is workspace-scoped. The server keeps this in dry-run by
+ * default; this client exposes the simulation and audit seams without ever
+ * pretending that a reply was posted to Facebook.
+ * ------------------------------------------------------------------------- */
+
+export type AutoReplySettings = components['schemas']['AutoReplySettings']
+export type AutoReplySettingsPatch = components['schemas']['AutoReplySettingsPatch']
+export type AutoReplyRule = components['schemas']['AutoReplyRuleResponse']
+export type AutoReplyRuleInput = components['schemas']['AutoReplyRuleInput']
+export type AutoReplyRulePatch = components['schemas']['AutoReplyRulePatch']
+export type AutoReplyEvent = components['schemas']['AutoReplyEvent']
+export type AutoReplyChannel = components['schemas']['SimulationInput']['channel']
+export type AutoReplyDecision = components['schemas']['SimulationResponse']
+
+export function getAutoReplySettings(): Promise<AutoReplySettings> {
+  return request<AutoReplySettings>('/api/v1/auto-replies/settings')
+}
+
+export function patchAutoReplySettings(body: AutoReplySettingsPatch): Promise<AutoReplySettings> {
+  return request<AutoReplySettings>('/api/v1/auto-replies/settings', {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
+export function listAutoReplyRules(): Promise<AutoReplyRule[]> {
+  return request<AutoReplyRule[]>('/api/v1/auto-replies/rules')
+}
+
+export function createAutoReplyRule(body: AutoReplyRuleInput): Promise<AutoReplyRule> {
+  return request<AutoReplyRule>('/api/v1/auto-replies/rules', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+}
+
+export function updateAutoReplyRule(id: string, body: AutoReplyRulePatch): Promise<AutoReplyRule> {
+  return request<AutoReplyRule>(`/api/v1/auto-replies/rules/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  })
+}
+
+export function deleteAutoReplyRule(id: string): Promise<void> {
+  return request<void>(`/api/v1/auto-replies/rules/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
+}
+
+export function reorderAutoReplyRules(ruleIds: string[]): Promise<AutoReplyRule[]> {
+  return request<AutoReplyRule[]>('/api/v1/auto-replies/rules/reorder', {
+    method: 'POST',
+    body: JSON.stringify({ rule_ids: ruleIds }),
+  })
+}
+
+export function simulateAutoReply(text: string, channel: AutoReplyChannel): Promise<AutoReplyDecision> {
+  return request<AutoReplyDecision>('/api/v1/auto-replies/simulate', {
+    method: 'POST',
+    body: JSON.stringify({ text, channel }),
+  })
+}
+
+export function listAutoReplyEvents(limit = 50): Promise<AutoReplyEvent[]> {
+  return request<AutoReplyEvent[]>(`/api/v1/auto-replies/events?limit=${limit}`)
+}

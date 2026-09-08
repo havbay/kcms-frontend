@@ -11,7 +11,7 @@ type DashboardLayoutProps = {
   children: ReactNode
 }
 
-function NavIcon({ type }: { type: 'overview' | 'moderate' | 'connect' | 'rules' | 'team' | 'settings' | 'admin' | 'chevron' }) {
+function NavIcon({ type }: { type: 'overview' | 'moderate' | 'connect' | 'rules' | 'auto-replies' | 'team' | 'settings' | 'admin' | 'chevron' }) {
   if (type === 'chevron') {
     return (
       <svg aria-hidden="true" className="dash-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -50,6 +50,14 @@ function NavIcon({ type }: { type: 'overview' | 'moderate' | 'connect' | 'rules'
       <svg aria-hidden="true" className="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
         <path d="m4.9 4.9 14.2 14.2" />
+      </svg>
+    )
+  }
+  if (type === 'auto-replies') {
+    return (
+      <svg aria-hidden="true" className="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 8.7 3.9a8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+        <path d="m9 11 2 2 4-4" />
       </svg>
     )
   }
@@ -118,7 +126,7 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
       }
     }
 
-    const timer = window.setInterval(() => { void pollComments() }, 60_000)
+    const timer = window.setInterval(() => { void pollComments() }, 30_000)
     return () => {
       mounted = false
       window.clearInterval(timer)
@@ -158,6 +166,7 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
     { to: '/app/moderate', label: content.dashNavModerate, icon: 'moderate' as const, end: false },
     { to: '/app/connect', label: content.dashNavPage, icon: 'connect' as const, end: false },
     { to: '/app/rules', label: content.dashNavRules, icon: 'rules' as const, end: false },
+    { to: '/app/automated-replies', label: content.dashNavAutoReplies, icon: 'auto-replies' as const, end: false },
     { to: '/app/settings', label: content.dashNavSettings, icon: 'settings' as const, end: false },
   ]
   const pending: string[] = []

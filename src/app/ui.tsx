@@ -414,19 +414,26 @@ export function Toggle({
   const hintId = hint ? `${id}-hint` : undefined
   return (
     <div className="ws-field ws-toggle-field">
-      <div className="ws-toggle-row">
-        <input
-          aria-describedby={hintId}
-          checked={checked}
-          className="ws-toggle-input"
-          disabled={disabled}
-          id={id}
-          onChange={(e) => onChange(e.target.checked)}
-          role="switch"
-          type="checkbox"
-        />
-        <label className="ws-field-label" htmlFor={id}>{label}</label>
-      </div>
+      <label className="ws-toggle-row" htmlFor={id}>
+        <span className="ws-toggle-control">
+          <input
+            aria-describedby={hintId}
+            aria-label={label}
+            checked={checked}
+            className="ws-toggle-input"
+            disabled={disabled}
+            id={id}
+            onChange={(e) => onChange(e.target.checked)}
+            role="switch"
+            type="checkbox"
+          />
+          <span aria-hidden="true" className="ws-toggle-track">
+            <span className="ws-toggle-state">{checked ? 'ON' : 'OFF'}</span>
+            <span className="ws-toggle-thumb" />
+          </span>
+        </span>
+        <span className="ws-field-label">{label}</span>
+      </label>
       {hint && <p className="ws-field-hint" id={hintId}>{hint}</p>}
     </div>
   )

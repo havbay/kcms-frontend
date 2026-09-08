@@ -232,14 +232,12 @@ test('Clerk sign-in and sign-up surfaces are centered', async ({ page }) => {
 test('sign-in offers email, and hides Telegram until a bot is configured', async ({ page }) => {
   await page.goto('/sign-in')
   await expect(page.getByLabel('Email')).toBeVisible()
-  await expect(page.getByLabel('Password')).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Password' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible()
 
   // An unconfigured provider must be absent, never a dead button.
   await page.waitForTimeout(1500)
-  const telegramSlots = await page.locator('.auth-telegram').count()
-  const enabled = await page.getByText('or', { exact: true }).count()
-  expect(telegramSlots).toBe(enabled)
+  await expect(page.locator('.auth-telegram')).toHaveCount(0)
 })
 
 test.skip('the dashboard shows the workspace shell and marks unbuilt areas', async ({ page }) => {
@@ -296,7 +294,7 @@ test('sign-in validates each field inline and accessibly', async ({ page }) => {
 
   // Validated on blur, not only on submit.
   await page.getByLabel('Email').fill('not-an-email')
-  await page.getByLabel('Password').click()
+  await page.getByRole('textbox', { name: 'Password' }).click()
   await expect(page.locator('#auth-email-error')).toBeVisible()
   await expect(page.getByLabel('Email')).toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByLabel('Email')).toHaveAttribute('aria-describedby', 'auth-email-error')
@@ -308,16 +306,14 @@ test('sign-in validates each field inline and accessibly', async ({ page }) => {
 
   // Errors clear as the fields become valid.
   await page.getByLabel('Email').fill('dara@example.com')
-  await page.getByLabel('Password').fill('a-long-enough-password')
+  await page.getByRole('textbox', { name: 'Password' }).fill('a-long-enough-password')
   await expect(page.locator('.auth-field-error')).toHaveCount(0)
 })
 
-test('sign-in sends new visitors through reviewed access instead of public signup', async ({ page }) => {
+test('sign-in sends new visitors through the free-trial signup flow', async ({ page }) => {
   await page.goto('/sign-in')
-  await expect(page.getByRole('link', { name: 'Request access' })).toHaveAttribute(
-    'href', '/request-access',
-  )
-  await expect(page.getByRole('button', { name: 'Create account' })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Sign up' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Request access' })).toHaveCount(0)
 })
 
 /**
@@ -413,7 +409,7 @@ async function stubApi(
 async function signInDemo(page: Page) {
   await page.goto('/sign-in')
   await page.getByLabel('Email').fill('dara@example.com')
-  await page.getByLabel('Password').fill('a-long-enough-password')
+  await page.getByRole('textbox', { name: 'Password' }).fill('a-long-enough-password')
   await page.getByRole('button', { name: 'Sign in' }).click()
   await page.waitForURL(/\/app$/, { timeout: 20000 })
 }

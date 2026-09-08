@@ -134,8 +134,6 @@ const ui = {
     page: 'Page', unknownAuthor: 'Unknown commenter', actions: 'Actions',
     onFacebook: 'on Facebook', kcmsOnly: 'KCMS only',
     actionFailed: 'That action could not be completed. Please try again.',
-    notConnectedTitle: 'No Facebook Page connected.',
-    notConnectedBody: 'These are sample comments — deleting one is recorded in KCMS and changes nothing on Facebook.',
     untitledPost: 'Untitled post',
     sync: 'Sync from Facebook', syncing: 'Syncing…',
     syncImported: (n: number) => `Imported ${n} new comment${n === 1 ? '' : 's'}`,
@@ -158,8 +156,6 @@ const ui = {
     page: 'Page', unknownAuthor: 'មិនស្គាល់អ្នកផ្ដល់មតិ', actions: 'សកម្មភាព',
     onFacebook: 'នៅលើ Facebook', kcmsOnly: 'តែក្នុង KCMS',
     actionFailed: 'មិនអាចធ្វើសកម្មភាពនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។',
-    notConnectedTitle: 'មិនទាន់ភ្ជាប់ Facebook Page ទេ។',
-    notConnectedBody: 'ទាំងនេះជាមតិយោបល់គំរូ — ការលុបត្រូវបានកត់ត្រាក្នុង KCMS ប៉ុណ្ណោះ ហើយមិនប្ដូរអ្វីនៅលើ Facebook ទេ។',
     untitledPost: 'Post គ្មានចំណងជើង',
     sync: 'ទាញមតិយោបល់ពី Facebook', syncing: 'កំពុងទាញ…',
     syncImported: (n: number) => `បាននាំចូលមតិយោបល់ថ្មី ${n}`,
@@ -357,11 +353,6 @@ export function ModeratePage({ locale }: ModeratePageProps) {
 
   return (
     <main className="dash-body moderation-page">
-      {connected === false && (
-        <p className="work-banner" role="status">
-          <strong>{t.notConnectedTitle}</strong> {t.notConnectedBody}
-        </p>
-      )}
       <header className="dash-head">
         <div className="dash-head-text">
           <h1>{content.modTitle}</h1>

@@ -64,6 +64,29 @@
 .ws-stack-tight { display: flex; flex-direction: column; gap: 0.6rem; }
 .ws-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1.15rem; align-items: stretch; }
 
+/* ---- Automated replies ------------------------------------------------- */
+.auto-reply-rule { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.8rem; padding: 0.85rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface-sunken); }
+.auto-reply-rule-copy { min-width: 0; }
+.auto-reply-rule-title { display: flex; align-items: center; gap: 0.5rem; color: var(--ws-ink); }
+.auto-reply-rule-body { margin: 0.35rem 0; color: var(--ws-ink); font-size: 0.82rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.auto-reply-rule-actions { display: flex; flex-shrink: 0; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.25rem; }
+.auto-reply-controls { display: grid; grid-template-columns: minmax(14rem, 1fr); gap: 1.25rem; align-items: start; }
+.auto-reply-scope { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--ws-line); }
+.auto-reply-scope .ws-field-label { margin-right: 0.2rem; }
+.auto-reply-scope-item { display: inline-flex; align-items: center; min-height: 1.8rem; padding: 0.28rem 0.62rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-pill); color: var(--ws-ink-muted); font-size: 0.75rem; }
+.auto-reply-scope-item.is-active { border-color: var(--ws-line-accent); background: var(--ws-surface-accent); color: var(--ws-accent-deep); font-weight: 650; }
+.auto-reply-scope-item.is-disabled { color: var(--ws-ink-faint); }
+.auto-reply-checks { display: flex; flex-wrap: wrap; gap: 0.65rem 1rem; color: var(--ws-ink-muted); font-size: 0.78rem; }
+.auto-reply-checks label { display: inline-flex; align-items: center; gap: 0.35rem; }
+.auto-reply-checks input { accent-color: var(--ws-accent); }
+.auto-reply-simulator { display: grid; grid-template-columns: minmax(0, 1fr) 12rem auto; align-items: end; gap: 0.75rem; }
+.auto-reply-result { display: flex; flex-direction: column; gap: 0.2rem; margin-top: 0.9rem; padding: 0.75rem 0.85rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius-sm); background: var(--ws-surface-sunken); color: var(--ws-ink-muted); font-size: 0.8rem; }
+.auto-reply-result.is-match { border-color: var(--ws-line-accent); background: var(--ws-surface-accent); color: var(--ws-accent-deep); }
+.auto-reply-events { overflow-x: auto; }
+.auto-reply-event-row { display: grid; grid-template-columns: 8rem minmax(12rem, 1fr) 7rem 11rem; gap: 0.75rem; align-items: center; min-width: 40rem; padding: 0.65rem 0; border-top: 1px solid var(--ws-line); color: var(--ws-ink-muted); font-size: 0.75rem; }
+.auto-reply-event-row.is-head { border-top: 0; color: var(--ws-ink-faint); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+@media (max-width: 42rem) { .auto-reply-controls { grid-template-columns: 1fr; gap: 0.85rem; } .auto-reply-simulator { grid-template-columns: 1fr; } .auto-reply-rule { flex-direction: column; } .auto-reply-rule-actions { justify-content: flex-start; } }
+
 /* ---- Tabs ---------------------------------------------------------------- */
 .ws-tabs { display: flex; gap: 0.25rem; padding: 0.28rem; border: 1px solid var(--ws-line); border-radius: var(--ws-radius); background: var(--ws-surface-sunken); width: fit-content; max-width: 100%; overflow-x: auto; }
 .ws-tab { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.85rem; border: 0; border-radius: var(--ws-radius-sm); background: transparent; color: var(--ws-ink-muted); font-size: 0.82rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease; }
@@ -193,51 +216,67 @@
 .ws-field textarea:focus-visible { border-color: var(--ws-accent); outline: 2px solid rgba(11, 107, 99, 0.25); outline-offset: 1px; }
 .ws-field textarea:disabled { background: var(--ws-surface-sunken); color: var(--ws-ink-faint); cursor: not-allowed; }
 
-/* On/off switch. A native checkbox carries the semantics (role="switch" on
-   the element itself); this only restyles its appearance as a pill. The
-   thumb uses a spring-like overshoot easing on the way in and a plain ease
-   on the way back, rather than the same curve both directions — that
-   asymmetry is what reads as "springy" instead of just fast. */
+/* On/off switch. The input keeps the native switch semantics and keyboard
+   behaviour; the visible track is a small control rail with the state written
+   into the quiet side of the track, so the state does not depend on colour. */
 .ws-toggle-field .ws-field-label { font-weight: 600; cursor: pointer; }
-.ws-toggle-row { display: flex; align-items: center; gap: 0.65rem; }
+.ws-toggle-row { display: flex; align-items: center; gap: 0.7rem; cursor: pointer; }
+.ws-toggle-control { position: relative; display: inline-flex; flex: none; }
 .ws-field .ws-toggle-input {
-  appearance: none;
-  flex: none;
-  width: 2.75rem;
-  height: 1.55rem;
-  margin: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.ws-toggle-track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 3.45rem;
+  height: 1.8rem;
+  padding: 0.2rem;
   border: 1px solid var(--ws-line-strong);
   border-radius: var(--ws-radius-pill);
-  background: var(--ws-surface-sunken);
-  cursor: pointer;
-  position: relative;
-  transition: background 220ms ease, border-color 220ms ease;
+  background: #edf3f1;
+  box-sizing: border-box;
+  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
-.ws-field .ws-toggle-input:hover:not(:disabled) { border-color: var(--ws-ink-faint); }
-.ws-field .ws-toggle-input:checked:hover:not(:disabled) { background: var(--ws-accent-deep); border-color: var(--ws-accent-deep); }
-.ws-field .ws-toggle-input::before {
-  content: '';
+.ws-toggle-track:hover { border-color: var(--ws-ink-faint); }
+.ws-toggle-state {
   position: absolute;
-  top: 0.15rem;
-  left: 0.15rem;
-  width: 1.15rem;
-  height: 1.15rem;
+  right: 0.35rem;
+  color: var(--ws-ink-faint);
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  transition: color 180ms ease, transform 180ms ease;
+}
+.ws-toggle-thumb {
+  position: relative;
+  z-index: 1;
+  width: 1.3rem;
+  height: 1.3rem;
   border-radius: 50%;
   background: var(--ws-surface);
-  box-shadow: 0 1px 2px rgba(24, 48, 51, 0.35);
-  transition: transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 140ms ease, box-shadow 140ms ease;
+  box-shadow: 0 1px 2px rgba(24, 48, 51, 0.25), 0 0 0 1px rgba(24, 48, 51, 0.08);
+  transition: transform 320ms cubic-bezier(0.34, 1.35, 0.64, 1), box-shadow 180ms ease;
 }
-.ws-field .ws-toggle-input:checked { background: var(--ws-accent); border-color: var(--ws-accent); }
-.ws-field .ws-toggle-input:checked::before { transform: translateX(1.2rem); }
-/* A brief stretch on press, both directions — the small physical cue that
-   makes a flip feel deliberate rather than instantaneous. */
-.ws-field .ws-toggle-input:active:not(:disabled)::before { width: 1.4rem; }
-.ws-field .ws-toggle-input:checked:active:not(:disabled)::before { transform: translateX(0.95rem); }
-.ws-field .ws-toggle-input:focus-visible { outline: 2px solid rgba(11, 107, 99, 0.35); outline-offset: 2px; }
-.ws-field .ws-toggle-input:disabled { cursor: not-allowed; opacity: 0.55; }
+.ws-field .ws-toggle-input:checked + .ws-toggle-track { background: var(--ws-accent); border-color: var(--ws-accent); }
+.ws-field .ws-toggle-input:checked + .ws-toggle-track .ws-toggle-state { right: auto; left: 0.4rem; color: rgba(255, 255, 255, 0.82); }
+.ws-field .ws-toggle-input:checked + .ws-toggle-track .ws-toggle-thumb { transform: translateX(1.55rem); box-shadow: 0 1px 2px rgba(6, 75, 70, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.18); }
+.ws-field .ws-toggle-input:active + .ws-toggle-track .ws-toggle-thumb { transform: scaleX(1.12); }
+.ws-field .ws-toggle-input:checked:active + .ws-toggle-track .ws-toggle-thumb { transform: translateX(1.43rem) scaleX(1.12); }
+.ws-field .ws-toggle-input:focus-visible + .ws-toggle-track { outline: 2px solid rgba(11, 107, 99, 0.42); outline-offset: 3px; }
+.ws-field .ws-toggle-input:disabled + .ws-toggle-track { cursor: not-allowed; opacity: 0.55; }
 @media (prefers-reduced-motion: reduce) {
   .ws-field .ws-toggle-input,
-  .ws-field .ws-toggle-input::before { transition: none; }
+  .ws-toggle-track,
+  .ws-toggle-state,
+  .ws-toggle-thumb { transition: none; }
 }
 
 /* Several distinct settings sharing one Card (e.g. Advanced moderation) each

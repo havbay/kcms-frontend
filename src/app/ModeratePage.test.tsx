@@ -255,15 +255,14 @@ describe('syncing from the connected Page', () => {
     expect(await screen.findByText('Connect a Facebook Page first.')).toBeVisible()
   })
 
-  it('warns that actions stay in KCMS while no Page is connected', async () => {
+  it('does not show a sample-comment warning when no Page is connected', async () => {
     mockApi({ connection: { state: 'NOT_CONNECTED' } })
 
     renderPage()
 
-    expect(await screen.findByText('No Facebook Page connected.')).toBeVisible()
-    expect(
-      screen.getByText(/deleting one is recorded in KCMS and changes nothing on Facebook/),
-    ).toBeVisible()
+    await waitFor(() => expect(screen.getAllByRole('row').slice(1)).toHaveLength(2))
+    expect(screen.queryByText('No Facebook Page connected.')).not.toBeInTheDocument()
+    expect(screen.queryByText(/deleting one is recorded in KCMS and changes nothing on Facebook/)).not.toBeInTheDocument()
   })
 
   it('shows an action failure on the row instead of destroying the list', async () => {

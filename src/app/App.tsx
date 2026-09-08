@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import type { Locale } from './copy'
 import { AdminRequestsPage } from './AdminRequestsPage'
+import { AutomatedRepliesPage } from './AutomatedRepliesPage'
 import { ConnectPage } from './ConnectPage'
 import { ClerkAuthPage } from './ClerkAuthPage'
 import { DashboardLayout } from './DashboardLayout'
@@ -62,6 +63,7 @@ export function App() {
       {/* Older shared links land on the same merged screen. */}
       <Route path="/app/team" element={<Navigate replace to="/app/connect" />} />
       <Route path="/app/rules" element={dashboard(<RulesPage locale={locale} />)} />
+      <Route path="/app/automated-replies" element={dashboard(<AutomatedRepliesPage locale={locale} />)} />
       <Route path="/app/settings" element={dashboard(<SettingsPage locale={locale} />)} />
       <Route path="/app/profile" element={dashboard(<ProfilePage {...shared} />)} />
       <Route path="/join/:token" element={<JoinPage {...shared} />} />

@@ -143,6 +143,111 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auto-replies/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Auto Reply Events */
+        get: operations["listAutoReplyEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auto-replies/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Auto Reply Rules */
+        get: operations["listAutoReplyRules"];
+        put?: never;
+        /** Post Auto Reply Rule */
+        post: operations["createAutoReplyRule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auto-replies/rules/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Reorder Auto Reply Rules */
+        post: operations["reorderAutoReplyRules"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auto-replies/rules/{rule_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Auto Reply Rule */
+        delete: operations["deleteAutoReplyRule"];
+        options?: never;
+        head?: never;
+        /** Patch Auto Reply Rule */
+        patch: operations["updateAutoReplyRule"];
+        trace?: never;
+    };
+    "/api/v1/auto-replies/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Auto Reply Settings */
+        get: operations["getAutoReplySettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Auto Reply Settings */
+        patch: operations["patchAutoReplySettings"];
+        trace?: never;
+    };
+    "/api/v1/auto-replies/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Simulate Auto Reply */
+        post: operations["simulateAutoReply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/comments": {
         parameters: {
             query?: never;
@@ -821,6 +926,120 @@ export interface components {
              */
             is_platform_admin: boolean;
         };
+        /** AutoReplyEvent */
+        AutoReplyEvent: {
+            /** Channel */
+            channel: string;
+            /** Decision */
+            decision: string;
+            /** Id */
+            id: number;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Provider Applied */
+            provider_applied: boolean;
+            /** Provider Event Id */
+            provider_event_id: string;
+            /** Reason */
+            reason: string;
+            /** Reply Body */
+            reply_body: string | null;
+            /** Rule Id */
+            rule_id: string | null;
+        };
+        /** AutoReplyRuleInput */
+        AutoReplyRuleInput: {
+            /**
+             * Enabled
+             * @default false
+             */
+            enabled: boolean;
+            /** Keywords */
+            keywords: string[];
+            /** Name */
+            name: string;
+            /**
+             * On Comments
+             * @default true
+             */
+            on_comments: boolean;
+            /**
+             * On Messages
+             * @default false
+             */
+            on_messages: boolean;
+            /** Reply Body */
+            reply_body: string;
+        };
+        /** AutoReplyRulePatch */
+        AutoReplyRulePatch: {
+            /**
+             * Enabled
+             * @default false
+             */
+            enabled: boolean;
+            /** Keywords */
+            keywords: string[];
+            /** Name */
+            name: string;
+            /**
+             * On Comments
+             * @default true
+             */
+            on_comments: boolean;
+            /**
+             * On Messages
+             * @default false
+             */
+            on_messages: boolean;
+            /** Reply Body */
+            reply_body: string;
+        };
+        /** AutoReplyRuleResponse */
+        AutoReplyRuleResponse: {
+            /**
+             * Enabled
+             * @default false
+             */
+            enabled: boolean;
+            /** Id */
+            id: string;
+            /** Keywords */
+            keywords: string[];
+            /** Name */
+            name: string;
+            /**
+             * On Comments
+             * @default true
+             */
+            on_comments: boolean;
+            /**
+             * On Messages
+             * @default false
+             */
+            on_messages: boolean;
+            /** Position */
+            position: number;
+            /** Reply Body */
+            reply_body: string;
+            /** Warnings */
+            warnings: string[];
+        };
+        /** AutoReplySettings */
+        AutoReplySettings: {
+            /** Enabled */
+            enabled: boolean;
+            /** Your Role */
+            your_role: string;
+        };
+        /** AutoReplySettingsPatch */
+        AutoReplySettingsPatch: {
+            /** Enabled */
+            enabled?: boolean | null;
+        };
         /** CorrectionRequest */
         CorrectionRequest: {
             /** Note */
@@ -1055,7 +1274,7 @@ export interface components {
              * Plan
              * @enum {string}
              */
-            plan: "STARTER" | "GROWTH";
+            plan: "TRIAL" | "STARTER" | "GROWTH";
         };
         /** PilotDecision */
         PilotDecision: {
@@ -1148,6 +1367,11 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** ReorderRules */
+        ReorderRules: {
+            /** Rule Ids */
+            rule_ids: string[];
+        };
         /** SampleRemoval */
         SampleRemoval: {
             /** Removed */
@@ -1216,6 +1440,28 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** SimulationInput */
+        SimulationInput: {
+            /**
+             * Channel
+             * @default comments
+             * @enum {string}
+             */
+            channel: "comments" | "messages";
+            /** Text */
+            text: string;
+        };
+        /** SimulationResponse */
+        SimulationResponse: {
+            /** Kind */
+            kind: string;
+            /** Reason */
+            reason: string | null;
+            /** Reply Body */
+            reply_body: string | null;
+            /** Rule Id */
+            rule_id: string | null;
+        };
         /**
          * Summary
          * @description Counts computed across the whole workspace, not from one page.
@@ -1238,6 +1484,16 @@ export interface components {
         };
         /** SyncResult */
         SyncResult: {
+            /**
+             * Auto Replies Replied
+             * @default 0
+             */
+            auto_replies_replied: number;
+            /**
+             * Auto Replies Skipped
+             * @default 0
+             */
+            auto_replies_skipped: number;
             /** Fetched */
             fetched: number;
             /** Imported */
@@ -1632,6 +1888,309 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Session"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listAutoReplyEvents: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoReplyEvent"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listAutoReplyRules: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoReplyRuleResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    createAutoReplyRule: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutoReplyRuleInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoReplyRuleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reorderAutoReplyRules: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderRules"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoReplyRuleResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deleteAutoReplyRule: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    updateAutoReplyRule: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutoReplyRulePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoReplyRuleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getAutoReplySettings: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoReplySettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patchAutoReplySettings: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutoReplySettingsPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoReplySettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    simulateAutoReply: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SimulationInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationResponse"];
                 };
             };
             /** @description Validation Error */

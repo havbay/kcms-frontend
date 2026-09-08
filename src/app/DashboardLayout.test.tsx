@@ -106,7 +106,7 @@ describe('dashboard comment polling', () => {
     setSessionToken(null)
   })
 
-  it('syncs connected Pages after one minute while the dashboard is open', async () => {
+  it('syncs connected Pages every 30 seconds while the dashboard is open', async () => {
     const requests: string[] = []
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
       const url = String(input)
@@ -124,7 +124,7 @@ describe('dashboard comment polling', () => {
     })
 
     renderLayout()
-    await vi.advanceTimersByTimeAsync(60_000)
+    await vi.advanceTimersByTimeAsync(30_000)
 
     expect(requests.filter((url) => url.includes('/sync'))).toHaveLength(1)
   })
