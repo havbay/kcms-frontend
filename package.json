@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.61.9",
+    "@fontsource-variable/dm-sans": "^5.3.0",
     "@fontsource-variable/google-sans": "^5.3.1",
     "@fontsource-variable/manrope": "^5.3.0",
     "@fontsource-variable/noto-sans-khmer": "^5.3.0",

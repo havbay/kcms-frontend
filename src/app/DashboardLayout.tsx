@@ -172,7 +172,7 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
   const pending: string[] = []
 
   return (
-    <div className={`site dashboard ${mobileNavOpen ? 'is-nav-open' : ''}`} lang={locale === 'km' ? 'km' : 'en'}>
+    <div className={`site dashboard v2 ${mobileNavOpen ? 'is-nav-open' : ''}`} lang={locale === 'km' ? 'km' : 'en'}>
       {/* Mobile Header Bar */}
       <div className="dash-mobile-header">
         <button

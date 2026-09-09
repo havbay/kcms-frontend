@@ -3,38 +3,166 @@ import { useEffect, useState } from 'react'
 import { copy, type Locale } from './copy'
 import { useSession } from './session'
 
+/* Each locale's `as const` copy is its own literal type, so anything that
+   receives the block has to accept either one. */
+type V2Copy = (typeof copy)[Locale]['v2']
+
 type LandingPageProps = {
   locale: Locale
   setLocale: (locale: Locale) => void
 }
 
+/* Real Khmer comments, not translated for the English page: a Khmer comment
+   on a Cambodian Page stays Khmer whichever language the interface is in. */
+const SAMPLE_SCAM = 'ចុចតំណនេះទទួលលុយ $500 ថ្ងៃនេះ!'
+const SAMPLE_ABUSE = 'អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។'
+const SAMPLE_SLOW = 'សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់'
 
+/* Fixed positions, not random: the same page must render identically on every
+   load and in tests. */
+const SWARM_BAD = new Set([3, 29, 50])
+const SWARM_WARN = new Set([10, 24, 41, 62])
 
 function BrandMark() {
-  return <span aria-hidden="true" className="brand-mark"><span /><span /></span>
+  return (
+    <span aria-hidden="true" className="brandmark">
+      <span />
+      <span />
+    </span>
+  )
 }
 
-function Brand() {
+function Tick({ size = 16, colour = 'var(--teal)' }: { size?: number; colour?: string }) {
   return (
-    <a aria-label="KCMS home" className="brand" href="/">
-      <BrandMark />
-      <span>KCMS</span>
-    </a>
+    <svg aria-hidden="true" fill="none" height={size} stroke={colour} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" viewBox="0 0 24 24" width={size}>
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  )
+}
+
+function Arrow() {
+  return (
+    <svg aria-hidden="true" className="lp-arrow" fill="none" height="16" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" viewBox="0 0 46 16" width="46">
+      <path d="M6 8h32" />
+      <path d="m33 3 5 5-5 5" />
+    </svg>
+  )
+}
+
+function Spark({ points, colour }: { points: string; colour: string }) {
+  return (
+    <svg aria-hidden="true" height="20" preserveAspectRatio="none" viewBox="0 0 90 20" width="100%">
+      <polyline fill="none" points={points} stroke={colour} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+    </svg>
+  )
+}
+
+const FEATURE_ICONS = [
+  null,
+  <svg aria-hidden="true" fill="none" height="22" key="shield" stroke="var(--teal-deep)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24" width="22">
+    <path d="M12 3l7.5 3v5.5c0 4.2-3 7.6-7.5 9-4.5-1.4-7.5-4.8-7.5-9V6z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>,
+  <svg aria-hidden="true" fill="none" height="22" key="sort" stroke="var(--teal-deep)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24" width="22">
+    <path d="M3 5h18" /><path d="M3 12h12" /><path d="M3 19h7" />
+    <circle cx="19" cy="12" r="2" /><circle cx="14" cy="19" r="2" />
+  </svg>,
+  <svg aria-hidden="true" fill="none" height="22" key="pulse" stroke="var(--teal-deep)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24" width="22">
+    <path d="M3 12h4l2.5 7 5-14L17 12h4" />
+  </svg>,
+  <svg aria-hidden="true" fill="none" height="22" key="bars" stroke="var(--teal-deep)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24" width="22">
+    <path d="M4 20V10" /><path d="M10 20V4" /><path d="M16 20v-7" /><path d="M22 20H2" />
+  </svg>,
+]
+
+function DashboardShot({ t }: { t: V2Copy }) {
+  return (
+    <div className="lp-shot">
+      <div className="lp-shot-inner" style={{ display: 'flex', height: 520 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: 184, flex: 'none', padding: '16px 12px', background: 'var(--mist)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '4px 8px 14px' }}>
+            <span aria-hidden="true" className="brandmark" style={{ width: 22, height: 22, padding: 4, borderRadius: 7 }}><span /><span /></span>
+            <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: '.1em' }}>KCMS</span>
+          </div>
+          {[t.navProduct, t.navHow, t.navFeatures, t.navPricing, t.navAbout].map((label, i) => (
+            <div key={label} style={{
+              display: 'flex', alignItems: 'center', height: 32, padding: '0 10px', borderRadius: 8,
+              background: i === 0 ? 'var(--teal-wash)' : 'transparent',
+              color: i === 0 ? 'var(--teal-deep)' : 'var(--slate)',
+              fontSize: 12, fontWeight: i === 0 ? 700 : 400,
+            }}>{label}</div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 54, padding: '0 20px', borderBottom: '1px solid var(--hair)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', width: 250, height: 31, padding: '0 13px', borderRadius: 999, background: 'var(--mist)', color: 'var(--slate-2)', fontSize: 11.5 }}>
+              {t.dashEyebrow}
+            </span>
+            <span style={{ marginLeft: 'auto', display: 'grid', placeItems: 'center', width: 29, height: 29, borderRadius: '50%', background: 'var(--mist-2)', fontSize: 10.5, fontWeight: 700 }}>SC</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 13, padding: '18px 20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
+              {[
+                { n: '4,182', c: 'var(--ink)', p: '0,16 15,12 30,14 45,8 60,10 75,4 90,2', s: 'var(--teal)' },
+                { n: '12', c: 'var(--warn-i)', p: '0,15 15,11 30,16 45,9 60,11 75,5 90,3', s: 'var(--warn)' },
+                { n: '386', c: 'var(--ink)', p: '0,14 15,15 30,10 45,12 60,7 75,8 90,4', s: 'var(--teal)' },
+              ].map((k) => (
+                <div className="card" key={k.n} style={{ padding: 14, borderRadius: 13, boxShadow: 'var(--sh1)' }}>
+                  <p className="num" style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.035em', color: k.c }}>{k.n}</p>
+                  <div style={{ marginTop: 5 }}><Spark colour={k.s} points={k.p} /></div>
+                </div>
+              ))}
+            </div>
+
+            <div className="card" style={{ padding: '16px 18px', borderRadius: 13, boxShadow: 'var(--sh1)' }}>
+              <svg aria-hidden="true" height="140" viewBox="0 0 560 140" width="100%">
+                <defs>
+                  <linearGradient id="lpShotFill" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#00A99D" stopOpacity=".22" />
+                    <stop offset="100%" stopColor="#00A99D" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <line stroke="#E6E9EE" x1="26" x2="548" y1="114" y2="114" />
+                <line stroke="#F1F3F7" x1="26" x2="548" y1="76" y2="76" />
+                <line stroke="#F1F3F7" x1="26" x2="548" y1="38" y2="38" />
+                <polygon fill="url(#lpShotFill)" points="26,84 91,64 156,70 221,48 286,26 351,34 416,56 481,38 548,20 548,114 26,114" />
+                <polyline fill="none" points="26,84 91,64 156,70 221,48 286,26 351,34 416,56 481,38 548,20" stroke="#00A99D" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" />
+                <polyline fill="none" points="26,108 91,105 156,106 221,101 286,97 351,99 416,103 481,98 548,94" stroke="#B96E09" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" />
+                <circle cx="548" cy="20" fill="#00A99D" opacity=".16" r="7" />
+                <circle cx="548" cy="20" fill="#00A99D" r="3.6" stroke="#fff" strokeWidth="1.8" />
+              </svg>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'var(--bad-w)' }}>
+                <span className="km" lang="km" style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{SAMPLE_SCAM}</span>
+                <span className="chip" style={{ background: '#fff', color: 'var(--bad-i)', height: 21, fontSize: 10 }}>{t.howHarmful}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'var(--warn-w)' }}>
+                <span className="km" lang="km" style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{SAMPLE_ABUSE}</span>
+                <span className="chip" style={{ background: '#fff', color: 'var(--warn-i)', height: 21, fontSize: 10 }}>{t.howOffensive}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
 export function LandingPage({ locale, setLocale }: LandingPageProps) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [accountOpen, setAccountOpen] = useState(false)
-  const [openFaq, setOpenFaq] = useState<number | null>(0)
-  const [overviewPaused, setOverviewPaused] = useState(false)
+  const [paused, setPaused] = useState(false)
   const content = copy[locale]
+  const t = content.v2
   const session = useSession()
   const signedIn = session.status === 'signed-in'
-  const overviewVideoUrl = import.meta.env.VITE_OVERVIEW_VIDEO_URL
+  const km = locale === 'km'
 
-  // A drawer that cannot be dismissed with Escape traps keyboard users, and
-  // a scrolling page behind an open drawer is disorienting on touch.
+  // A drawer that cannot be dismissed with Escape traps keyboard users, and a
+  // scrolling page behind an open drawer is disorienting on touch.
   useEffect(() => {
     if (!menuOpen) return
     const onKeyDown = (event: KeyboardEvent) => {
@@ -48,345 +176,312 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
     }
   }, [menuOpen])
 
+  const navLinks = [
+    { href: '#solution', label: t.navProduct, current: true },
+    { href: '#how', label: t.navHow, current: false },
+    { href: '#features', label: t.navFeatures, current: false },
+    { href: '#pricing', label: t.navPricing, current: false },
+    { href: '#why', label: t.navAbout, current: false },
+  ]
+
   return (
-    <div className="site" lang={locale === 'km' ? 'km' : 'en'}>
-      <div className="site-header-bar">
-        <header className="site-header">
-        <Brand />
-        <button aria-controls="primary-navigation" aria-expanded={menuOpen} aria-label={menuOpen ? 'Close menu' : 'Open menu'} className="menu-toggle" onClick={() => setMenuOpen((isOpen) => !isOpen)} type="button">
-          <span aria-hidden="true" className="menu-icon"><span /><span /></span>
-        </button>
-        <nav aria-label="Primary navigation" className="primary-navigation" data-open={menuOpen} id="primary-navigation">
-          <a className="nav-link" href="#how-it-works">{content.howItWorks}</a>
-          <a className="nav-link" href="#responsible-moderation">{content.navHumanControl}</a>
-          <a className="nav-link" href="#early-access">{content.accessEyebrow}</a>
+    <div className="v2 lp" lang={km ? 'km' : 'en'}>
+      <header className="wrap lp-nav">
+        <a aria-label="KCMS home" className="lp-brand" href="/">
+          <BrandMark />
+          <b>KCMS</b>
+        </a>
+
+        <nav aria-label="Primary navigation" className="lp-links">
+          {navLinks.map((link) => (
+            <a aria-current={link.current || undefined} href={link.href} key={link.href}>{link.label}</a>
+          ))}
+        </nav>
+
+        <div className="lp-actions">
           <button
-            aria-pressed={locale === 'km'}
-            className="language-toggle"
-            onClick={() => {
-              setLocale(locale === 'en' ? 'km' : 'en')
-              setMenuOpen(false)
-            }}
+            className="lang"
+            onClick={() => setLocale(km ? 'en' : 'km')}
             type="button"
           >
-            <img
-              alt=""
-              aria-hidden="true"
-              className="language-flag"
-              src={locale === 'en' ? '/flags/kh.svg' : '/flags/gb.svg'}
-            />
-            {content.language}
+            <img alt="" aria-hidden="true" src={t.switchToFlag} />
+            <span lang={km ? 'en' : 'km'}>{t.switchTo}</span>
           </button>
-          {signedIn ? (
-            <div className="account-menu">
-              <button
-                aria-expanded={accountOpen}
-                aria-haspopup="menu"
-                className="button button-small account-menu-trigger"
-                onClick={() => setAccountOpen((open) => !open)}
-                type="button"
-              >
-                {content.openDashboard}<span aria-hidden="true">⌄</span>
-              </button>
-              {accountOpen && (
-                <div className="account-menu-panel" role="menu">
-                  <a href="/app" role="menuitem" onClick={() => setAccountOpen(false)}>{content.customerWorkspace}</a>
-                  {session.user?.is_platform_admin && (
-                    <a href="/admin/overview" role="menuitem" onClick={() => setAccountOpen(false)}>{content.adminConsole}</a>
-                  )}
-                  <button onClick={() => void session.signOut()} role="menuitem" type="button">{content.authSignOut}</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <a className="nav-link" href="/sign-in">{content.signIn}</a>
-              <a className="button button-small" href="/sign-up">{content.startTrial}</a>
-            </>
-          )}
-          </nav>
-        </header>
-      </div>
-      <button
-        aria-hidden="true"
-        className="nav-backdrop"
-        data-open={menuOpen}
-        onClick={() => setMenuOpen(false)}
-        tabIndex={-1}
-        type="button"
-      />
+          <a className="btn btn-2 btn-sm" href={signedIn ? '/app' : '/sign-in'}>
+            {signedIn ? content.openDashboard : t.signIn}
+          </a>
+          <a className="btn btn-sm" href="/sign-up">{t.tryKcms}</a>
+        </div>
+      </header>
 
-      <main>
-        <section aria-labelledby="landing-heading" className="hero">
-          <div className="hero-copy">
-            <p className="eyebrow"><span aria-hidden="true" />{content.eyebrow}</p>
-            <h1 id="landing-heading">{content.heading}</h1>
-            <p className="hero-description">{content.description}</p>
-            <div className="hero-actions">
-              <a className="button" href="/sign-up">{content.startTrial}<span aria-hidden="true">↗</span></a>
-              <a className="text-link" href="#how-it-works">{content.seeHow}<span aria-hidden="true">↓</span></a>
-            </div>
-            <ul aria-label="KCMS scope" className="scope-list">
-              <li>{content.facebook}</li><li>{content.languageSupport}</li><li>{content.humanControlled}</li>
-            </ul>
+      {/* 01 — Hero */}
+      <section aria-labelledby="lp-hero-heading">
+        <span aria-hidden="true" className="lp-glow" />
+
+        <div className="wrap lp-hero">
+          <p className="eyebrow">{t.heroEyebrow}</p>
+          <h1 id="lp-hero-heading">{t.heroHeading}</h1>
+          <p className="lede">{t.heroLede}</p>
+          <div className="cta">
+            <a className="btn" href="/sign-up">{t.heroPrimary}</a>
+            <a className="btn btn-2" href="#how">{t.heroSecondary}</a>
           </div>
+        </div>
 
-          <figure aria-label={content.pathwayLabel} className="comment-pathway">
-            <div aria-hidden="true" className="krama-rail krama-rail-left" />
-            <div aria-hidden="true" className="krama-rail krama-rail-right" />
-            <div className="comment-card pathway-card">
-              <div className="comment-meta"><span aria-hidden="true" className="comment-avatar">ក</span><span>{content.incoming}</span><span aria-hidden="true" className="live-dot" /></div>
-              <blockquote>{content.sampleComment}</blockquote>
+        <div className="wrap lp-preview">
+          <div className="card lp-preview-card">
+            <div className="lp-preview-head">
+              <span aria-hidden="true" className="dots"><i /><i /><i /></span>
+              <b>{t.previewTitle}</b>
+              <span className="chip chip-warn">{t.previewCount}</span>
             </div>
-            <div aria-hidden="true" className="path-connector"><span /></div>
-            <div className="pathway-step pathway-step-pattern">
-              <span aria-hidden="true" className="step-number">01</span>
-              <div><strong>{content.pattern}</strong><small>{content.patternDetail}</small></div>
-              <span aria-hidden="true" className="rule-mark"><span /><span /><span /></span>
-            </div>
-            <div aria-hidden="true" className="path-connector"><span /></div>
-            <div className="pathway-step pathway-step-review">
-              <span aria-hidden="true" className="step-number">02</span>
-              <div><strong>{content.review}</strong><small>{content.reviewDetail}</small></div>
-              <span aria-hidden="true" className="review-mark">!</span>
-            </div>
-            <div aria-hidden="true" className="path-connector"><span /></div>
-            <div className="pathway-step pathway-step-human">
-              <span aria-hidden="true" className="step-number">03</span>
-              <div><strong>{content.human}</strong><small>{content.humanDetail}</small></div>
-              <span aria-hidden="true" className="human-mark">✓</span>
-            </div>
-            <figcaption><span aria-hidden="true" />{content.noAutomatic}</figcaption>
-          </figure>
-        </section>
-
-        <section aria-labelledby="overview-heading" className="overview-section" id="service-overview">
-          <div className="overview-panel">
-          <div className="overview-intro">
-            <p className="eyebrow"><span aria-hidden="true" />{content.overviewEyebrow}</p>
-            <h2 id="overview-heading">{content.overviewHeading}</h2>
-            <p>{content.overviewDescription}</p>
-          </div>
-
-          <div className="overview-media">
-            {overviewVideoUrl ? (
-              <video controls playsInline preload="metadata">
-                <source src={overviewVideoUrl} />
-                {content.overviewVideoUnsupported}
-              </video>
-            ) : (
-              <div className="overview-poster" data-paused={overviewPaused}>
-                <span aria-hidden="true" className="overview-browser-bar overview-animated"><i /><i /><i /></span>
-                <span className="overview-loop-label"><i aria-hidden="true" />{content.overviewLoopLabel}</span>
-                <span className="overview-comment overview-animated" lang="km">{content.sampleComment}</span>
-                <span aria-hidden="true" className="overview-scan overview-animated" />
-                <span aria-hidden="true" className="overview-route">
-                  {content.overviewChapters.map((chapter, index) => (
-                    <i className="overview-animated" key={chapter}><b>{String(index + 1).padStart(2, '0')}</b>{chapter}</i>
-                  ))}
-                </span>
-                <span aria-hidden="true" className="overview-progress"><i className="overview-animated" /></span>
-                <span className="overview-actions">
-                  <button
-                    aria-label={overviewPaused ? content.overviewPlay : content.overviewPause}
-                    className="overview-pause"
-                    onClick={() => setOverviewPaused((paused) => !paused)}
-                    type="button"
-                  >
-                    <i aria-hidden="true">{overviewPaused ? '▶' : 'Ⅱ'}</i>
-                  </button>
-                </span>
+            {[
+              { text: SAMPLE_SCAM, tone: 'bad', verdict: t.howHarmful, who: 'វ' },
+              { text: SAMPLE_ABUSE, tone: 'warn', verdict: t.howOffensive, who: 'រ' },
+              { text: SAMPLE_SLOW, tone: 'ok', verdict: t.howSafe, who: 'ស' },
+            ].map((row) => (
+              <div className="lp-preview-row" data-t={row.tone} key={row.text}>
+                <span aria-hidden="true" className="who">{row.who}</span>
+                <p lang="km">{row.text}</p>
+                <span className={`chip chip-${row.tone}`}>{row.verdict}</span>
               </div>
-            )}
-          </div>
-
-          <ol aria-label={content.overviewTranscriptLabel} className="overview-transcript">
-            {content.overviewChapters.map((chapter) => <li key={chapter}>{chapter}</li>)}
-          </ol>
-          </div>
-        </section>
-
-        <section aria-labelledby="workflow-heading" className="workflow-section" id="how-it-works">
-          <div className="workflow-intro">
-            <p className="eyebrow"><span aria-hidden="true" />{content.workflowEyebrow}</p>
-            <h2 id="workflow-heading">{content.workflowHeading}</h2>
-            <p>{content.workflowDescription}</p>
-          </div>
-
-          <div aria-label={content.workflowHeading} className="workflow-steps">
-            {content.workflowSteps.map((step, index) => (
-              <article className="workflow-step" key={step.title}>
-                <div aria-hidden="true" className="workflow-step-index">{String(index + 1).padStart(2, '0')}</div>
-                <div>
-                  <p className="workflow-step-meta">{step.meta}</p>
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
-                </div>
-              </article>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section aria-labelledby="khmer-heading" className="khmer-section" id="khmer-context">
-          <div className="khmer-intro">
-            <p className="eyebrow"><span aria-hidden="true" />{content.khmerEyebrow}</p>
-            <h2 id="khmer-heading">{content.khmerHeading}</h2>
-            <p className="khmer-description">{content.khmerDescription}</p>
-            <h3 className="khmer-coverage-label" id="khmer-coverage">{content.khmerCoverageLabel}</h3>
-            <ul aria-labelledby="khmer-coverage" className="khmer-coverage">
-              {content.khmerCoverage.map((item) => (<li key={item}>{item}</li>))}
-            </ul>
+        <ul className="wrap card lp-facts">
+          {t.facts.map((fact) => <li key={fact}>{fact}</li>)}
+        </ul>
+      </section>
+
+      {/* 02 — Problem */}
+      <section aria-labelledby="lp-problem-heading" className="band pad" style={{ marginTop: 96 }}>
+        <div className="wrap lp-split">
+          <div className="heads">
+            <p className="eyebrow">{t.problemEyebrow}</p>
+            <h2 id="lp-problem-heading">{t.problemHeading}</h2>
+            <p className="lede">{t.problemLede}</p>
           </div>
 
-          <h3 className="khmer-examples-label" id="khmer-examples">{content.khmerExamplesLabel}</h3>
-          <ul aria-labelledby="khmer-examples" className="khmer-examples">
-            {content.khmerExamples.map((example) => (
-              <li className="khmer-example" data-tone={example.tone} key={example.target}>
-                <blockquote lang="km">{example.comment}</blockquote>
-                <p className="khmer-gloss">{example.gloss}</p>
-                <p className="khmer-tags">
-                  <span className="khmer-target">{example.target}</span>
-                  <span className="khmer-outcome">{example.outcome}</span>
-                </p>
-                <p className="khmer-note">{example.note}</p>
+          <figure aria-label={t.problemSwarmLabel} className="card lp-swarm">
+            <span className="lp-label">{t.problemSwarmLabel}</span>
+            <div aria-hidden="true" className="lp-swarm-grid">
+              {Array.from({ length: 72 }, (_, i) => (
+                <i data-t={SWARM_BAD.has(i) ? 'bad' : SWARM_WARN.has(i) ? 'warn' : undefined} key={i} />
+              ))}
+            </div>
+            <figcaption className="lp-swarm-key">
+              <span><i />{t.problemKeyPlain}</span>
+              <span data-t="warn"><i />{t.problemKeyAbuse}</span>
+              <span data-t="bad"><i />{t.problemKeyScam}</span>
+              <b>{t.problemAsk}</b>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      {/* 03 — Solution */}
+      <section aria-labelledby="lp-solution-heading" className="wrap pad" id="solution">
+        <div className="heads mid">
+          <p className="eyebrow">{t.solutionEyebrow}</p>
+          <h2 id="lp-solution-heading">{t.solutionHeading}</h2>
+        </div>
+        <ol className="lp-flow">
+          {t.solutionSteps.map((step, i) => (
+            <li key={step.title} style={{ display: 'contents' }}>
+              {i > 0 && <Arrow />}
+              <div className="card">
+                <h3>{step.title}</h3>
+                <p>{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* 04 — How it works */}
+      <section aria-labelledby="lp-how-heading" className="wrap pad" id="how">
+        <div className="heads mid">
+          <p className="eyebrow">{t.howEyebrow}</p>
+          <h2 id="lp-how-heading">{t.howHeading}</h2>
+        </div>
+
+        <div className="lp-player" data-paused={paused}>
+          <div className="lp-stagewrap">
+            <span aria-hidden="true" className="lp-dots"><i /><i /><i /></span>
+            <span className="lp-live">{t.howLoop}</span>
+            <span aria-hidden="true" className="lp-scan" />
+
+            <div className="lp-subject">
+              <div>
+                <div className="lp-subject-head">
+                  <span className="km">ស</span>
+                  <time>{t.howSubjectMeta}</time>
+                </div>
+                <p lang="km">{SAMPLE_SCAM}</p>
+              </div>
+            </div>
+
+            <div aria-hidden="true" className="lp-verdicts">
+              <div className="row">
+                <span className="dchip dchip-ok">{t.howSafe}</span>
+                <span className="dchip dchip-warn">{t.howOffensive}</span>
+                <span className="dchip dchip-bad">{t.howHarmful}</span>
+              </div>
+              <span className="dchip dchip-warn v2s">{t.howReviewing}</span>
+              <span className="dchip dchip-bad v3s">{t.howHidden}</span>
+              <span className="dchip dchip-ok v4s">{t.howRestored}</span>
+            </div>
+
+            <button
+              aria-label={paused ? t.howPlay : t.howPause}
+              className="lp-pause"
+              onClick={() => setPaused((was) => !was)}
+              type="button"
+            >
+              {paused ? (
+                <svg aria-hidden="true" fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><path d="M7 4.5v15l13-7.5z" /></svg>
+              ) : (
+                <svg aria-hidden="true" fill="currentColor" height="15" viewBox="0 0 24 24" width="15"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" /></svg>
+              )}
+            </button>
+          </div>
+
+          <ol className="lp-chapters">
+            <span className="lp-label">{t.howChaptersLabel}</span>
+            {t.howChapters.map((chapter, i) => (
+              <li className="lp-step" key={chapter} style={{ animationDelay: `${i * 2}s` }}>
+                <b style={{ animationDelay: `${i * 2}s` }}>{km ? ['០១', '០២', '០៣', '០៤', '០៥'][i] : `0${i + 1}`}</b>
+                <span style={{ animationDelay: `${i * 2}s` }}>{chapter}</span>
+              </li>
+            ))}
+            <p>{t.howNote}</p>
+          </ol>
+
+          <div aria-hidden="true" className="lp-progress"><i /></div>
+        </div>
+      </section>
+
+      {/* 05 — Dashboard */}
+      <section aria-labelledby="lp-dash-heading" className="band pad" id="dashboard">
+        <div className="wrap heads mid">
+          <p className="eyebrow">{t.dashEyebrow}</p>
+          <h2 id="lp-dash-heading">{t.dashHeading}</h2>
+        </div>
+        <div aria-hidden="true" className="wrap"><DashboardShot t={t} /></div>
+      </section>
+
+      {/* 06 — Pricing */}
+      <section aria-labelledby="lp-price-heading" className="wrap pad" id="pricing">
+        <div className="heads mid">
+          <p className="eyebrow">{t.priceEyebrow}</p>
+          <h2 id="lp-price-heading">{t.priceHeading}</h2>
+          <p className="chip chip-warn" style={{ height: 'auto', padding: '7px 14px', whiteSpace: 'normal' }}>{t.priceNotFinal}</p>
+        </div>
+
+        <div className="lp-plans">
+          {t.plans.map((plan, i) => {
+            const featured = i === 1
+            return (
+              <article className="card lp-plan" data-featured={featured || undefined} key={plan.name}>
+                <div className="lp-plan-top">
+                  <div>
+                    <h3>{plan.name}</h3>
+                    <p>{plan.blurb}</p>
+                  </div>
+                  {featured && <span className="chip" style={{ background: 'var(--teal)', color: '#fff' }}>{t.priceRecommended}</span>}
+                </div>
+                <div>
+                  <p className="lp-price">
+                    {plan.price}
+                    {i < 2 && <small> {t.priceMonth}</small>}
+                  </p>
+                  {featured && <p className="lp-soon">{t.priceSoon}</p>}
+                </div>
+                <ul>
+                  {plan.features.map((feature) => (
+                    <li key={feature}><Tick />{feature}</li>
+                  ))}
+                </ul>
+                <a className={featured ? 'btn' : 'btn btn-2'} href={i === 2 ? '/request-access' : '/sign-up'}>{plan.cta}</a>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* 07 — Features */}
+      <section aria-labelledby="lp-features-heading" className="wrap pad" id="features">
+        <div className="heads mid">
+          <p className="eyebrow">{t.featuresEyebrow}</p>
+          <h2 id="lp-features-heading">{t.featuresHeading}</h2>
+        </div>
+        <div className="lp-features">
+          {t.features.map((feature, i) => (
+            <article className="lp-feature" key={feature.title}>
+              <span className="lp-feature-icon">
+                {i === 0 ? <img alt="" aria-hidden="true" src="/flags/kh.svg" /> : FEATURE_ICONS[i]}
+              </span>
+              <h3>{feature.title}</h3>
+              <p>{feature.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* 08 — Why KCMS */}
+      <section aria-labelledby="lp-why-heading" className="band pad" id="why">
+        <div className="wrap lp-split">
+          <div className="heads">
+            <p className="eyebrow">{t.whyEyebrow}</p>
+            <h2 id="lp-why-heading">{t.whyHeading}</h2>
+            <p className="lede">{t.whyLede}</p>
+            <p className="lede">{t.whyLede2}</p>
+          </div>
+          <ul className="lp-proof">
+            {t.whyProof.map((line) => (
+              <li key={line}>
+                <span className="lp-proof-tick"><Tick colour="var(--teal-deep)" size={18} /></span>
+                {line}
               </li>
             ))}
           </ul>
-        </section>
-
-        <section aria-labelledby="control-heading" className="control-section" id="responsible-moderation">
-          <div className="control-inner">
-            <div className="control-intro">
-              <p className="eyebrow"><span aria-hidden="true" />{content.controlEyebrow}</p>
-              <h2 id="control-heading">{content.controlHeading}</h2>
-              <p className="control-description">{content.controlDescription}</p>
-            </div>
-
-            <ul aria-labelledby="control-heading" className="control-guarantees">
-              {content.controlGuarantees.map((guarantee) => (
-                <li key={guarantee}><span aria-hidden="true" className="control-shield">✓</span>{guarantee}</li>
-              ))}
-            </ul>
-
-            <p className="control-scope">
-              <span aria-hidden="true" />
-              <strong>{content.controlScopeLabel}:</strong> {content.controlScope}
-            </p>
-          </div>
-        </section>
-
-        <section aria-labelledby="access-heading" className="access-section" id="early-access">
-          <div className="access-intro">
-            <p className="eyebrow"><span aria-hidden="true" />{content.accessEyebrow}</p>
-            <h2 id="access-heading">{content.accessHeading}</h2>
-            <p className="access-description">{content.accessDescription}</p>
-          </div>
-
-          <div className="pricing-grid">
-            {content.pricingPlans.map((plan) => (
-              <article className="access-card" key={plan.id}>
-                <div aria-hidden="true" className="access-card-rail" />
-                  <header className="access-card-header">
-                    <h3>{plan.name}</h3>
-                  </header>
-                  <div className="access-price-wrapper">
-                    <p className="access-price">{plan.price}</p>
-                    {plan.priceDetail && <p className="access-price-detail">{plan.priceDetail}</p>}
-                  </div>
-                  <div className="access-pages-wrapper">
-                    <span className="access-pages-badge">{plan.pagesLabel}</span>
-                  </div>
-
-                  <div className="access-features-block">
-                    <p className="access-features-label">{plan.featuresLabel}</p>
-                    <ul className="access-features-list">
-                      {plan.features.map((feature) => (
-                        <li key={feature}>
-                          <span aria-hidden="true" className="access-feature-check">✓</span>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <a className="button button-block" href="/sign-up">{content.startTrial}<span aria-hidden="true">↗</span></a>
-                </article>
-            ))}
-          </div>
-          <p className="access-note">{content.pricingBillingNote}</p>
-          <p className="access-note">{content.pricingUpgradeNote}</p>
-        </section>
-
-        <section aria-labelledby="faq-heading" className="faq-section" id="faq">
-          <div className="faq-intro">
-            <p className="eyebrow"><span aria-hidden="true" />{content.faqEyebrow}</p>
-            <h2 id="faq-heading">{content.faqHeading}</h2>
-            <p>{content.faqDescription}</p>
-          </div>
-
-          <div className="faq-list">
-            {content.faqItems.map((item, index) => {
-              const isOpen = openFaq === index
-              const answerId = `faq-answer-${index}`
-              return (
-                <article className="faq-item" data-open={isOpen} key={item.question}>
-                  <h3>
-                    <button
-                      aria-controls={answerId}
-                      aria-expanded={isOpen}
-                      onClick={() => setOpenFaq(isOpen ? null : index)}
-                      type="button"
-                    >
-                      <span>{item.question}</span><i aria-hidden="true">+</i>
-                    </button>
-                  </h3>
-                  <div className="faq-answer" hidden={!isOpen} id={answerId}>
-                    <p>{item.answer}</p>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        </section>
-      </main>
-
-      <footer className="site-footer">
-        <div className="footer-top">
-          <div className="footer-brand">
-            <div className="brand"><BrandMark /><span>KCMS</span></div>
-            <p>{content.footerTagline}</p>
-          </div>
-
-          <nav aria-label={content.footerNavLabel} className="footer-nav">
-            <div className="footer-column">
-              <h2>{content.footerProduct}</h2>
-              <ul>
-                <li><a href="#how-it-works">{content.howItWorks}</a></li>
-                <li><a href="#early-access">{content.accessEyebrow}</a></li>
-                <li><a href="#faq">{content.faqEyebrow}</a></li>
-              </ul>
-            </div>
-            <div className="footer-column">
-              <h2>{content.footerAccess}</h2>
-              <ul>
-                <li><a href="/sign-up">{content.startTrial}</a></li>
-                <li><a href="/sign-in">{content.signIn}</a></li>
-              </ul>
-            </div>
-            <div className="footer-column">
-              <h2>{content.footerInformation}</h2>
-              <ul>
-                <li><a href="/contact">{content.footerContact}</a></li>
-                <li><a href="/privacy">{content.footerPrivacy}</a></li>
-              </ul>
-            </div>
-          </nav>
         </div>
+      </section>
 
-        <div className="footer-meta">
-          <p className="footer-status"><span aria-hidden="true" /><strong>{content.footerStatusLabel}:</strong> {content.footerStatus}</p>
-          <p className="footer-rights">{content.footerRights}</p>
+      {/* 09 — Final CTA */}
+      <section aria-labelledby="lp-cta-heading" className="wrap pad">
+        <div className="card lp-cta">
+          <span aria-hidden="true" className="lp-glow" />
+          <h2 id="lp-cta-heading">{t.ctaHeading}</h2>
+          <a className="btn" href="/sign-up">{t.ctaButton}</a>
         </div>
+      </section>
+
+      <footer className="wrap lp-foot">
+        <div className="lp-foot-about">
+          {/* The header already offers home; a second link with the same
+              accessible name just gives screen-reader users two of everything. */}
+          <div className="lp-brand">
+            <BrandMark />
+            <b>KCMS</b>
+          </div>
+          <p>{t.footAbout}</p>
+        </div>
+        <nav aria-label="Footer navigation">
+          <div>
+            <span className="lp-label">{t.footProduct}</span>
+            <a href="#how">{t.navHow}</a>
+            <a href="#features">{t.navFeatures}</a>
+            <a href="#pricing">{t.navPricing}</a>
+          </div>
+          <div>
+            <span className="lp-label">{t.footCompany}</span>
+            <a href="#why">{t.navAbout}</a>
+            <a href="/request-access">{t.footContact}</a>
+            <a href="/">{t.footLegal}</a>
+          </div>
+        </nav>
       </footer>
     </div>
   )

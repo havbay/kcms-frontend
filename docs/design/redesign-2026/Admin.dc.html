@@ -1,0 +1,256 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Noto+Sans+Khmer:wght@400;500;600;700&amp;display=swap">
+  <style>
+    :root{
+      --teal:#00A99D; --teal-deep:#00706A; --teal-wash:#E0F5F3;
+      --ink:#101418; --slate:#616C7A; --slate-2:#8B94A2;
+      --white:#FFFFFF; --mist:#F7F8FA; --mist2:#F1F3F7; --mist3:#EBEEF3;
+      --line:#E6E9EE; --line2:#D8DDE5;
+      --ok:#3F7A55; --ok-w:#EAF3EC; --ok-i:#2E5C3F;
+      --warn:#B96E09; --warn-w:#FCF3E4; --warn-i:#8A5206;
+      --bad:#CE3A2D; --bad-w:#FBEDEB; --bad-i:#A32A20;
+      --sans:'DM Sans','Noto Sans Khmer',system-ui,sans-serif;
+      --khmer:'Noto Sans Khmer','DM Sans',system-ui,sans-serif;
+      --sh1:0 1px 2px rgba(16,20,24,.05);
+      --sh2:0 1px 2px rgba(16,20,24,.05),0 10px 26px rgba(16,20,24,.07);
+    }
+    body{margin:0;background:var(--mist);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+    a{color:var(--teal-deep);text-decoration:none;} a:hover{color:#005A55;}
+    h1,h2,h3{margin:0;} p{margin:0;}
+    .km{font-family:var(--khmer);line-height:1.85;}
+    @keyframes riseSm{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes growW{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+    @keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(63,122,85,.3);}50%{box-shadow:0 0 0 6px rgba(63,122,85,0);}}
+    .rs{animation:riseSm .55s cubic-bezier(.22,1,.36,1) both;}
+    .card{background:var(--white);border-radius:16px;box-shadow:var(--sh2);}
+    .lbl{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--slate);}
+    .chip{display:inline-flex;align-items:center;gap:6px;height:25px;padding:0 12px;border-radius:999px;font-size:11px;font-weight:700;}
+    .c-ok{background:var(--ok-w);color:var(--ok-i);} .c-warn{background:var(--warn-w);color:var(--warn-i);}
+    .c-bad{background:var(--bad-w);color:var(--bad-i);} .c-q{background:var(--mist2);color:var(--slate);}
+    .c-teal{background:var(--teal-wash);color:var(--teal-deep);}
+    .anav{position:relative;display:flex;align-items:center;gap:11px;height:40px;padding:0 12px;border-radius:9px;font-size:13.5px;font-weight:500;color:var(--slate);}
+    .anav-on{background:var(--white);color:var(--ink);font-weight:700;box-shadow:var(--sh1);}
+    .anav-on::before{content:'';position:absolute;left:-12px;top:9px;bottom:9px;width:3px;border-radius:0 2px 2px 0;background:var(--ink);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 19px;border-radius:999px;font-size:13.5px;font-weight:700;background:var(--teal);color:#fff;box-shadow:0 7px 16px rgba(0,169,157,.3);}
+    .btn-2{background:var(--white);color:var(--ink);border:1px solid var(--line2);box-shadow:var(--sh1);}
+    .pill-inp{display:flex;align-items:center;gap:9px;height:36px;padding:0 15px;border-radius:999px;background:var(--mist);font-size:13px;color:var(--slate-2);}
+    .num{font-variant-numeric:tabular-nums;}
+    .fchip{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 16px;border-radius:999px;background:var(--white);box-shadow:var(--sh1);font-size:12.5px;font-weight:500;color:var(--slate);}
+    .fchip-on{background:var(--ink);color:var(--white);font-weight:700;box-shadow:none;}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important;}}
+  </style>
+</helmet>
+
+<div style="display:flex;width:1440px;height:960px;background:var(--mist);border-top:3px solid var(--ink);">
+
+  <aside style="display:flex;flex-direction:column;width:252px;flex:none;background:var(--mist3);">
+    <div style="display:flex;align-items:center;gap:10px;height:66px;padding:0 20px;">
+      <span style="display:grid;gap:3px;width:28px;height:28px;padding:5px;border-radius:8px;background:var(--ink);">
+        <span style="display:block;background:#fff;border-radius:1px;"></span><span style="display:block;background:rgba(255,255,255,.5);border-radius:1px;"></span>
+      </span>
+      <span style="display:flex;flex-direction:column;gap:2px;">
+        <span style="font-size:14px;font-weight:700;letter-spacing:.1em;">KCMS</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;">Admin console</span>
+      </span>
+    </div>
+
+    <nav style="display:flex;flex-direction:column;gap:2px;padding:12px 16px;">
+      <span class="lbl" style="padding:8px 12px 6px;">Onboarding</span>
+      <span class="anav anav-on">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path></svg>
+        Access requests
+        <span class="chip c-warn num" style="margin-left:auto;height:20px;padding:0 9px;">4</span>
+      </span>
+      <span class="anav">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l7-4 7 4v14"></path><path d="M10 21v-5h4v5"></path></svg>Workspaces
+      </span>
+      <span class="anav">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"></circle><path d="M2 21a7 7 0 0 1 14 0"></path><path d="M17 8.5a3 3 0 0 1 0 5"></path><path d="M19 21a6 6 0 0 0-2-4.5"></path></svg>People and roles
+      </span>
+      <span class="lbl" style="padding:16px 12px 6px;">Operations</span>
+      <span class="anav">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5 7 5-14L17 12h4"></path></svg>System health
+      </span>
+      <span class="anav">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h10"></path></svg>Shared rule library
+      </span>
+      <span class="anav">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M9 15h6"></path></svg>Audit log
+      </span>
+    </nav>
+
+    <div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:16px 20px 20px;">
+      <span style="display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--white);font-size:12px;font-weight:700;">DH</span>
+      <span style="display:flex;flex-direction:column;gap:1px;flex:1;">
+        <span style="font-size:12.5px;font-weight:700;">Dara Heang</span>
+        <span style="font-size:10.5px;color:var(--slate);">Platform admin</span>
+      </span>
+    </div>
+  </aside>
+
+  <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
+
+    <header style="display:flex;align-items:center;gap:14px;height:66px;padding:0 28px;background:var(--white);">
+      <span style="font-size:19px;font-weight:700;letter-spacing:-.03em;">Access requests</span>
+      <span class="chip c-warn num">4 pending</span>
+      <span class="pill-inp" style="width:300px;margin-left:12px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B94A2" stroke-width="2.1" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path></svg>Search by organisation or email</span>
+      <div style="display:flex;align-items:center;gap:9px;margin-left:auto;">
+        <span style="display:flex;align-items:center;gap:8px;height:34px;padding:0 13px;border-radius:999px;background:var(--mist);">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulseDot 2.4s ease-in-out infinite;"></span>
+          <span style="font-size:12.5px;font-weight:500;">All services healthy</span>
+        </span>
+        <span class="btn btn-2">Export CSV</span>
+      </div>
+    </header>
+
+    <main style="display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;padding:22px 28px;overflow:hidden;">
+
+      <section style="display:flex;flex-direction:column;gap:16px;min-width:0;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <span class="fchip fchip-on">Pending <span class="num">4</span></span>
+          <span class="fchip">Approved <span class="num">27</span></span>
+          <span class="fchip">Declined <span class="num">6</span></span>
+          <span class="fchip">All</span>
+          <span style="margin-left:auto;font-size:12.5px;color:var(--slate);">Oldest first</span>
+        </div>
+
+        <article class="card rs" style="display:flex;flex-direction:column;gap:16px;padding:22px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <span style="display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--mist);font-family:var(--khmer);font-size:16px;">អ</span>
+            <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;">
+              <span class="km" style="font-size:17px;font-weight:600;">អង្គការ អភិវឌ្ឍន៍ស្រុកស្រែ</span>
+              <span style="font-size:12.5px;color:var(--slate);">Rathana Meas &#183; rathana@[EXAMPLE-ORG].org &#183; requested 2 days ago</span>
+            </span>
+            <span class="chip c-warn">Pending</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">
+            <span style="display:flex;flex-direction:column;gap:5px;padding:13px 15px;border-radius:12px;background:var(--mist);"><span class="lbl">Facebook Page</span><span style="font-size:13.5px;font-weight:500;">[PAGE-HANDLE]</span></span>
+            <span style="display:flex;flex-direction:column;gap:5px;padding:13px 15px;border-radius:12px;background:var(--mist);"><span class="lbl">Page followers</span><span class="num" style="font-size:13.5px;font-weight:500;">41,200</span></span>
+            <span style="display:flex;flex-direction:column;gap:5px;padding:13px 15px;border-radius:12px;background:var(--mist);"><span class="lbl">Comments / week</span><span class="num" style="font-size:13.5px;font-weight:500;">~2,400</span></span>
+          </div>
+
+          <blockquote style="margin:0;padding:15px 17px;border-radius:12px;background:var(--mist);">
+            <p class="km" style="font-size:14px;">យើងត្រូវការជំនួយក្នុងការគ្រប់គ្រងមតិយោបល់នៅលើទំព័ររបស់យើង។</p>
+            <p style="margin-top:6px;font-size:12.5px;color:var(--slate);">&#8220;We need help managing the comments on our Page.&#8221;</p>
+          </blockquote>
+
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              Approve and send invitation
+            </span>
+            <span class="btn btn-2">Decline with a reason</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--slate);">Creates a workspace and emails a setup link.</span>
+          </div>
+        </article>
+
+        <article class="card rs" style="animation-delay:.08s;display:flex;flex-direction:column;gap:15px;padding:22px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <span style="display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--mist);font-size:14px;font-weight:700;">SD</span>
+            <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;">
+              <span style="font-size:17px;font-weight:700;">Sovann Delivery</span>
+              <span style="font-size:12.5px;color:var(--slate);">Kosal Pen &#183; kosal@[EXAMPLE-CO].com &#183; approved 14 min ago</span>
+            </span>
+            <span class="chip c-ok">Approved</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--ok-w);">
+            <span style="display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#fff;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#2E5C3F" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"></path><path d="m4 7 8 6 8-6"></path></svg>
+            </span>
+            <span style="display:flex;flex-direction:column;gap:2px;flex:1;">
+              <span style="font-size:13px;font-weight:700;color:var(--ok-i);">Invitation delivered to kosal@[EXAMPLE-CO].com</span>
+              <span style="font-size:11.5px;color:var(--ok-i);opacity:.8;">Setup link expires in 7 days &#183; not yet opened</span>
+            </span>
+            <span class="btn btn-2" style="height:34px;padding:0 15px;font-size:12.5px;">Copy link</span>
+            <span class="btn btn-2" style="height:34px;padding:0 15px;font-size:12.5px;">Resend</span>
+          </div>
+        </article>
+
+        <article class="card rs" style="animation-delay:.16s;display:flex;flex-direction:column;gap:15px;padding:22px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <span style="display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--bad-w);color:var(--bad-i);font-size:14px;font-weight:700;">PN</span>
+            <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;">
+              <span style="font-size:17px;font-weight:700;">Phnom Trading News</span>
+              <span style="font-size:12.5px;color:var(--slate);">Anonymous requester &#183; [EXAMPLE] free mail address &#183; 5 days ago</span>
+            </span>
+            <span class="chip c-bad">Needs a second look</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:12px;background:var(--bad-w);">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#A32A20" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg>
+            <span style="font-size:13px;line-height:1.6;color:var(--bad-i);flex:1;">The requester&#8217;s email domain does not match the Page, and the Page was created 11 days ago. Confirm ownership before approving.</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="btn btn-2">Ask for proof of ownership</span>
+            <span class="btn btn-2">Decline with a reason</span>
+          </div>
+        </article>
+      </section>
+
+      <aside style="display:flex;flex-direction:column;gap:18px;min-width:0;">
+
+        <section class="card rs" style="animation-delay:.1s;display:flex;flex-direction:column;gap:15px;padding:20px;">
+          <span style="display:flex;align-items:center;gap:9px;">
+            <span style="font-size:16px;font-weight:700;letter-spacing:-.02em;">System health</span>
+            <span class="chip c-ok" style="margin-left:auto;">All green</span>
+          </span>
+          <ul style="display:flex;flex-direction:column;gap:13px;list-style:none;margin:0;padding:0;">
+            <li style="display:flex;flex-direction:column;gap:6px;">
+              <span style="display:flex;align-items:center;gap:9px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--ok);"></span><span style="font-size:13px;font-weight:500;flex:1;">Comment ingestion</span><span class="num" style="font-size:12.5px;color:var(--slate);">2.1 s lag</span></span>
+              <span style="display:block;height:7px;border-radius:4px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:14%;border-radius:4px;background:var(--ok);transform-origin:left;animation:growW .7s cubic-bezier(.4,0,.2,1) .3s both;"></i></span>
+            </li>
+            <li style="display:flex;flex-direction:column;gap:6px;">
+              <span style="display:flex;align-items:center;gap:9px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--ok);"></span><span style="font-size:13px;font-weight:500;flex:1;">Detection queue depth</span><span class="num" style="font-size:12.5px;color:var(--slate);">318 / 5,000</span></span>
+              <span style="display:block;height:7px;border-radius:4px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:6.4%;border-radius:4px;background:var(--ok);transform-origin:left;animation:growW .7s cubic-bezier(.4,0,.2,1) .38s both;"></i></span>
+            </li>
+            <li style="display:flex;flex-direction:column;gap:6px;">
+              <span style="display:flex;align-items:center;gap:9px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--warn);"></span><span style="font-size:13px;font-weight:500;flex:1;">Page tokens expiring</span><span class="num" style="font-size:12.5px;color:var(--slate);">3 in 14 days</span></span>
+              <span style="display:block;height:7px;border-radius:4px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:38%;border-radius:4px;background:var(--warn);transform-origin:left;animation:growW .7s cubic-bezier(.4,0,.2,1) .46s both;"></i></span>
+            </li>
+          </ul>
+          <a href="#" style="font-size:12.5px;font-weight:700;">Open system health &#8594;</a>
+        </section>
+
+        <section class="card rs" style="animation-delay:.16s;display:flex;flex-direction:column;gap:16px;padding:20px;">
+          <span style="font-size:16px;font-weight:700;letter-spacing:-.02em;">Platform at a glance</span>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
+            <span style="display:flex;flex-direction:column;gap:5px;"><span class="lbl">Workspaces</span><span class="num" style="font-size:25px;font-weight:700;line-height:1;letter-spacing:-.04em;">27</span></span>
+            <span style="display:flex;flex-direction:column;gap:5px;"><span class="lbl">Pages connected</span><span class="num" style="font-size:25px;font-weight:700;line-height:1;letter-spacing:-.04em;">63</span></span>
+            <span style="display:flex;flex-direction:column;gap:5px;"><span class="lbl">Reviewers</span><span class="num" style="font-size:25px;font-weight:700;line-height:1;letter-spacing:-.04em;">148</span></span>
+            <span style="display:flex;flex-direction:column;gap:5px;"><span class="lbl">Comments / day</span><span class="num" style="font-size:25px;font-weight:700;line-height:1;letter-spacing:-.04em;">96k</span></span>
+          </div>
+        </section>
+
+        <section class="card rs" style="animation-delay:.22s;display:flex;flex-direction:column;gap:12px;padding:20px;">
+          <span style="font-size:16px;font-weight:700;letter-spacing:-.02em;">Recent admin actions</span>
+          <ul style="display:flex;flex-direction:column;list-style:none;margin:0;padding:0;">
+            <li style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);">
+              <span style="width:7px;height:7px;border-radius:50%;background:var(--ok);margin-top:6px;flex:none;"></span>
+              <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:500;">Approved Sovann Delivery</span><span style="font-size:11.5px;color:var(--slate);">Dara Heang &#183; 14 min ago</span></span>
+            </li>
+            <li style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);">
+              <span style="width:7px;height:7px;border-radius:50%;background:var(--warn);margin-top:6px;flex:none;"></span>
+              <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:500;">Added &#8220;free money&#8221; to the shared rule library</span><span style="font-size:11.5px;color:var(--slate);">Dara Heang &#183; 3 h ago</span></span>
+            </li>
+            <li style="display:flex;gap:12px;padding:11px 0;">
+              <span style="width:7px;height:7px;border-radius:50%;background:var(--bad);margin-top:6px;flex:none;"></span>
+              <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:500;">Declined 1 request &#8212; unverified ownership</span><span style="font-size:11.5px;color:var(--slate);">Sokha Ly &#183; yesterday</span></span>
+            </li>
+          </ul>
+          <a href="#" style="font-size:12.5px;font-weight:700;">Open the audit log &#8594;</a>
+        </section>
+      </aside>
+    </main>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

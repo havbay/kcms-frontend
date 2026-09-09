@@ -1,0 +1,383 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Noto+Sans+Khmer:wght@400;500;600;700&amp;display=swap">
+  <style>
+    :root{
+      --teal:#00A99D; --teal-deep:#00706A; --teal-wash:#E0F5F3;
+      --ink:#101418; --slate:#616C7A; --slate-2:#8B94A2;
+      --white:#FFFFFF; --mist:#F7F8FA; --mist2:#F1F3F7;
+      --line:#E6E9EE; --line2:#D8DDE5;
+      --ok:#3F7A55; --ok-w:#EAF3EC; --ok-i:#2E5C3F;
+      --warn:#B96E09; --warn-w:#FCF3E4; --warn-i:#8A5206;
+      --bad:#CE3A2D; --bad-w:#FBEDEB; --bad-i:#A32A20;
+      --sans:'DM Sans','Noto Sans Khmer',system-ui,sans-serif;
+      --khmer:'Noto Sans Khmer','DM Sans',system-ui,sans-serif;
+      --sh1:0 1px 2px rgba(16,20,24,.05);
+      --sh2:0 1px 2px rgba(16,20,24,.05),0 10px 26px rgba(16,20,24,.07);
+      --sh3:0 2px 4px rgba(16,20,24,.05),0 24px 56px rgba(16,20,24,.13);
+    }
+    body{margin:0;background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+    a{color:var(--teal-deep);text-decoration:none;}
+    h1,h2,h3{margin:0;text-wrap:balance;} p{margin:0;}
+    .km{font-family:var(--khmer);}
+    @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(0,169,157,.3);}50%{box-shadow:0 0 0 7px rgba(0,169,157,0);}}
+    @keyframes glow{0%,100%{box-shadow:0 10px 30px rgba(0,169,157,.34);}50%{box-shadow:0 10px 48px rgba(0,169,157,.5);}}
+    .r{animation:rise .7s cubic-bezier(.22,1,.36,1) both;}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;height:29px;padding:0 14px;border-radius:999px;background:var(--teal-wash);color:var(--teal-deep);font-size:11.5px;font-weight:700;}
+    .btn{display:flex;align-items:center;justify-content:center;gap:9px;min-height:54px;border-radius:999px;background:var(--teal);color:#fff;font-size:15.5px;font-weight:700;box-shadow:0 9px 22px rgba(0,169,157,.34);}
+    .btn-2{background:var(--white);color:var(--ink);border:1px solid var(--line2);box-shadow:var(--sh1);}
+    .chip{display:inline-flex;align-items:center;gap:6px;height:25px;padding:0 12px;border-radius:999px;font-size:11px;font-weight:700;}
+    .c-ok{background:var(--ok-w);color:var(--ok-i);} .c-warn{background:var(--warn-w);color:var(--warn-i);}
+    .c-bad{background:var(--bad-w);color:var(--bad-i);} .c-teal{background:var(--teal-wash);color:var(--teal-deep);}
+    .card{background:var(--white);border-radius:16px;box-shadow:var(--sh2);}
+    .kh-h{font-family:var(--khmer);font-weight:600;font-size:27px;line-height:1.55;}
+    .en-h{font-weight:700;font-size:21px;line-height:1.2;letter-spacing:-.03em;color:var(--slate);}
+    .lede{font-family:var(--khmer);font-size:14.5px;line-height:2.05;color:var(--slate);}
+    .lbl{font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate-2);}
+    .num{font-variant-numeric:tabular-nums;}
+    .sec{padding:0 20px;}
+    @keyframes stepOn{0%,1%{background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);}3%,17%{background:rgba(111,227,213,.13);box-shadow:inset 0 0 0 1.5px #6FE3D5;}19%,100%{background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);}}
+    @keyframes numOn{0%,1%{color:rgba(232,245,243,.42);}3%,17%{color:#6FE3D5;}19%,100%{color:rgba(232,245,243,.42);}}
+    @keyframes labOn{0%,1%{color:rgba(232,245,243,.62);}3%,17%{color:#FFFFFF;}19%,100%{color:rgba(232,245,243,.62);}}
+    @keyframes scanY{0%,18%{opacity:0;transform:translateY(-40px);}22%{opacity:1;}38%{opacity:1;transform:translateY(170px);}42%,100%{opacity:0;transform:translateY(170px);}}
+    @keyframes cardDim{0%,58%{opacity:1;}64%,78%{opacity:.32;}84%,100%{opacity:1;}}
+    @keyframes chipCls{0%,17%{opacity:0;}23%,39%{opacity:1;}45%,100%{opacity:0;}}
+    @keyframes chipRev{0%,38%{opacity:0;}44%,58%{opacity:1;}64%,100%{opacity:0;}}
+    @keyframes chipHid{0%,58%{opacity:0;}64%,78%{opacity:1;}84%,100%{opacity:0;}}
+    @keyframes chipBack{0%,78%{opacity:0;}84%,96%{opacity:1;}100%{opacity:0;}}
+    @keyframes prog{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+    .step{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:11px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);animation:stepOn 10s linear infinite;}
+    .step b{flex:none;font-size:11.5px;font-weight:700;color:rgba(232,245,243,.42);font-variant-numeric:tabular-nums;animation:numOn 10s linear infinite;}
+    .step span{font-family:var(--khmer);font-size:13px;font-weight:500;line-height:1.8;color:rgba(232,245,243,.62);animation:labOn 10s linear infinite;}
+    .dchip{display:inline-flex;align-items:center;height:26px;padding:0 12px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important;}}
+  </style>
+</helmet>
+
+<div style="width:390px;background:var(--white);overflow:hidden;">
+
+  <!-- NAVBAR -->
+  <header style="display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 20px;">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <span style="display:grid;gap:2.5px;width:26px;height:26px;padding:4.5px;border-radius:8px;background:var(--teal);box-shadow:0 4px 10px rgba(0,169,157,.35);">
+        <span style="display:block;background:#fff;border-radius:1px;"></span><span style="display:block;background:rgba(255,255,255,.5);border-radius:1px;"></span>
+      </span>
+      <span style="font-size:15px;font-weight:700;letter-spacing:.1em;">KCMS</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span style="display:inline-flex;align-items:center;gap:8px;padding:8px;border-radius:9px;font-size:13px;font-weight:500;">
+        <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true" style="border-radius:2px;box-shadow:0 0 0 1px rgba(16,20,24,.12);"><rect width="24" height="16" fill="#012169"></rect><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.4"></path><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.7"></path><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.4"></path><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3.2"></path></svg>
+        English
+      </span>
+      <span style="display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--mist);">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="#101418" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg>
+      </span>
+    </div>
+  </header>
+
+  <!-- 01 HERO -->
+  <section style="position:relative;">
+    <span aria-hidden="true" style="position:absolute;left:50%;top:-90px;transform:translateX(-50%);width:560px;height:440px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,169,157,.2),rgba(0,169,157,0));"></span>
+    <div class="sec" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:15px;padding-top:34px;text-align:center;">
+      <p class="eyebrow r"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);"></span>០១ — AI ខ្មែរជាចម្បង</p>
+      <h1 class="km r" style="animation-delay:.08s;font-weight:600;font-size:32px;line-height:1.5;">ទីបំផុត AI ដែលយល់ភាសាខ្មែរ</h1>
+      <div class="r" style="animation-delay:.19s;display:flex;flex-direction:column;gap:5px;margin-top:2px;">
+        <p class="km" style="font-size:15px;line-height:1.9;color:var(--slate);">គ្រប់គ្រងមតិយោបល់រាប់ពាន់បានកាន់តែងាយស្រួលជាមួយ AI។</p>
+      </div>
+      <div class="r" style="animation-delay:.25s;display:flex;flex-direction:column;gap:10px;align-self:stretch;margin-top:8px;"><a href="#" class="btn"><span class="km">សាកល្បង</span></a><a href="#" class="btn btn-2"><span class="km">មើលរបៀបដំណើរការ</span></a></div>
+    </div>
+
+    <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:30px;padding:0 20px;">
+      <div class="card" style="align-self:flex-start;width:255px;padding:14px 16px;transform:rotate(-2deg);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--mist2);font-family:var(--khmer);font-size:11px;">ស</span>
+          <span class="lbl" style="font-size:8.5px;">Facebook · ១២:៤១</span>
+        </div>
+        <p class="km" style="margin-top:9px;font-size:14px;line-height:1.75;">ចុចតំណនេះទទួលលុយ $500 ថ្ងៃនេះ!</p>
+      </div>
+      <div class="card" style="align-self:flex-end;width:245px;padding:14px 16px;transform:rotate(1.5deg);">
+        <p class="km" style="font-size:14px;line-height:1.75;">អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។</p>
+      </div>
+      <svg width="18" height="26" viewBox="0 0 18 26" fill="none" stroke="#D8DDE5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top:2px;"><path d="M9 2v18"></path><path d="m4 15 5 5 5-5"></path></svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:2px;">
+        <span style="display:grid;gap:5px;width:70px;height:70px;padding:15px;border-radius:22px;background:var(--teal);animation:glow 5s ease-in-out infinite;">
+          <span style="display:block;background:#fff;border-radius:2px;"></span>
+          <span style="display:block;background:rgba(255,255,255,.5);border-radius:2px;"></span>
+        </span>
+        <span style="font-size:14px;font-weight:700;letter-spacing:.14em;">KCMS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 PROBLEM -->
+  <section style="margin-top:56px;padding:48px 0;background:var(--mist);">
+    <div class="sec" style="display:flex;flex-direction:column;gap:14px;">
+      <p class="eyebrow" style="align-self:flex-start;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);"></span>០២ — បញ្ហា</p>
+      <h2 class="kh-h">មតិយោបល់ច្រើនពេក?</h2>
+      <p class="lede" style="margin-top:2px;">ទំព័រដែលមមាញឹកទទួលមតិយោបល់ក្នុងមួយថ្ងៃ ច្រើនជាងអ្វីដែលក្រុមតូចមួយអានបានក្នុងមួយសប្តាហ៍ ហើយអ្វីដែលបង្កគ្រោះថ្នាក់ មិនមែនជាអ្វីដែលលេចធ្លោបំផុតឡើយ។</p>
+
+      <div class="card" style="margin-top:8px;padding:18px;">
+        <span class="lbl">មួយថ្ងៃលើទំព័រមួយ</span>
+        <div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px;margin-top:13px;">
+          <i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--bad);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--warn);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i>
+          <i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i>
+          <i style="height:10px;border-radius:3px;background:var(--warn);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--bad);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i>
+          <i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--warn);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i>
+          <i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i><i style="height:10px;border-radius:3px;background:var(--bad);"></i><i style="height:10px;border-radius:3px;background:var(--mist2);"></i>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);">
+          <span style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;color:var(--slate);"><i style="width:10px;height:10px;border-radius:3px;background:var(--mist2);"></i>ធម្មតា</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;color:var(--warn-i);"><i style="width:10px;height:10px;border-radius:3px;background:var(--warn);"></i>ការវាយប្រហារ</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;color:var(--bad-i);"><i style="width:10px;height:10px;border-radius:3px;background:var(--bad);"></i>ការបោកប្រាស់</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 SOLUTION -->
+  <section class="sec" style="padding-top:56px;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <p class="eyebrow" style="align-self:flex-start;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);"></span>០៣ — ដំណោះស្រាយ</p>
+      <h2 class="kh-h">KCMS ជួយអ្នកគ្រប់គ្រងវា។</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px;">
+      <div class="card" style="display:flex;align-items:center;gap:14px;padding:16px 18px;">
+        <span class="lbl" style="flex:none;">01</span>
+        <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">មតិយោបល់</span><span style="font-size:12.5px;color:var(--slate);">នរណាម្នាក់បង្ហោះលើទំព័ររបស់អ្នក។</span></span>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:14px;padding:16px 18px;">
+        <span class="lbl" style="flex:none;color:var(--teal-deep);">02</span>
+        <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">ការវិភាគដោយ AI</span><span style="font-size:12.5px;color:var(--slate);">អានជាភាសាខ្មែរ តាមបរិបទ។</span></span>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:14px;padding:16px 18px;">
+        <span class="lbl" style="flex:none;color:var(--teal-deep);">03</span>
+        <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">ការចាត់ថ្នាក់</span><span style="font-size:12.5px;color:var(--slate);">សុវត្ថិភាព ប្រមាថ ឬបង្កគ្រោះថ្នាក់។</span></span>
+      </div>
+      <div class="card" style="display:flex;align-items:center;gap:14px;padding:16px 18px;box-shadow:0 2px 5px rgba(0,169,157,.1),0 14px 34px rgba(0,169,157,.16);">
+        <span class="lbl" style="flex:none;color:var(--teal-deep);">04</span>
+        <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">សកម្មភាព</span><span style="font-size:12.5px;color:var(--slate);">មនុស្សក្នុងក្រុមរបស់អ្នកជាអ្នកសម្រេច។</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 HOW IT WORKS - service-overview walkthrough player -->
+  <section class="sec" style="padding-top:56px;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <p class="eyebrow" style="align-self:flex-start;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);"></span>០៤ — របៀបដំណើរការ</p>
+      <h2 class="kh-h">AI យល់ និងវិភាគមតិយោបល់របស់អ្នក</h2>
+    </div>
+
+    <div style="margin-top:22px;border-radius:20px;overflow:hidden;background:linear-gradient(150deg,#0B2E2B 0%,#114742 58%,#0C3733 100%);box-shadow:0 22px 50px rgba(11,46,43,.3);">
+      <div style="position:relative;padding:22px 18px;overflow:hidden;">
+        <span class="km" style="display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;color:#6FE3D5;">
+          <i style="width:7px;height:7px;border-radius:50%;background:#6FE3D5;"></i>ការបង្ហាញគំរូ
+        </span>
+        <span aria-hidden="true" style="position:absolute;left:0;right:0;top:80px;height:64px;background:linear-gradient(180deg,rgba(111,227,213,0),rgba(111,227,213,.18),rgba(111,227,213,0));animation:scanY 10s linear infinite;"></span>
+        <div style="margin-top:14px;padding:17px 19px;border-radius:13px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);border-left:4px solid #6FE3D5;animation:cardDim 10s linear infinite;">
+          <div style="display:flex;align-items:center;gap:9px;">
+            <span style="display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.12);color:#E8F5F3;font-family:var(--khmer);font-size:12px;">ស</span>
+            <span class="km" style="font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(232,245,243,.5);">មតិយោបល់លើទំព័ររបស់អ្នក · ១២:៤១</span>
+          </div>
+          <p class="km" style="margin-top:12px;font-size:17px;line-height:1.8;color:#fff;">ចុចតំណនេះទទួលលុយ $500 ថ្ងៃនេះ!</p>
+        </div>
+        <div style="position:relative;height:26px;margin-top:15px;">
+          <span style="position:absolute;left:0;top:0;display:flex;gap:7px;animation:chipCls 10s linear infinite;">
+            <span class="km dchip" style="background:rgba(120,220,150,.16);color:#8FE3A8;">សុវត្ថិភាព</span>
+            <span class="km dchip" style="background:rgba(240,180,90,.18);color:#F2C179;">ប្រមាថ</span>
+            <span class="km dchip" style="background:rgba(255,130,115,.2);color:#FF9F92;">បង្កគ្រោះថ្នាក់</span>
+          </span>
+          <span class="km dchip" style="position:absolute;left:0;top:0;background:rgba(240,180,90,.18);color:#F2C179;animation:chipRev 10s linear infinite;">សុភាកំពុងពិនិត្យ</span>
+          <span class="km dchip" style="position:absolute;left:0;top:0;background:rgba(255,130,115,.2);color:#FF9F92;animation:chipHid 10s linear infinite;">បានលាក់ · អាចត្រឡប់វិញ</span>
+          <span class="km dchip" style="position:absolute;left:0;top:0;background:rgba(120,220,150,.16);color:#8FE3A8;animation:chipBack 10s linear infinite;">បានស្តារវិញ</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:9px;padding:6px 18px 20px;">
+          <div class="step"><b>០១</b><span>មតិយោបល់បានបង្ហោះលើ Facebook</span></div>
+          <div class="step" style="animation-delay:2s;"><b style="animation-delay:2s;">០២</b><span style="animation-delay:2s;">ការរកឃើញស្វ័យប្រវត្តិ</span></div>
+          <div class="step" style="animation-delay:4s;"><b style="animation-delay:4s;">០៣</b><span style="animation-delay:4s;">ការពិនិត្យដោយមនុស្ស</span></div>
+          <div class="step" style="animation-delay:6s;"><b style="animation-delay:6s;">០៤</b><span style="animation-delay:6s;">Facebook បានបញ្ជាក់ការលាក់</span></div>
+          <div class="step" style="animation-delay:8s;"><b style="animation-delay:8s;">០៥</b><span style="animation-delay:8s;">បើកលាក់វិញ ដើម្បីស្តារមតិយោបល់</span></div>
+        <p class="km" style="margin-top:8px;font-size:12px;line-height:2;color:rgba(232,245,243,.45);">ការបង្ហាញគំរូនេះនឹងត្រូវជំនួសដោយវីដេអូនៃដំណើរការពិតដែលបានផ្ទៀងផ្ទាត់។</p>
+      </div>
+
+      <div style="height:4px;background:rgba(255,255,255,.09);">
+        <i style="display:block;height:100%;background:#6FE3D5;transform-origin:left;animation:prog 10s linear infinite;"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 DASHBOARD -->
+  <section style="margin-top:56px;padding:48px 0;background:var(--mist);">
+    <div class="sec" style="display:flex;flex-direction:column;gap:14px;">
+      <p class="eyebrow" style="align-self:flex-start;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);"></span>០៥ — ផ្ទាំងគ្រប់គ្រង</p>
+      <h2 class="kh-h">គ្រប់គ្រងអ្វីៗពីកន្លែងតែមួយ</h2>
+
+      <div class="card" style="margin-top:10px;padding:14px;">
+        <div style="display:flex;align-items:center;gap:9px;padding:2px 4px 12px;">
+          <span style="display:grid;gap:2px;width:20px;height:20px;padding:3.5px;border-radius:6px;background:var(--teal);"><span style="display:block;background:#fff;border-radius:1px;"></span><span style="display:block;background:rgba(255,255,255,.5);border-radius:1px;"></span></span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:.1em;">KCMS</span>
+          <span style="margin-left:auto;display:flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;background:var(--mist);font-size:10.5px;font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulseDot 2.4s ease-in-out infinite;"></span>ផ្ទាល់</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">
+          <div style="padding:11px;border-radius:11px;background:var(--mist);"><span class="lbl" style="font-size:8px;">បានវិភាគ</span><p class="num" style="margin-top:5px;font-size:17px;font-weight:700;letter-spacing:-.035em;">4,182</p></div>
+          <div style="padding:11px;border-radius:11px;background:var(--warn-w);"><span class="lbl" style="font-size:8px;color:var(--warn-i);">ពិនិត្យ</span><p class="num" style="margin-top:5px;font-size:17px;font-weight:700;letter-spacing:-.035em;color:var(--warn-i);">12</p></div>
+          <div style="padding:11px;border-radius:11px;background:var(--mist);"><span class="lbl" style="font-size:8px;">បានធ្វើសកម្មភាព</span><p class="num" style="margin-top:5px;font-size:17px;font-weight:700;letter-spacing:-.035em;">386</p></div>
+        </div>
+        <div style="margin-top:9px;padding:13px;border-radius:11px;background:var(--mist);">
+          <span style="font-size:11.5px;font-weight:700;">ការចាត់ថ្នាក់តាមពេលវេលា</span>
+          <svg viewBox="0 0 300 88" width="100%" height="84" aria-hidden="true" style="margin-top:6px;">
+            <defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00A99D" stop-opacity=".24"></stop><stop offset="100%" stop-color="#00A99D" stop-opacity="0"></stop></linearGradient></defs>
+            <line x1="4" y1="72" x2="296" y2="72" stroke="#E6E9EE"></line><line x1="4" y1="40" x2="296" y2="40" stroke="#EDEFF3"></line>
+            <polygon points="4,54 46,40 88,46 130,30 172,16 214,24 256,36 296,12 296,72 4,72" fill="url(#mg)"></polygon>
+            <polyline points="4,54 46,40 88,46 130,30 172,16 214,24 256,36 296,12" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+            <polyline points="4,68 46,66 88,67 130,63 172,60 214,62 256,65 296,58" fill="none" stroke="#B96E09" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></polyline>
+            <circle cx="296" cy="12" r="6" fill="#00A99D" opacity=".16"></circle><circle cx="296" cy="12" r="3.2" fill="#00A99D" stroke="#fff" stroke-width="1.6"></circle>
+          </svg>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-top:9px;">
+          <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;background:var(--bad-w);"><span class="km" style="flex:1;min-width:0;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">ចុចតំណនេះទទួលលុយ $500&#8230;</span><span class="chip" style="background:#fff;color:var(--bad-i);height:20px;font-size:9.5px;">បង្កគ្រោះថ្នាក់</span></div>
+          <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;background:var(--warn-w);"><span class="km" style="flex:1;min-width:0;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">អ្នកនេះល្ងង់ណាស់&#8230;</span><span class="chip" style="background:#fff;color:var(--warn-i);height:20px;font-size:9.5px;">ប្រមាថ</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 PRICING -->
+  <section class="sec" style="padding-top:56px;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <p class="eyebrow" style="align-self:flex-start;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);"></span>០៦ — តម្លៃ</p>
+      <h2 class="kh-h">ជ្រើសរើសផែនការដែលសមនឹងអ្នក</h2>
+      <span class="chip c-warn" style="align-self:flex-start;">តម្លៃមិនទាន់ចប់សព្វគ្រប់</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:24px;">
+      <article class="card" style="display:flex;flex-direction:column;gap:16px;padding:24px;">
+        <div style="display:flex;flex-direction:column;gap:5px;"><h3 style="font-size:18px;font-weight:700;letter-spacing:-.02em;">ឥតគិតថ្លៃ</h3><p style="font-size:13px;color:var(--slate);">សម្រាប់សាកល្បង KCMS។</p></div>
+        <p style="font-size:34px;font-weight:700;letter-spacing:-.04em;line-height:1;">$0<span style="font-size:13px;font-weight:500;color:var(--slate);letter-spacing:0;"> / ខែ</span></p>
+        <ul style="display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:16px 0 0;border-top:1px solid var(--line);">
+          <li class="num" style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>១,០០០ មតិយោបល់ / ខែ</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ការត្រួតពិនិត្យមូលដ្ឋាន</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ផ្ទាំងគ្រប់គ្រងមូលដ្ឋាន</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ការវិភាគមានកម្រិត</li>
+        </ul>
+        <a href="#" class="btn btn-2"><span class="km">ចាប់ផ្តើម</span></a>
+      </article>
+
+      <article class="card" style="position:relative;display:flex;flex-direction:column;gap:16px;padding:24px;box-shadow:0 3px 8px rgba(0,169,157,.12),0 26px 56px rgba(0,169,157,.22);outline:1.5px solid var(--teal);outline-offset:-1.5px;">
+        <span class="chip" style="position:absolute;right:24px;top:24px;background:var(--teal);color:#fff;">ណែនាំ</span>
+        <div style="display:flex;flex-direction:column;gap:5px;"><h3 style="font-size:18px;font-weight:700;letter-spacing:-.02em;">Pro</h3><p style="font-size:13px;color:var(--slate);">សម្រាប់អាជីវកម្មកំពុងរីកចម្រើន។</p></div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <p style="font-size:34px;font-weight:700;letter-spacing:-.04em;line-height:1;">$&#8212;<span style="font-size:13px;font-weight:500;color:var(--slate);letter-spacing:0;"> / ខែ</span></p>
+          <p style="font-size:12px;color:var(--warn-i);font-weight:500;">នឹងមកដល់ឆាប់ៗ</p>
+        </div>
+        <ul style="display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:16px 0 0;border-top:1px solid var(--line);">
+          <li class="num" style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>១០,០០០ មតិយោបល់ / ខែ</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ការត្រួតពិនិត្យតាមពេលវេលាជាក់ស្តែង</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ការវិភាគកម្រិតខ្ពស់</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ប្រវត្តិការត្រួតពិនិត្យ</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ការចូលប្រើ API</li>
+        </ul>
+        <a href="#" class="btn"><span class="km">ចាប់ផ្តើម</span></a>
+      </article>
+
+      <article class="card" style="display:flex;flex-direction:column;gap:16px;padding:24px;">
+        <div style="display:flex;flex-direction:column;gap:5px;"><h3 style="font-size:18px;font-weight:700;letter-spacing:-.02em;">អាជីវកម្ម</h3><p style="font-size:13px;color:var(--slate);">សម្រាប់អាជីវកម្ម និងវេទិកាដែលមានបរិមាណច្រើន។</p></div>
+        <p style="font-size:34px;font-weight:700;letter-spacing:-.04em;line-height:1;">តាមតម្រូវការ</p>
+        <ul style="display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:16px 0 0;border-top:1px solid var(--line);">
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>បរិមាណគ្មានកំណត់ ឬតាមតម្រូវការ</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ការត្រួតពិនិត្យកម្រិតខ្ពស់</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ការភ្ជាប់ API</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ជំនួយអាទិភាព</li>
+          <li style="display:flex;gap:10px;font-size:13.5px;color:var(--slate);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00A99D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M20 6 9 17l-5-5"></path></svg>ដំណោះស្រាយតាមតម្រូវការ</li>
+        </ul>
+        <a href="#" class="btn btn-2"><span class="km">ទាក់ទងយើង</span></a>
+      </article>
+    </div>
+  </section>
+
+  <!-- 07 FEATURES -->
+  <section class="sec" style="padding-top:56px;">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <p class="eyebrow" style="align-self:flex-start;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);"></span>០៧ — មុខងារ</p>
+      <h2 class="kh-h">អ្វីដែល KCMS អាចធ្វើបាន</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px;margin-top:24px;">
+      <article style="display:flex;gap:14px;">
+        <span style="display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:13px;background:var(--mist);">
+          <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true" style="border-radius:2px;box-shadow:0 0 0 1px rgba(16,20,24,.12);"><rect width="24" height="16" fill="#032EA1"></rect><rect y="4" width="24" height="8" fill="#E00025"></rect><rect x="8.4" y="10.2" width="7.2" height="1" fill="#fff"></rect><path d="M11.4 5.6h1.2v4.4h-1.2z" fill="#fff"></path><path d="M12 4.6l.9 1.2h-1.8z" fill="#fff"></path><path d="M9.3 7.2h1.1v2.8H9.3z" fill="#fff"></path><path d="M9.85 6.4l.75 1h-1.5z" fill="#fff"></path><path d="M13.6 7.2h1.1v2.8h-1.1z" fill="#fff"></path><path d="M14.15 6.4l.75 1h-1.5z" fill="#fff"></path></svg>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:5px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">AI ខ្មែរជាចម្បង</span><span style="font-size:13px;line-height:1.7;color:var(--slate);">បណ្តុះបណ្តាលលើអក្សរខ្មែរ Khmerlish និងពាក្យស្លែង មិនបកប្រែជាមុនទេ។</span></span>
+      </article>
+      <article style="display:flex;gap:14px;">
+        <span style="display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:13px;background:var(--mist);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#00706A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v5.5c0 4.2-3 7.6-7.5 9-4.5-1.4-7.5-4.8-7.5-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg></span>
+        <span style="display:flex;flex-direction:column;gap:5px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">ការត្រួតពិនិត្យដោយ AI</span><span style="font-size:13px;line-height:1.7;color:var(--slate);">មតិយោបល់គ្រប់មួយត្រូវបានពិនិត្យពេលមកដល់ ដោយភ្ជាប់មូលហេតុ។</span></span>
+      </article>
+      <article style="display:flex;gap:14px;">
+        <span style="display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:13px;background:var(--mist);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#00706A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18"></path><path d="M3 12h12"></path><path d="M3 19h7"></path><circle cx="19" cy="12" r="2"></circle><circle cx="14" cy="19" r="2"></circle></svg></span>
+        <span style="display:flex;flex-direction:column;gap:5px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">ការចាត់ថ្នាក់មាតិកា</span><span style="font-size:13px;line-height:1.7;color:var(--slate);">សុវត្ថិភាព ប្រមាថ ឬបង្កគ្រោះថ្នាក់ និងសំដៅលើនរណា។</span></span>
+      </article>
+      <article style="display:flex;gap:14px;">
+        <span style="display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:13px;background:var(--mist);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#00706A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5 7 5-14L17 12h4"></path></svg></span>
+        <span style="display:flex;flex-direction:column;gap:5px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">ការវិភាគតាមពេលវេលាជាក់ស្តែង</span><span style="font-size:13px;line-height:1.7;color:var(--slate);">មតិយោបល់ថ្មីមកដល់ជួរការងាររបស់អ្នកក្នុងរយៈពេលមួយនាទី។</span></span>
+      </article>
+      <article style="display:flex;gap:14px;">
+        <span style="display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:13px;background:var(--mist);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#00706A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"></path><path d="M10 20V4"></path><path d="M16 20v-7"></path><path d="M22 20H2"></path></svg></span>
+        <span style="display:flex;flex-direction:column;gap:5px;"><span style="font-size:15px;font-weight:700;letter-spacing:-.02em;">ផ្ទាំងវិភាគ</span><span style="font-size:13px;line-height:1.7;color:var(--slate);">មើលអ្វីដែលមកដល់ អ្វីដែលបានធ្វើ និងដោយនរណា។</span></span>
+      </article>
+    </div>
+  </section>
+
+  <!-- 08 WHY KCMS -->
+  <section style="margin-top:56px;padding:48px 0;background:var(--mist);">
+    <div class="sec" style="display:flex;flex-direction:column;gap:14px;">
+      <p class="eyebrow" style="align-self:flex-start;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);"></span>០៨ — ហេតុអ្វី KCMS</p>
+      <h2 class="kh-h">បង្កើតឡើងសម្រាប់ភាសាខ្មែរ</h2>
+      <p class="lede" style="margin-top:2px;">ឧបករណ៍ភាគច្រើនបកប្រែមតិយោបល់ខ្មែរទៅជាភាសាអង់គ្លេស រួចវិនិច្ឆ័យលើការបកប្រែនោះ។ អត្ថន័យដែលមានតែក្នុងភាសាខ្មែរ បាត់បង់មុនពេលធ្វើការសម្រេច។ KCMS អានមតិយោបល់តាមរបៀបដែលវាត្រូវបានសរសេរ។</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+        <div class="card" style="display:flex;align-items:center;gap:12px;padding:15px 17px;"><span style="display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:10px;background:var(--teal-wash);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00706A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span><p style="font-size:13.5px;line-height:1.6;">អក្សរខ្មែរ អានដោយផ្ទាល់</p></div>
+        <div class="card" style="display:flex;align-items:center;gap:12px;padding:15px 17px;"><span style="display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:10px;background:var(--teal-wash);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00706A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span><p style="font-size:13.5px;line-height:1.6;">Khmerlish និងការលាយភាសា</p></div>
+        <div class="card" style="display:flex;align-items:center;gap:12px;padding:15px 17px;"><span style="display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:10px;background:var(--teal-wash);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00706A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span><p style="font-size:13.5px;line-height:1.6;">ពាក្យស្លែងប្រចាំថ្ងៃ និងពាក្យសរសេរខុស</p></div>
+        <div class="card" style="display:flex;align-items:center;gap:12px;padding:15px 17px;"><span style="display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:10px;background:var(--teal-wash);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00706A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span><p style="font-size:13.5px;line-height:1.6;">ពាក្យបំបាំង ដើម្បីគេចពីតម្រង</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 FINAL CTA -->
+  <section class="sec" style="padding-top:56px;">
+    <div class="card" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 24px;border-radius:22px;overflow:hidden;text-align:center;">
+      <span aria-hidden="true" style="position:absolute;left:50%;top:-160px;transform:translateX(-50%);width:420px;height:340px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,169,157,.18),rgba(0,169,157,0));"></span>
+      <h2 class="km" style="position:relative;font-weight:600;font-size:25px;line-height:1.55;">ចាប់ផ្តើមគ្រប់គ្រងមាតិកាឱ្យកាន់តែឆ្លាតវៃ។</h2>
+      <a href="#" class="btn" style="position:relative;align-self:stretch;margin-top:8px;"><span class="km">សាកល្បង KCMS</span></a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="sec" style="display:flex;flex-direction:column;gap:14px;margin-top:52px;padding-top:30px;padding-bottom:44px;border-top:1px solid var(--line);">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <span style="display:grid;gap:2.5px;width:24px;height:24px;padding:4px;border-radius:7px;background:var(--teal);">
+        <span style="display:block;background:#fff;border-radius:1px;"></span><span style="display:block;background:rgba(255,255,255,.5);border-radius:1px;"></span>
+      </span>
+      <span style="font-size:14px;font-weight:700;letter-spacing:.1em;">KCMS</span>
+    </div>
+    <p style="font-size:12.5px;line-height:1.7;color:var(--slate);">ប្រព័ន្ធគ្រប់គ្រងមតិយោបល់ខ្មែរ។ បង្កើតនៅកម្ពុជា សម្រាប់ភាសាខ្មែរ។</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:6px;">
+      <a href="#" style="font-size:13px;color:var(--slate);">របៀបដំណើរការ</a>
+      <a href="#" style="font-size:13px;color:var(--slate);">មុខងារ</a>
+      <a href="#" style="font-size:13px;color:var(--slate);">តម្លៃ</a>
+      <a href="#" style="font-size:13px;color:var(--slate);">អំពីយើង</a>
+      <a href="#" style="font-size:13px;color:var(--slate);">[LEGAL PAGES]</a>
+    </div>
+  </footer>
+</div>
+</x-dc>
+</body>
+</html>

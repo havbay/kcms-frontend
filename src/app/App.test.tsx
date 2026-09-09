@@ -13,280 +13,147 @@ describe('KCMS public landing page', () => {
     localStorage.setItem('kcms.locale', 'en')
   })
 
-  it('explains the product and gives visitors one primary next action', () => {
+  it('states the offer once and points at a single primary action', () => {
     render(<App />, { wrapper: MemoryRouter })
 
     expect(
-      screen.getByRole('heading', {
-        level: 1,
-        name: 'Moderate Khmer comments with context—not guesswork.',
-      }),
+      screen.getByRole('heading', { level: 1, name: 'Finally, AI that understands Khmer.' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/humans decide every moderation action/i),
+      screen.getByText('Manage thousands of comments effortlessly with AI.'),
     ).toBeInTheDocument()
-    for (const link of screen.getAllByRole('link', { name: 'Start free trial' })) {
-      expect(link).toHaveAttribute('href', '/sign-up')
+    expect(screen.getByRole('link', { name: 'Try free trial' })).toHaveAttribute('href', '/sign-up')
+  })
+
+  it('offers public navigation that reaches every section of the page', () => {
+    render(<App />, { wrapper: MemoryRouter })
+
+    const nav = within(screen.getByRole('navigation', { name: 'Primary navigation' }))
+    expect(nav.getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '#how')
+    expect(nav.getByRole('link', { name: 'Features' })).toHaveAttribute('href', '#features')
+    expect(nav.getByRole('link', { name: 'Pricing' })).toHaveAttribute('href', '#pricing')
+    expect(nav.getByRole('link', { name: 'About' })).toHaveAttribute('href', '#why')
+
+    expect(screen.getByRole('link', { name: 'KCMS home' })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/sign-in')
+  })
+
+  it('walks a visitor from the problem to the answer before asking for anything', () => {
+    render(<App />, { wrapper: MemoryRouter })
+
+    expect(screen.getByRole('heading', { name: 'Too many comments to handle?' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'KCMS helps you handle it.' })).toBeInTheDocument()
+
+    // The four steps are a real sequence, so they are numbered and ordered.
+    const solution = within(screen.getByRole('region', { name: 'KCMS helps you handle it.' }))
+    expect(solution.getByRole('heading', { name: 'Comment' })).toBeInTheDocument()
+    expect(solution.getByRole('heading', { name: 'AI analysis' })).toBeInTheDocument()
+    expect(solution.getByRole('heading', { name: 'Classification' })).toBeInTheDocument()
+    expect(solution.getByRole('heading', { name: 'Action' })).toBeInTheDocument()
+  })
+
+  it('never claims KCMS acts on a comment by itself', () => {
+    render(<App />, { wrapper: MemoryRouter })
+
+    expect(screen.getByText('Hide, reply or leave it. A person on your team decides.')).toBeInTheDocument()
+    expect(screen.getByText('Every action taken by a person')).toBeInTheDocument()
+    expect(screen.getByText('Reversible, with a full audit trail')).toBeInTheDocument()
+  })
+
+  it('shows the whole comment journey, including the step that puts it back', () => {
+    render(<App />, { wrapper: MemoryRouter })
+
+    const how = within(screen.getByRole('region', { name: 'AI understands and analyzes your comments.' }))
+    for (const chapter of [
+      'Comment posted on Facebook',
+      'Automatic detection',
+      'Human review',
+      'Hide confirmed on Facebook',
+      'Unhide restores the comment',
+    ]) {
+      expect(how.getByText(chapter)).toBeInTheDocument()
     }
   })
 
-  it('offers familiar public navigation without competing with the primary action', () => {
-    render(<App />, { wrapper: MemoryRouter })
-
-    const header = within(screen.getByRole('navigation', { name: 'Primary navigation' }))
-
-    expect(screen.getByRole('link', { name: 'KCMS home' })).toHaveAttribute(
-      'href',
-      '/',
-    )
-    expect(header.getByRole('link', { name: 'How KCMS works' })).toHaveAttribute(
-      'href',
-      '#how-it-works',
-    )
-    expect(header.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
-      'href',
-      '/sign-in',
-    )
-  })
-
-  it('lets a visitor read the hero in Khmer without leaving the page', async () => {
+  it('lets a visitor stop the walkthrough rather than trapping them in a loop', async () => {
     const user = userEvent.setup()
     render(<App />, { wrapper: MemoryRouter })
 
-    const languageButton = screen.getByRole('button', { name: 'ភាសាខ្មែរ' })
-    expect(languageButton.querySelector('img')).toHaveAttribute(
-      'src',
-      '/flags/kh.svg',
-    )
+    const how = within(screen.getByRole('region', { name: 'AI understands and analyzes your comments.' }))
+    await user.click(how.getByRole('button', { name: 'Pause walkthrough' }))
+    expect(how.getByRole('button', { name: 'Play walkthrough' })).toBeInTheDocument()
+  })
 
-    await user.click(languageButton)
+  it('says the walkthrough is a prototype rather than passing it off as a recording', () => {
+    render(<App />, { wrapper: MemoryRouter })
 
     expect(
-      screen.getByRole('heading', {
-        level: 1,
-        name: 'គ្រប់គ្រងមតិយោបល់ខ្មែរ ដោយយល់ពីបរិបទ មិនមែនការស្មាន។',
-      }),
+      screen.getByText(/replaced by a recording of the verified live flow/i),
     ).toBeInTheDocument()
-    for (const link of screen.getAllByRole('link', {
-      name: 'សាកល្បងឥតគិតថ្លៃ',
-    })) {
-      expect(link).toHaveAttribute('href', '/sign-up')
-    }
-    expect(
-      screen.getByRole('button', { name: 'English' }).querySelector('img'),
-    ).toHaveAttribute('src', '/flags/gb.svg')
   })
 
-  it('opens and closes the compact navigation with one labelled control', async () => {
-    const user = userEvent.setup()
+  it('publishes three plans and marks the undecided price as undecided', () => {
     render(<App />, { wrapper: MemoryRouter })
 
-    const menuButton = screen.getByRole('button', { name: 'Open menu' })
-    expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+    const pricing = within(screen.getByRole('region', { name: 'Choose a plan that fits your needs.' }))
+    expect(pricing.getByRole('heading', { name: 'Free' })).toBeInTheDocument()
+    expect(pricing.getByRole('heading', { name: 'Pro' })).toBeInTheDocument()
+    expect(pricing.getByRole('heading', { name: 'Business' })).toBeInTheDocument()
 
-    await user.click(menuButton)
-    expect(menuButton).toHaveAttribute('aria-expanded', 'true')
-
-    await user.click(screen.getByRole('button', { name: 'Close menu' }))
-    expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+    // A price we have not set must never render as a number a visitor could hold us to.
+    expect(pricing.getByText(/Pricing is not final/i)).toBeInTheDocument()
+    expect(pricing.getByText(/Coming soon/i)).toBeInTheDocument()
+    expect(pricing.getByText('$—')).toBeInTheDocument()
   })
 
-  it('closes compact navigation after changing language', async () => {
-    const user = userEvent.setup()
+  it('explains the Khmer-first advantage rather than only asserting it', () => {
     render(<App />, { wrapper: MemoryRouter })
 
-    const menuButton = screen.getByRole('button', { name: 'Open menu' })
-
-    await user.click(menuButton)
-    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
-
-    expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+    const why = within(screen.getByRole('region', { name: 'Built for Khmer.' }))
+    expect(why.getByText(/translate a Khmer comment into English and judge the translation/i)).toBeInTheDocument()
+    expect(why.getByText('Khmerlish and code-switching')).toBeInTheDocument()
+    expect(why.getByText('Criticism of a company, kept visible')).toBeInTheDocument()
   })
 
-  it('shows the disclosed path from pattern matching to a human decision', () => {
+  it('keeps Khmer comment samples in Khmer on the English page', () => {
     render(<App />, { wrapper: MemoryRouter })
 
-    const pathway = screen.getByRole('figure', {
-      name: 'How a comment reaches human review',
-    })
-
-    expect(pathway).toHaveTextContent('Automatic detection')
-    expect(pathway).toHaveTextContent('Pattern matching · v0.1')
-    expect(pathway).toHaveTextContent('Needs human review')
-    expect(pathway).toHaveTextContent('Your team decides')
-    expect(pathway).toHaveTextContent('Automatic detection · Human-approved Page actions')
+    // A Khmer comment on a Cambodian Page is the product's real input; it is
+    // not interface copy and must not be translated away.
+    expect(screen.getAllByText('ចុចតំណនេះទទួលលុយ $500 ថ្ងៃនេះ!').length).toBeGreaterThan(0)
   })
 
-  it('explains the public workflow without requiring Meta developer expertise', () => {
-    render(<App />, { wrapper: MemoryRouter })
-
-    const workflow = screen.getByRole('region', {
-      name: 'From Facebook comment to human decision.',
-    })
-
-    expect(workflow).toHaveAttribute('id', 'how-it-works')
-    expect(workflow).toHaveTextContent('Connect the Page')
-    expect(workflow).toHaveTextContent('Prioritize review')
-    expect(workflow).toHaveTextContent('Decide with context')
-    expect(workflow).toHaveTextContent('No Meta developer workflow for client staff')
-  })
-
-  it('translates the public workflow to Khmer', async () => {
-    const user = userEvent.setup()
-    render(<App />, { wrapper: MemoryRouter })
-
-    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
-
-    const workflow = screen.getByRole('region', {
-      name: 'ពីមតិយោបល់ Facebook ទៅការសម្រេចដោយមនុស្ស។',
-    })
-
-    expect(workflow).toHaveTextContent('ភ្ជាប់ទំព័រ')
-    expect(workflow).toHaveTextContent('កំណត់អាទិភាពពិនិត្យ')
-    expect(workflow).toHaveTextContent('សម្រេចដោយមានបរិបទ')
-  })
-
-  it('offers the published early access plans', () => {
-    render(<App />, { wrapper: MemoryRouter })
-
-    const access = screen.getByRole('region', {
-      name: 'Start a pilot with your Page and your team.',
-    })
-
-    expect(access).toHaveAttribute('id', 'early-access')
-    expect(access).toHaveTextContent('Early access')
-    expect(access).toHaveTextContent('Starter')
-    expect(access).toHaveTextContent('$15/mo')
-    expect(access).toHaveTextContent('Khmer & Khmerlish comment moderation')
-    expect(access).toHaveTextContent('Price per Page drops as you grow')
-    expect(within(access).getAllByRole('link', { name: /Start free trial/ })).toHaveLength(3)
-    expect(
-      within(access).getAllByRole('link', { name: /Start free trial/ })[0],
-    ).toHaveAttribute('href', '/sign-up')
-  })
-
-  it('closes the page with a footer that states prototype status', () => {
-    render(<App />, { wrapper: MemoryRouter })
-
-    const footer = screen.getByRole('contentinfo')
-
-    expect(footer).toHaveTextContent('Prototype status')
-    expect(footer).toHaveTextContent('Versioned pattern matching')
-    expect(footer).toHaveTextContent('Human review required')
-    expect(within(footer).getByRole('navigation', { name: 'Footer navigation' })).toBeVisible()
-    expect(within(footer).getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/sign-in')
-  })
-
-  it('translates the early access section and footer to Khmer', async () => {
-    const user = userEvent.setup()
-    render(<App />, { wrapper: MemoryRouter })
-
-    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
-
-    const access = screen.getByRole('region', {
-      name: 'ចាប់ផ្តើមសាកល្បងជាមួយទំព័រ និងក្រុមរបស់អ្នក។',
-    })
-
-    expect(access).toHaveTextContent('ការចូលប្រើដំបូង')
-    expect(access).toHaveTextContent('ចាប់ផ្តើម')
-    expect(access).toHaveTextContent('$15/ខែ')
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('ស្ថានភាព Prototype')
-  })
-
-  it('shows how Khmer context separates institution criticism from person-directed abuse', () => {
-    render(<App />, { wrapper: MemoryRouter })
-
-    const khmer = screen.getByRole('region', {
-      name: 'Khmer, Khmerlish, and the slang in between.',
-    })
-
-    expect(khmer).toHaveAttribute('id', 'khmer-context')
-    expect(khmer).toHaveTextContent('Khmerlish and code-switching')
-    expect(khmer).toHaveTextContent('Misspellings and obfuscated words')
-    expect(khmer).toHaveTextContent('Institution')
-    expect(khmer).toHaveTextContent('Stays visible')
-    expect(khmer).toHaveTextContent('Person')
-    expect(khmer).toHaveTextContent('Needs review')
-  })
-
-  it('states every responsible-moderation guarantee including the no-self-training rule', () => {
-    render(<App />, { wrapper: MemoryRouter })
-
-    const control = screen.getByRole('region', {
-      name: 'You decide what KCMS is allowed to do.',
-    })
-
-    expect(control).toHaveAttribute('id', 'responsible-moderation')
-    expect(control).toHaveTextContent('Automatic hiding is off today')
-    expect(control).toHaveTextContent('Every hide and unhide is performed by a person')
-    expect(control).toHaveTextContent('Actions are reversible')
-    expect(control).toHaveTextContent('Correcting a model label is separate from hiding')
-    expect(control).toHaveTextContent('never hidden automatically')
-    expect(control).toHaveTextContent('The model is frozen between releases')
-    expect(control).toHaveTextContent('reviewed offline')
-    expect(control).toHaveTextContent('Messenger and Instagram are not connected yet')
-  })
-
-  it('asks for a pilot only after establishing Khmer capability and responsible moderation', () => {
-    const { container } = render(<App />, { wrapper: MemoryRouter })
-
-    const ids = Array.from(container.querySelectorAll('main > section')).map((s) => s.id)
-
-    expect(ids).toEqual(['', 'service-overview', 'how-it-works', 'khmer-context', 'responsible-moderation', 'early-access', 'faq'])
-  })
-
-  it('offers an honest looping service overview without publishing a broken video', async () => {
-    const user = userEvent.setup()
-    render(<App />, { wrapper: MemoryRouter })
-
-    const overview = screen.getByRole('region', {
-      name: 'See one Facebook comment move through KCMS.',
-    })
-    expect(overview).toHaveAttribute('id', 'service-overview')
-    expect(overview).toHaveTextContent('Comment posted on Facebook')
-    expect(overview).toHaveTextContent('Automatic detection')
-    expect(overview).toHaveTextContent('Human review')
-    expect(overview).toHaveTextContent('Hide confirmed on Facebook')
-    expect(overview).toHaveTextContent('Unhide restores the comment')
-    expect(within(overview).queryByRole('link', { name: 'Open the client workspace' })).not.toBeInTheDocument()
-    const pause = within(overview).getByRole('button', { name: 'Pause animation' })
-    await user.click(pause)
-    expect(within(overview).getByRole('button', { name: 'Play animation' })).toBeInTheDocument()
-    expect(within(overview).queryByText(/coming soon/i)).not.toBeInTheDocument()
-  })
-
-  it('answers the core product questions one at a time', async () => {
-    const user = userEvent.setup()
-    render(<App />, { wrapper: MemoryRouter })
-
-    const faq = screen.getByRole('region', { name: 'Questions before connecting a Page.' })
-    const detection = within(faq).getByRole('button', { name: 'Does KCMS automatically detect comments?' })
-    const pricing = within(faq).getByRole('button', { name: 'How much does KCMS cost?' })
-
-    expect(detection).toHaveAttribute('aria-expanded', 'true')
-    expect(faq).toHaveTextContent('Pattern matching powers the current prototype')
-
-    await user.click(pricing)
-    expect(detection).toHaveAttribute('aria-expanded', 'false')
-    expect(pricing).toHaveAttribute('aria-expanded', 'true')
-    expect(faq).toHaveTextContent('number of connected Facebook Pages')
-    expect(faq).not.toHaveTextContent('comment volume')
-    expect(faq).not.toHaveTextContent('team size')
-  })
-
-  it('translates the Khmer context and responsible moderation sections', async () => {
+  it('switches the whole page to Khmer and offers the way back', async () => {
     const user = userEvent.setup()
     render(<App />, { wrapper: MemoryRouter })
 
     await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
 
     expect(
-      screen.getByRole('region', { name: 'ខ្មែរ Khmerlish និងពាក្យស្លែងនៅចន្លោះ។' }),
-    ).toHaveTextContent('អង្គភាព')
-    expect(
-      screen.getByRole('region', {
-        name: 'អ្នកជាអ្នកសម្រេចថា KCMS អាចធ្វើអ្វីបាន។',
-      }),
-    ).toHaveTextContent('គំរូត្រូវបានបង្កក')
+      screen.getByRole('heading', { level: 1, name: 'ទីបំផុត AI ដែលយល់ភាសាខ្មែរ' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'មតិយោបល់ច្រើនពេក?' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'បង្កើតឡើងសម្រាប់ភាសាខ្មែរ' })).toBeInTheDocument()
+
+    // The toggle always offers the language you are not reading.
+    expect(screen.getByRole('button', { name: 'English' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'ភាសាខ្មែរ' })).not.toBeInTheDocument()
+  })
+
+  it('remembers the language choice for the next visit', async () => {
+    const user = userEvent.setup()
+    render(<App />, { wrapper: MemoryRouter })
+
+    await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
+    expect(localStorage.getItem('kcms.locale')).toBe('km')
+  })
+
+  it('closes the page with a footer that can reach the rest of the site', () => {
+    render(<App />, { wrapper: MemoryRouter })
+
+    const footer = within(screen.getByRole('contentinfo'))
+    expect(footer.getByRole('navigation', { name: 'Footer navigation' })).toBeVisible()
+    expect(footer.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/request-access')
+    expect(footer.getByText(/Built in Cambodia, for Khmer/i)).toBeInTheDocument()
   })
 })

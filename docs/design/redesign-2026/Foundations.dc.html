@@ -1,0 +1,289 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Noto+Sans+Khmer:wght@400;500;600;700&amp;display=swap">
+  <style>
+    :root{
+      --teal:#00A99D; --teal-deep:#00706A; --teal-wash:#E0F5F3;
+      --ink:#101418; --slate:#616C7A; --slate-2:#8B94A2;
+      --white:#FFFFFF; --mist:#F7F8FA; --mist2:#F1F3F7; --mist3:#EBEEF3;
+      --line:#E6E9EE; --line2:#D8DDE5;
+      --ok:#3F7A55; --ok-w:#EAF3EC; --ok-i:#2E5C3F;
+      --warn:#B96E09; --warn-w:#FCF3E4; --warn-i:#8A5206;
+      --bad:#CE3A2D; --bad-w:#FBEDEB; --bad-i:#A32A20;
+      --sans:'DM Sans','Noto Sans Khmer',system-ui,sans-serif;
+      --khmer:'Noto Sans Khmer','DM Sans',system-ui,sans-serif;
+      --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+      --sh1:0 1px 2px rgba(16,20,24,.05);
+      --sh2:0 1px 2px rgba(16,20,24,.05),0 10px 26px rgba(16,20,24,.07);
+    }
+    body{margin:0;background:var(--mist);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+    a{color:var(--teal-deep);text-decoration:none;}
+    h1,h2,h3{margin:0;} p{margin:0;}
+    .km{font-family:var(--khmer);line-height:1.85;}
+    .mono{font-family:var(--mono);font-size:11.5px;}
+    .card{background:var(--white);border-radius:16px;box-shadow:var(--sh2);}
+    .lbl{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--slate);}
+    .key{display:inline-grid;place-items:center;min-width:28px;height:21px;padding:0 8px;border-radius:6px;background:var(--teal-wash);color:var(--teal-deep);font-size:10.5px;font-weight:700;}
+    .chip{display:inline-flex;align-items:center;gap:6px;height:25px;padding:0 12px;border-radius:999px;font-size:11px;font-weight:700;}
+    .c-ok{background:var(--ok-w);color:var(--ok-i);} .c-warn{background:var(--warn-w);color:var(--warn-i);}
+    .c-bad{background:var(--bad-w);color:var(--bad-i);} .c-q{background:var(--mist2);color:var(--slate);}
+    .c-teal{background:var(--teal-wash);color:var(--teal-deep);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 22px;border-radius:999px;font-size:14px;font-weight:700;background:var(--teal);color:#fff;box-shadow:0 8px 20px rgba(0,169,157,.34);}
+    .btn-2{background:var(--white);color:var(--ink);border:1px solid var(--line2);box-shadow:var(--sh1);}
+    .btn-d{background:var(--white);border:1px solid rgba(206,58,45,.4);color:var(--bad-i);box-shadow:var(--sh1);}
+    .demo{position:relative;height:104px;border-radius:12px;background:var(--mist);overflow:hidden;}
+    .sw{height:62px;border-radius:11px;box-shadow:inset 0 0 0 1px rgba(16,20,24,.06);}
+    .num{font-variant-numeric:tabular-nums;}
+
+    @keyframes dTilt{0%,14%{transform:rotateX(11deg) rotateY(-22deg);}50%,64%{transform:rotateX(4deg) rotateY(8deg);}96%,100%{transform:rotateX(11deg) rotateY(-22deg);}}
+    @keyframes dSettle{0%{opacity:0;transform:translateY(12px);}22%,78%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+    @keyframes dEnter{0%{opacity:0;transform:translateY(-14px);}18%,80%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+    @keyframes dEdge{0%,18%{opacity:1;}55%,100%{opacity:0;}}
+    @keyframes dFocus{0%,26%{transform:translateY(0);}48%,74%{transform:translateY(40px);}96%,100%{transform:translateY(0);}}
+    @keyframes dFocusA{0%,26%{background:var(--teal-wash);}48%,74%{background:transparent;}96%,100%{background:var(--teal-wash);}}
+    @keyframes dFocusB{0%,26%{background:transparent;}48%,74%{background:var(--teal-wash);}96%,100%{background:transparent;}}
+    @keyframes dUnder{0%,24%{transform:translateX(0);width:74px;}46%,72%{transform:translateX(90px);width:56px;}94%,100%{transform:translateX(0);width:74px;}}
+    @keyframes dCollapse{0%,22%{max-height:52px;opacity:1;}46%,74%{max-height:0;opacity:0;}90%,100%{max-height:52px;opacity:1;}}
+    @keyframes dToast{0%,30%{opacity:0;transform:translateY(10px);}46%,76%{opacity:1;transform:translateY(0);}88%,100%{opacity:0;transform:translateY(10px);}}
+    @keyframes dCount{0%,10%{opacity:.2;}30%,100%{opacity:1;}}
+    @keyframes dSheet{0%,20%{transform:translateX(100%);}40%,76%{transform:translateX(0);}94%,100%{transform:translateX(100%);}}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important;}}
+  </style>
+</helmet>
+
+<div style="width:1440px;padding:44px 0 52px;background:var(--mist);">
+  <div style="display:flex;flex-direction:column;gap:26px;width:1330px;margin:0 auto;">
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <span class="lbl">KCMS redesign &#183; foundations</span>
+        <h2 style="font-size:42px;font-weight:700;line-height:1.05;letter-spacing:-.038em;">Bright Teal, DM Sans, and the parts you picked.</h2>
+      </div>
+      <p style="max-width:46ch;font-size:14px;line-height:1.7;color:var(--slate);">Everything on the other five artboards is built from this sheet. Teal marks the brand and what is interactive; the three state colours are reserved for meaning and never used for decoration.</p>
+    </div>
+
+    <!-- COLOUR -->
+    <section class="card" style="display:flex;flex-direction:column;gap:20px;padding:26px 28px;">
+      <div style="display:flex;align-items:baseline;gap:12px;">
+        <h3 style="font-size:19px;font-weight:700;letter-spacing:-.025em;">Colour</h3>
+        <span style="font-size:13px;color:var(--slate);">Neutrals carry the layout. Four hues, each one a meaning.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;">
+        <span style="display:flex;flex-direction:column;gap:9px;"><span class="sw" style="background:#00A99D;"></span><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:700;">Teal</span><span class="mono" style="color:var(--slate);">#00A99D</span></span></span>
+        <span style="display:flex;flex-direction:column;gap:9px;"><span class="sw" style="background:#00706A;"></span><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:700;">Teal deep</span><span class="mono" style="color:var(--slate);">#00706A &#183; teal text</span></span></span>
+        <span style="display:flex;flex-direction:column;gap:9px;"><span class="sw" style="background:#E0F5F3;"></span><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:700;">Teal wash</span><span class="mono" style="color:var(--slate);">#E0F5F3</span></span></span>
+        <span style="display:flex;flex-direction:column;gap:9px;"><span class="sw" style="background:#101418;"></span><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:700;">Ink</span><span class="mono" style="color:var(--slate);">#101418 &#183; text</span></span></span>
+        <span style="display:flex;flex-direction:column;gap:9px;"><span class="sw" style="background:#F7F8FA;"></span><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:700;">Mist</span><span class="mono" style="color:var(--slate);">#F7F8FA &#183; page ground</span></span></span>
+        <span style="display:flex;flex-direction:column;gap:9px;"><span class="sw" style="background:#FFFFFF;"></span><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:700;">White</span><span class="mono" style="color:var(--slate);">#FFFFFF &#183; cards</span></span></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding-top:20px;border-top:1px solid var(--line);">
+        <span style="display:flex;flex-direction:column;gap:9px;">
+          <span style="display:flex;height:42px;border-radius:11px;overflow:hidden;"><span style="flex:1;background:#3F7A55;"></span><span style="flex:1;background:#EAF3EC;"></span></span>
+          <span style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:13px;font-weight:700;color:var(--ok-i);">Green &#8212; safe or settled</span><span class="mono" style="color:var(--slate);">#3F7A55 / #EAF3EC</span><span style="font-size:12px;line-height:1.6;color:var(--slate);">Muted deliberately, so it never reads as the brand teal at a glance.</span></span>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:9px;">
+          <span style="display:flex;height:42px;border-radius:11px;overflow:hidden;"><span style="flex:1;background:#B96E09;"></span><span style="flex:1;background:#FCF3E4;"></span></span>
+          <span style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:13px;font-weight:700;color:var(--warn-i);">Amber &#8212; needs a human</span><span class="mono" style="color:var(--slate);">#B96E09 / #FCF3E4</span><span style="font-size:12px;line-height:1.6;color:var(--slate);">The review queue, expiring tokens, anything waiting on a person.</span></span>
+        </span>
+        <span style="display:flex;flex-direction:column;gap:9px;">
+          <span style="display:flex;height:42px;border-radius:11px;overflow:hidden;"><span style="flex:1;background:#CE3A2D;"></span><span style="flex:1;background:#FBEDEB;"></span></span>
+          <span style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:13px;font-weight:700;color:var(--bad-i);">Red &#8212; harm</span><span class="mono" style="color:var(--slate);">#CE3A2D / #FBEDEB</span><span style="font-size:12px;line-height:1.6;color:var(--slate);">Scam and abuse only. Never a plain error or a destructive button.</span></span>
+        </span>
+      </div>
+    </section>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;">
+
+      <section class="card" style="display:flex;flex-direction:column;gap:18px;padding:26px 28px;">
+        <div style="display:flex;align-items:baseline;gap:12px;">
+          <h3 style="font-size:19px;font-weight:700;letter-spacing:-.025em;">Type</h3>
+          <span class="key">F3</span>
+          <span style="font-size:13px;color:var(--slate);">One Latin family, one Khmer family.</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:16px;border-bottom:1px solid var(--line);">
+          <span class="lbl">DM Sans 700 &#183; display</span>
+          <p style="font-size:42px;font-weight:700;line-height:1.04;letter-spacing:-.04em;">Moderate with context</p>
+          <span style="font-size:12.5px;color:var(--slate);line-height:1.65;margin-top:4px;">Headlines take &#8722;0.035em to &#8722;0.04em tracking. Below 24px, tracking returns to zero.</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:16px;border-bottom:1px solid var(--line);">
+          <span class="lbl">DM Sans 400 / 500 / 700 &#183; interface, body, data</span>
+          <p style="font-size:20px;font-weight:700;letter-spacing:-.02em;">Needs review &#183; 12 waiting</p>
+          <p style="font-size:14px;line-height:1.7;color:var(--slate);">One family means no pairing to maintain and one file to load. Digits use <span class="mono">font-variant-numeric: tabular-nums</span> wherever they line up in a column.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <span class="lbl">Noto Sans Khmer 400&#8211;700 &#183; all Khmer</span>
+          <p class="km" style="font-size:23px;font-weight:600;">គ្រប់គ្រងដោយយល់ពីបរិបទ</p>
+          <p class="km" style="font-size:15px;">មតិយោបល់នេះត្រូវការការពិនិត្យពីមនុស្ស។</p>
+          <span style="font-size:12.5px;color:var(--slate);line-height:1.65;margin-top:4px;">Named first for Khmer text rather than sitting behind Google Sans, which has no Khmer glyphs. Line height 1.85, always checked separately from the Latin.</span>
+        </div>
+      </section>
+
+      <section class="card" style="display:flex;flex-direction:column;gap:18px;padding:26px 28px;">
+        <div style="display:flex;align-items:baseline;gap:12px;">
+          <h3 style="font-size:19px;font-weight:700;letter-spacing:-.025em;">Components</h3>
+          <span style="font-size:13px;color:var(--slate);">Your selections.</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:9px;padding-bottom:16px;border-bottom:1px solid var(--line);">
+          <span style="display:flex;align-items:center;gap:8px;"><span class="key">B3</span><span class="lbl">Buttons &#8212; teal pill, raised</span></span>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;"><span class="btn">Get started</span><span class="btn btn-2">See how it works</span><span class="btn btn-d">Hide comment</span></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:9px;padding-bottom:16px;border-bottom:1px solid var(--line);">
+          <span style="display:flex;align-items:center;gap:8px;"><span class="key">L1</span><span class="lbl">Language &#8212; no frame, offers the other language</span></span>
+          <div style="display:flex;gap:16px;">
+            <span style="display:inline-flex;align-items:center;gap:9px;padding:7px 10px;border-radius:9px;font-size:13.5px;font-weight:500;">
+              <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true" style="border-radius:2px;box-shadow:0 0 0 1px rgba(16,20,24,.12);"><rect width="24" height="16" fill="#032EA1"></rect><rect y="4" width="24" height="8" fill="#E00025"></rect><rect x="8.4" y="10.2" width="7.2" height="1" fill="#fff"></rect><path d="M11.4 5.6h1.2v4.4h-1.2z" fill="#fff"></path><path d="M12 4.6l.9 1.2h-1.8z" fill="#fff"></path><path d="M9.3 7.2h1.1v2.8H9.3z" fill="#fff"></path><path d="M9.85 6.4l.75 1h-1.5z" fill="#fff"></path><path d="M13.6 7.2h1.1v2.8h-1.1z" fill="#fff"></path><path d="M14.15 6.4l.75 1h-1.5z" fill="#fff"></path></svg>
+              <span class="km">ភាសាខ្មែរ</span>
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:9px;padding:7px 10px;border-radius:9px;font-size:13.5px;font-weight:500;">
+              <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true" style="border-radius:2px;box-shadow:0 0 0 1px rgba(16,20,24,.12);"><rect width="24" height="16" fill="#012169"></rect><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.4"></path><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.7"></path><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.4"></path><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3.2"></path></svg>
+              English
+            </span>
+          </div>
+          <span style="font-size:12px;color:var(--slate);">On an English page it offers Khmer; on a Khmer page it offers English.</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:9px;padding-bottom:16px;border-bottom:1px solid var(--line);">
+          <span style="display:flex;align-items:center;gap:8px;"><span class="key">S1</span><span class="lbl">State chips &#8212; soft wash, word first</span></span>
+          <div style="display:flex;flex-wrap:wrap;gap:9px;"><span class="chip c-ok">Stays visible</span><span class="chip c-warn">Needs review</span><span class="chip c-bad">Scam</span><span class="chip c-q">No rule matched</span><span class="chip c-teal">Rule matched</span></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <span style="display:flex;align-items:center;gap:8px;"><span class="key">R3</span><span class="lbl">Queue row &#8212; tinted by severity</span></span>
+          <div style="display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:var(--bad-w);"><span class="km" style="font-size:13.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">ចុចតំណនេះទទួលលុយ $500&#8230;</span><span class="chip" style="background:#fff;color:var(--bad-i);">Scam</span></div>
+          <div style="display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:var(--warn-w);"><span class="km" style="font-size:13.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">អ្នកនេះល្ងង់ណាស់&#8230;</span><span class="chip" style="background:#fff;color:var(--warn-i);">Review</span></div>
+          <div style="display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:var(--mist);"><span class="km" style="font-size:13.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់&#8230;</span><span class="chip c-q">No rule</span></div>
+          <span style="font-size:12px;line-height:1.6;color:var(--slate);">Rows that need nothing stay neutral, so a full queue is not a wall of colour. Only comments awaiting a decision carry a tint.</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- MOTION -->
+    <section class="card" style="display:flex;flex-direction:column;gap:20px;padding:26px 28px;">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <h3 style="font-size:19px;font-weight:700;letter-spacing:-.025em;">Motion</h3>
+          <span style="font-size:13.5px;color:var(--slate);max-width:76ch;line-height:1.7;">Eight named motions and nothing else. Each answers a question the reviewer would otherwise have to ask: what arrived, what changed, what did I just do. The demos loop; in the product each plays once.</span>
+        </div>
+        <span class="chip c-q" style="height:30px;"><span class="mono">motion/react</span> is already a dependency</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;">
+
+        <article style="display:flex;flex-direction:column;gap:10px;">
+          <div class="demo" style="perspective:600px;display:grid;place-items:center;">
+            <span style="width:120px;height:66px;border-radius:9px;background:#fff;box-shadow:var(--sh2);animation:dTilt 5s ease-in-out infinite;"></span>
+          </div>
+          <span style="font-size:14px;font-weight:700;">Hero tilt &#183; 3D-D</span>
+          <span style="font-size:12.5px;line-height:1.65;color:var(--slate);">The dashboard object follows the pointer with damping, so it settles rather than snapping. Idles with a slow drift.</span>
+          <span class="mono" style="color:var(--slate);">lerp 0.07 &#183; three.js in production</span>
+        </article>
+
+        <article style="display:flex;flex-direction:column;gap:10px;">
+          <div class="demo">
+            <span style="position:absolute;left:22px;top:16px;right:52px;height:20px;border-radius:6px;background:#fff;box-shadow:var(--sh1);animation:dSettle 3.6s cubic-bezier(.22,1,.36,1) .05s infinite;"></span>
+            <span style="position:absolute;left:32px;top:42px;right:38px;height:20px;border-radius:6px;background:#fff;box-shadow:var(--sh1);animation:dSettle 3.6s cubic-bezier(.22,1,.36,1) .18s infinite;"></span>
+            <span style="position:absolute;left:42px;top:68px;right:24px;height:20px;border-radius:6px;background:#fff;box-shadow:var(--sh2);animation:dSettle 3.6s cubic-bezier(.22,1,.36,1) .31s infinite;"></span>
+          </div>
+          <span style="font-size:14px;font-weight:700;">Depth stack &#183; 3D-B</span>
+          <span style="font-size:12.5px;line-height:1.65;color:var(--slate);">The three outcomes settle into depth in the Khmer section. CSS perspective, real selectable text, no library.</span>
+          <span class="mono" style="color:var(--slate);">600ms &#183; 90ms stagger &#183; 0 KB</span>
+        </article>
+
+        <article style="display:flex;flex-direction:column;gap:10px;">
+          <div class="demo">
+            <span style="position:absolute;left:14px;right:14px;top:14px;height:24px;border-radius:8px;background:#fff;box-shadow:var(--sh1);"></span>
+            <span style="position:absolute;left:14px;right:14px;top:44px;height:24px;border-radius:8px;background:var(--warn-w);animation:dEnter 3.6s cubic-bezier(.22,1,.36,1) infinite;"></span>
+            <span style="position:absolute;left:14px;top:44px;width:3px;height:24px;border-radius:2px;background:var(--teal);animation:dEnter 3.6s cubic-bezier(.22,1,.36,1) infinite,dEdge 3.6s linear infinite;"></span>
+            <span style="position:absolute;left:14px;right:14px;top:74px;height:24px;border-radius:8px;background:#fff;box-shadow:var(--sh1);"></span>
+          </div>
+          <span style="font-size:14px;font-weight:700;">Queue enter</span>
+          <span style="font-size:12.5px;line-height:1.65;color:var(--slate);">A new comment drops in already tinted, with a teal edge that fades over 600ms &#8212; new without shouting.</span>
+          <span class="mono" style="color:var(--slate);">260ms slide + 600ms edge fade</span>
+        </article>
+
+        <article style="display:flex;flex-direction:column;gap:10px;">
+          <div class="demo">
+            <span style="position:absolute;left:14px;top:16px;right:14px;height:34px;border-radius:9px;animation:dFocusA 3.6s ease-in-out infinite;"></span>
+            <span style="position:absolute;left:14px;top:56px;right:14px;height:34px;border-radius:9px;animation:dFocusB 3.6s ease-in-out infinite;"></span>
+            <span style="position:absolute;left:14px;top:22px;width:3px;height:22px;border-radius:0 2px 2px 0;background:var(--teal);animation:dFocus 3.6s cubic-bezier(.22,1,.36,1) infinite;"></span>
+            <span style="position:absolute;left:32px;top:26px;width:64px;height:8px;border-radius:4px;background:var(--line2);"></span>
+            <span style="position:absolute;left:32px;top:66px;width:82px;height:8px;border-radius:4px;background:var(--line2);"></span>
+          </div>
+          <span style="font-size:14px;font-weight:700;">Rail focus &#183; N1</span>
+          <span style="font-size:12.5px;line-height:1.65;color:var(--slate);">The teal rail slides between sidebar items instead of blinking, so the nav reads as one object.</span>
+          <span class="mono" style="color:var(--slate);">220ms &#183; shared layoutId</span>
+        </article>
+
+        <article style="display:flex;flex-direction:column;gap:10px;">
+          <div class="demo">
+            <span style="position:absolute;left:16px;top:44px;width:74px;height:9px;border-radius:5px;background:var(--line2);"></span>
+            <span style="position:absolute;left:106px;top:44px;width:56px;height:9px;border-radius:5px;background:var(--line2);"></span>
+            <span style="position:absolute;left:16px;top:62px;right:16px;height:1px;background:var(--line);"></span>
+            <span style="position:absolute;left:16px;top:60px;height:2px;background:var(--teal);animation:dUnder 3.6s cubic-bezier(.22,1,.36,1) infinite;"></span>
+          </div>
+          <span style="font-size:14px;font-weight:700;">Underline slide &#183; T2</span>
+          <span style="font-size:12.5px;line-height:1.65;color:var(--slate);">Queue tabs and the chart range share one underline that slides and resizes to the label it lands on.</span>
+          <span class="mono" style="color:var(--slate);">220ms &#183; shared layoutId</span>
+        </article>
+
+        <article style="display:flex;flex-direction:column;gap:10px;">
+          <div class="demo" style="display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 14px;">
+            <span style="height:20px;border-radius:7px;background:#fff;box-shadow:var(--sh1);flex:none;"></span>
+            <span style="display:block;overflow:hidden;flex:none;animation:dCollapse 3.6s cubic-bezier(.4,0,.2,1) infinite;"><span style="display:block;height:20px;border-radius:7px;background:var(--bad-w);"></span></span>
+            <span style="height:20px;border-radius:7px;background:#fff;box-shadow:var(--sh1);flex:none;"></span>
+            <span style="position:absolute;left:14px;bottom:10px;display:flex;align-items:center;gap:8px;height:24px;padding:0 12px;border-radius:999px;background:#fff;box-shadow:var(--sh2);animation:dToast 3.6s cubic-bezier(.22,1,.36,1) infinite;">
+              <span style="font-size:10px;font-weight:700;">Hidden</span><span style="font-size:10px;font-weight:700;color:var(--teal-deep);">Undo</span>
+            </span>
+          </div>
+          <span style="font-size:14px;font-weight:700;">Decision collapse</span>
+          <span style="font-size:12.5px;line-height:1.65;color:var(--slate);">A decided row folds out of the queue and an undo toast takes its place. The work visibly finishes.</span>
+          <span class="mono" style="color:var(--slate);">260ms collapse &#183; toast holds 6s</span>
+        </article>
+
+        <article style="display:flex;flex-direction:column;gap:10px;">
+          <div class="demo" style="display:grid;place-items:center;">
+            <span style="display:flex;align-items:flex-end;gap:10px;animation:dCount 3.6s ease-out infinite;">
+              <span class="num" style="font-size:29px;font-weight:700;letter-spacing:-.04em;line-height:1;">4,182</span>
+              <svg width="70" height="26" viewBox="0 0 70 26" aria-hidden="true"><polyline points="0,20 12,16 24,19 35,11 47,13 58,6 70,3" fill="none" stroke="#00A99D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline><circle cx="70" cy="3" r="2.6" fill="#00A99D"></circle></svg>
+            </span>
+          </div>
+          <span style="font-size:14px;font-weight:700;">Figure count-up &#183; K2</span>
+          <span style="font-size:12.5px;line-height:1.65;color:var(--slate);">KPI figures count from zero and the sparkline draws alongside. No bounce &#8212; operational numbers, not a scoreboard.</span>
+          <span class="mono" style="color:var(--slate);">900ms &#183; ease-out &#183; tabular-nums</span>
+        </article>
+
+        <article style="display:flex;flex-direction:column;gap:10px;">
+          <div class="demo">
+            <span style="position:absolute;inset:14px;border-radius:10px;background:var(--mist2);"></span>
+            <span style="position:absolute;right:14px;top:14px;bottom:14px;width:98px;border-radius:10px;background:#fff;box-shadow:var(--sh2);animation:dSheet 3.6s cubic-bezier(.22,1,.36,1) infinite;"></span>
+          </div>
+          <span style="font-size:14px;font-weight:700;">Review sheet</span>
+          <span style="font-size:12.5px;line-height:1.65;color:var(--slate);">The review panel springs in from the right when a row is selected, and the queue stays visible behind it.</span>
+          <span class="mono" style="color:var(--slate);">spring &#183; stiffness 320, damping 34</span>
+        </article>
+      </div>
+
+      <div style="display:flex;gap:16px;padding:18px 20px;border-radius:12px;background:var(--warn-w);">
+        <span style="flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(185,110,9,.16);color:var(--warn-i);font-weight:700;font-size:14px;">!</span>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <span style="font-size:14px;font-weight:700;color:var(--warn-i);">Reduced motion is a second design, not a downgrade path.</span>
+          <span style="font-size:13px;line-height:1.7;color:var(--warn-i);">Under <span class="mono">prefers-reduced-motion: reduce</span> every motion above collapses to an opacity change of 120ms or less, the 3D hero renders one still frame and stops, and the decision collapse becomes an instant removal with the same toast. The reviewer still learns what changed &#8212; nothing moves to tell them. Read the setting once with <span class="mono">useReducedMotion()</span> and branch the variant rather than disabling animation in CSS afterwards. Below 768px the WebGL hero never loads at all: a phone gets the flat panel on the mobile artboard.</span>
+        </div>
+      </div>
+    </section>
+
+    <p style="font-size:12.5px;line-height:1.7;color:var(--slate);max-width:104ch;">Sample figures, names and comments on these artboards are illustrative. The Khmer examples are the ones already in <span class="mono">src/app/copy.ts</span>; queue volumes, prices, organisation names and Page handles are placeholders to replace before anything ships.</p>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

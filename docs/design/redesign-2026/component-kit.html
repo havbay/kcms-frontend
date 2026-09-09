@@ -1,0 +1,782 @@
+<title>KCMS Component Kit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Gabarito:wght@400;500;700;800&family=Instrument+Serif&family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,300;6..72,400&family=Noto+Sans+Khmer:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --teal:#00A99D; --teal-deep:#00706A; --teal-wash:#E0F5F3; --teal-line:#9BDBD5;
+    --ink:#101418; --slate:#616C7A; --slate-2:#8B94A2;
+    --white:#FFFFFF; --mist:#F7F8FA; --mist2:#F1F3F7; --mist3:#EAEDF2;
+    --line:#E6E9EE; --line2:#D8DDE5;
+    --ok:#3F7A55; --ok-w:#EAF3EC; --ok-i:#2E5C3F;
+    --warn:#B96E09; --warn-w:#FCF3E4; --warn-i:#8A5206;
+    --bad:#CE3A2D; --bad-w:#FBEDEB; --bad-i:#A32A20;
+    --sans:'Manrope','Noto Sans Khmer',system-ui,-apple-system,sans-serif;
+    --serif:'Instrument Serif','Times New Roman',serif;
+    --khmer:'Noto Sans Khmer','Manrope',system-ui,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --sh-1:0 1px 2px rgba(16,20,24,.05);
+    --sh-2:0 1px 2px rgba(16,20,24,.05),0 8px 22px rgba(16,20,24,.07);
+    --sh-3:0 1px 2px rgba(16,20,24,.06),0 18px 44px rgba(16,20,24,.12);
+  }
+  body{background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  .wrap{width:min(100% - 44px,1320px);margin-inline:auto;padding-block:56px 76px;}
+  h1,h2,h3,h4,p{margin:0;}
+  .km{font-family:var(--khmer);line-height:1.85;}
+  .mono{font-family:var(--mono);font-size:11px;}
+  .lbl{font-size:10px;font-weight:750;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);}
+  .key{display:inline-grid;place-items:center;min-width:26px;height:21px;padding:0 7px;border-radius:6px;background:var(--ink);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.03em;}
+  .key-t{background:var(--teal-deep);}
+  .pick{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:var(--teal-wash);color:var(--teal-deep);font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;}
+  .fixed{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:var(--mist2);color:var(--slate);font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;}
+
+  header.top{display:flex;flex-direction:column;gap:13px;padding-bottom:28px;border-bottom:1px solid var(--line);}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,52px);line-height:1.04;letter-spacing:-.02em;text-wrap:balance;max-width:22ch;}
+  .sub{font-size:16px;line-height:1.7;color:var(--slate);max-width:72ch;}
+  .locked{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:24px;padding:15px 17px;border:1px solid var(--line);border-radius:12px;background:var(--mist);}
+  .locked .tok{display:flex;align-items:center;gap:8px;padding:6px 11px 6px 7px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:11.5px;font-weight:700;}
+  .locked .tok i{width:15px;height:15px;border-radius:5px;border:1px solid rgba(16,20,24,.08);}
+
+  section.blk{margin-top:54px;}
+  .shead{display:flex;align-items:flex-end;justify-content:space-between;gap:36px;padding-bottom:16px;border-bottom:2px solid var(--ink);}
+  h2{font-family:var(--serif);font-weight:400;font-size:34px;line-height:1.08;letter-spacing:-.015em;}
+  .shead p{font-size:13.5px;line-height:1.7;color:var(--slate);max-width:50ch;}
+
+  /* fonts */
+  .fonts{display:flex;flex-direction:column;gap:14px;margin-top:22px;}
+  .fopt{display:grid;grid-template-columns:56px minmax(0,1fr) 264px;gap:24px;align-items:start;padding:22px 24px;border:1px solid var(--line);border-radius:14px;}
+  .fhl{font-size:35px;line-height:1.05;letter-spacing:-.02em;text-wrap:balance;}
+  .fsub{margin-top:8px;font-size:13.5px;line-height:1.65;color:var(--slate);max-width:46ch;}
+  .fui{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
+  .fui .n{font-size:21px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+  .fui .c{font-size:10px;font-weight:750;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);}
+  .fui .bt{padding:8px 15px;border-radius:8px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:700;}
+  .fnames{font-size:12.5px;font-weight:750;margin-top:8px;line-height:1.5;}
+  .fnote{font-size:12.5px;line-height:1.65;color:var(--slate);margin-top:6px;}
+
+  /* library grid */
+  .lib{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px;margin-top:22px;}
+  .item{grid-column:span 4;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff;}
+  .item.w6{grid-column:span 6;} .item.w8{grid-column:span 8;} .item.w12{grid-column:span 12;}
+  .ih{display:flex;align-items:center;gap:9px;padding:12px 15px;border-bottom:1px solid var(--line);background:var(--mist);}
+  .ih h4{font-size:12.5px;font-weight:800;letter-spacing:-.005em;}
+  .ih .sp{margin-left:auto;}
+  .ib{display:flex;flex-wrap:wrap;align-items:center;gap:11px;padding:20px 16px;}
+  .ib.col{flex-direction:column;align-items:stretch;gap:10px;}
+  .ib.pad0{padding:0;}
+  .ib.grey{background:var(--mist);}
+  .on{padding:0 15px 13px;font-size:11.5px;line-height:1.6;color:var(--slate);}
+  .ovar{display:flex;flex-direction:column;gap:9px;flex:1;min-width:170px;}
+  .ovar > .vh{display:flex;align-items:center;gap:7px;}
+  .ovar > .vh b{font-size:11px;font-weight:750;color:var(--slate);}
+  .vbody{display:flex;flex-wrap:wrap;align-items:center;gap:9px;}
+  .vbody.col{flex-direction:column;align-items:stretch;}
+
+  /* atoms */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 19px;border-radius:9px;font-size:13.5px;font-weight:700;}
+  .b-ink{background:var(--ink);color:#fff;}
+  .b-teal{background:var(--teal);color:#fff;}
+  .b-out{background:#fff;color:var(--ink);border:1px solid var(--line2);}
+  .b-ghost{background:transparent;color:var(--slate);}
+  .b-dang{background:#fff;color:var(--bad-i);border:1px solid rgba(206,58,45,.4);}
+  .b-sm{height:34px;padding:0 14px;font-size:12.5px;border-radius:8px;}
+  .ico{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:#fff;}
+  .chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:750;}
+  .c-ok{background:var(--ok-w);color:var(--ok-i);} .c-warn{background:var(--warn-w);color:var(--warn-i);}
+  .c-bad{background:var(--bad-w);color:var(--bad-i);} .c-q{background:var(--mist2);color:var(--slate);}
+  .c-teal{background:var(--teal-wash);color:var(--teal-deep);}
+  .av{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--mist2);color:var(--ink);font-size:11.5px;font-weight:750;flex:none;}
+  .num{font-variant-numeric:tabular-nums;}
+  .inp{display:flex;align-items:center;gap:9px;width:100%;height:38px;padding:0 13px;font-size:12.5px;color:var(--slate-2);background:#fff;border:1px solid var(--line2);border-radius:9px;}
+  .kbd{padding:2px 6px;background:var(--mist);border:1px solid var(--line);border-radius:5px;font-size:10px;font-weight:650;color:var(--slate);}
+  .sw{position:relative;width:38px;height:22px;border-radius:999px;background:var(--line2);flex:none;}
+  .sw i{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(16,20,24,.25);}
+  .sw.on{background:var(--teal);} .sw.on i{left:19px;}
+  .cbx{width:17px;height:17px;border:1.5px solid var(--line2);border-radius:5px;flex:none;background:#fff;}
+  .cbx.on{background:var(--teal);border-color:var(--teal);display:grid;place-items:center;}
+  .rowc{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;}
+  .rowc .t{flex:1;min-width:0;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .navi{display:flex;align-items:center;gap:10px;height:38px;padding:0 12px;border-radius:8px;font-size:13px;font-weight:650;color:var(--slate);position:relative;}
+  .flagb{display:inline-flex;align-items:center;gap:9px;padding:7px 10px;border-radius:9px;font-size:13.5px;font-weight:650;color:var(--ink);background:transparent;}
+  .flagb svg{flex:none;border-radius:2px;box-shadow:0 0 0 1px rgba(16,20,24,.12);}
+  .skel{border-radius:6px;background:linear-gradient(90deg,var(--mist2) 25%,var(--mist3) 37%,var(--mist2) 63%);background-size:400% 100%;animation:shim 1.4s ease-in-out infinite;}
+  @keyframes shim{0%{background-position:100% 0;}100%{background-position:0 0;}}
+  @media (prefers-reduced-motion:reduce){.skel{animation:none;}}
+
+  footer.end{margin-top:54px;padding:26px 28px;border:1px solid var(--line);border-radius:12px;background:var(--mist);}
+  footer.end h3{font-size:17px;font-weight:800;}
+  footer.end p{margin-top:10px;font-size:14px;line-height:1.75;color:var(--slate);max-width:84ch;}
+  footer.end b{color:var(--ink);font-weight:750;}
+  .reply{display:inline-block;margin-top:14px;padding:13px 16px;border-radius:10px;background:#fff;border:1px solid var(--line2);font-family:var(--mono);font-size:12.5px;line-height:1.9;color:var(--ink);}
+  .warnbox{display:flex;gap:13px;margin-top:18px;padding:16px 18px;border-radius:10px;background:var(--warn-w);}
+  .warnbox span{flex:none;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:rgba(185,110,9,.16);color:var(--warn-i);font-weight:800;font-size:12.5px;}
+  .warnbox p{font-size:13px;line-height:1.7;color:var(--warn-i);}
+  @media (max-width:1080px){.item,.item.w6,.item.w8{grid-column:span 6;}.item.w12{grid-column:span 12;}}
+  @media (max-width:720px){.item,.item.w6,.item.w8,.item.w12{grid-column:span 12;}.fopt{grid-template-columns:1fr;gap:16px;}}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <span class="lbl">KCMS redesign &middot; step 2</span>
+    <h1>Bright Teal is locked. Here is every part.</h1>
+    <p class="sub">Five English font systems, then the full component library for the landing page, the system side and the admin side. Most components have one modern treatment and need no decision — the ones marked <span class="pick">Choose</span> have real alternatives.</p>
+  </header>
+
+  <div class="locked">
+    <span class="lbl" style="margin-right:6px;">Locked palette</span>
+    <span class="tok"><i style="background:#00A99D;"></i>Teal <span class="mono" style="color:var(--slate);">#00A99D</span></span>
+    <span class="tok"><i style="background:#00706A;"></i>Teal deep <span class="mono" style="color:var(--slate);">#00706A</span></span>
+    <span class="tok"><i style="background:#E0F5F3;"></i>Wash <span class="mono" style="color:var(--slate);">#E0F5F3</span></span>
+    <span class="tok"><i style="background:#101418;"></i>Ink <span class="mono" style="color:var(--slate);">#101418</span></span>
+    <span class="tok"><i style="background:#3F7A55;"></i>Safe <span class="mono" style="color:var(--slate);">#3F7A55</span></span>
+    <span class="tok"><i style="background:#B96E09;"></i>Review <span class="mono" style="color:var(--slate);">#B96E09</span></span>
+    <span class="tok"><i style="background:#CE3A2D;"></i>Harm <span class="mono" style="color:var(--slate);">#CE3A2D</span></span>
+  </div>
+
+  <!-- ======================= FONTS ======================= -->
+  <section class="blk">
+    <div class="shead">
+      <h2>English type</h2>
+      <p>Khmer is Noto Sans Khmer — the face you identified. Same headline, same body line, same interface row in each, so the English face is the only variable.</p>
+    </div>
+
+    <div class="warnbox" style="background:var(--teal-wash);">
+      <span style="background:rgba(0,169,157,.18);color:var(--teal-deep);">✓</span>
+      <p style="color:var(--teal-deep);"><b>Khmer settled: Noto Sans Khmer Variable.</b> The font in your screenshot is the one already installed and imported at <span class="mono">main.tsx:6</span>. Google Sans sits ahead of it in the stack but has no Khmer glyphs, so every Khmer character has always been drawn by Noto Sans Khmer — it is now named first for Khmer text, which changes nothing visually and removes a silent fallback. Variable 100–900, so headline and body weights come from one file. Latin text comes from whichever English face you pick below; say so if you want Google Sans kept for Latin as well.</p>
+    </div>
+
+    <div class="fonts">
+      <article class="fopt">
+        <span class="key">F1</span>
+        <div>
+          <p class="fhl" style="font-family:'Instrument Serif',serif;">Moderate Khmer comments with context, not guesswork.</p>
+          <p class="fsub" style="font-family:'Manrope',sans-serif;">Find harmful comments and scams faster. A person on your team decides every action.</p>
+          <p class="km" style="font-size:19px;font-weight:600;margin-top:11px;">គ្រប់គ្រងមតិយោបល់ខ្មែរ ដោយយល់ពីបរិបទ</p>
+          <div class="fui" style="font-family:'Manrope',sans-serif;"><span class="n">4,182</span><span class="c">Comments processed</span><span class="chip c-warn">Needs review</span><span class="bt">Get started</span></div>
+        </div>
+        <div><p class="fnames">Instrument Serif + Manrope</p><p class="fnote">Editorial, high contrast. Thin stems keep a very large headline light on white. Furthest in feel from Noto Sans Khmer, so switching language visibly changes voice.</p></div>
+      </article>
+
+      <article class="fopt">
+        <span class="key">F2</span>
+        <div>
+          <p class="fhl" style="font-family:'Outfit',sans-serif;font-weight:600;">Moderate Khmer comments with context, not guesswork.</p>
+          <p class="fsub" style="font-family:'Manrope',sans-serif;">Find harmful comments and scams faster. A person on your team decides every action.</p>
+          <p class="km" style="font-size:19px;font-weight:600;margin-top:11px;">គ្រប់គ្រងមតិយោបល់ខ្មែរ ដោយយល់ពីបរិបទ</p>
+          <div class="fui" style="font-family:'Manrope',sans-serif;"><span class="n">4,182</span><span class="c">Comments processed</span><span class="chip c-warn">Needs review</span><span class="bt">Get started</span></div>
+        </div>
+        <div><p class="fnames">Outfit + Manrope</p><p class="fnote">Geometric and open, a close relative of Google Sans. English and Khmer headlines look like one family, so the toggle changes the script and nothing else. Safest match to Noto Sans Khmer.</p></div>
+      </article>
+
+      <article class="fopt">
+        <span class="key">F3</span>
+        <div>
+          <p class="fhl" style="font-family:'DM Sans',sans-serif;font-weight:700;">Moderate Khmer comments with context, not guesswork.</p>
+          <p class="fsub" style="font-family:'DM Sans',sans-serif;">Find harmful comments and scams faster. A person on your team decides every action.</p>
+          <p class="km" style="font-size:19px;font-weight:600;margin-top:11px;">គ្រប់គ្រងមតិយោបល់ខ្មែរ ដោយយល់ពីបរិបទ</p>
+          <div class="fui" style="font-family:'DM Sans',sans-serif;"><span class="n">4,182</span><span class="c">Comments processed</span><span class="chip c-warn">Needs review</span><span class="bt">Get started</span></div>
+        </div>
+        <div><p class="fnames">DM Sans, one family throughout</p><p class="fnote">No pairing to maintain — headlines, interface and data from one face. Fewest files, least to go wrong, closest to the Noto Sans Khmer skeleton. Also the plainest.</p></div>
+      </article>
+
+      <article class="fopt">
+        <span class="key">F4</span>
+        <div>
+          <p class="fhl" style="font-family:'Gabarito',sans-serif;font-weight:700;">Moderate Khmer comments with context, not guesswork.</p>
+          <p class="fsub" style="font-family:'Manrope',sans-serif;">Find harmful comments and scams faster. A person on your team decides every action.</p>
+          <p class="km" style="font-size:19px;font-weight:600;margin-top:11px;">គ្រប់គ្រងមតិយោបល់ខ្មែរ ដោយយល់ពីបរិបទ</p>
+          <div class="fui" style="font-family:'Manrope',sans-serif;"><span class="n">4,182</span><span class="c">Comments processed</span><span class="chip c-warn">Needs review</span><span class="bt">Get started</span></div>
+        </div>
+        <div><p class="fnames">Gabarito + Manrope</p><p class="fnote">Geometric like Outfit but rounder and warmer, with a heavier headline weight that holds up at smaller display sizes. Slightly informal for trust-and-safety work.</p></div>
+      </article>
+
+      <article class="fopt">
+        <span class="key">F5</span>
+        <div>
+          <p class="fhl" style="font-family:'Newsreader',serif;">Moderate Khmer comments with context, not guesswork.</p>
+          <p class="fsub" style="font-family:'Plus Jakarta Sans',sans-serif;">Find harmful comments and scams faster. A person on your team decides every action.</p>
+          <p class="km" style="font-size:19px;font-weight:600;margin-top:11px;">គ្រប់គ្រងមតិយោបល់ខ្មែរ ដោយយល់ពីបរិបទ</p>
+          <div class="fui" style="font-family:'Plus Jakarta Sans',sans-serif;"><span class="n">4,182</span><span class="c">Comments processed</span><span class="chip c-warn">Needs review</span><span class="bt">Get started</span></div>
+        </div>
+        <div><p class="fnames">Newsreader + Plus Jakarta Sans</p><p class="fnote">A serif headline like F1 but low contrast and warmer, over a rounder interface sans. Considered rather than austere, without the fragility of thin serifs.</p></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ======================= LANGUAGE ======================= -->
+  <section class="blk">
+    <div class="shead">
+      <h2>Language toggle</h2>
+      <p>No frame. One button showing the language you would switch <em>to</em> — on an English page it offers Khmer, on a Khmer page it offers English. Flags are inline SVG, so no image files.</p>
+    </div>
+
+    <div class="lib">
+      <div class="item">
+        <div class="ih"><span class="key key-t">L1</span><h4>Flag and label</h4><span class="sp pick">Choose</span></div>
+        <div class="ib col">
+          <span class="lbl">On an English page</span>
+          <span class="flagb" style="align-self:flex-start;">
+            <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#032EA1"/><rect y="4" width="24" height="8" fill="#E00025"/><rect x="8.4" y="10.2" width="7.2" height="1" fill="#fff"/><path d="M11.4 5.6h1.2v4.4h-1.2z" fill="#fff"/><path d="M12 4.6l.9 1.2h-1.8z" fill="#fff"/><path d="M9.3 7.2h1.1v2.8H9.3z" fill="#fff"/><path d="M9.85 6.4l.75 1h-1.5z" fill="#fff"/><path d="M13.6 7.2h1.1v2.8h-1.1z" fill="#fff"/><path d="M14.15 6.4l.75 1h-1.5z" fill="#fff"/></svg>
+            <span class="km">ភាសាខ្មែរ</span>
+          </span>
+          <span class="lbl" style="margin-top:4px;">On a Khmer page</span>
+          <span class="flagb" style="align-self:flex-start;">
+            <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.4"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.7"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.4"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3.2"/></svg>
+            English
+          </span>
+        </div>
+        <p class="on">The flag carries all the colour, so no frame is needed. Hover fills a soft grey behind it. Clearest of the three for a first-time visitor.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key key-t">L2</span><h4>Flag only</h4><span class="sp pick">Choose</span></div>
+        <div class="ib col">
+          <span class="lbl">On an English page</span>
+          <span style="align-self:flex-start;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1px rgba(16,20,24,.12);">
+            <svg width="34" height="23" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#032EA1"/><rect y="4" width="24" height="8" fill="#E00025"/><rect x="8.4" y="10.2" width="7.2" height="1" fill="#fff"/><path d="M11.4 5.6h1.2v4.4h-1.2z" fill="#fff"/><path d="M12 4.6l.9 1.2h-1.8z" fill="#fff"/><path d="M9.3 7.2h1.1v2.8H9.3z" fill="#fff"/><path d="M9.85 6.4l.75 1h-1.5z" fill="#fff"/><path d="M13.6 7.2h1.1v2.8h-1.1z" fill="#fff"/><path d="M14.15 6.4l.75 1h-1.5z" fill="#fff"/></svg>
+          </span>
+          <span class="lbl" style="margin-top:4px;">On a Khmer page</span>
+          <span style="align-self:flex-start;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 1px rgba(16,20,24,.12);">
+            <svg width="34" height="23" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.4"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.7"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.4"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3.2"/></svg>
+          </span>
+        </div>
+        <p class="on">Circular crop, same footprint as the avatar next to it. Most compact, and it survives a crowded top bar — but it needs an accessible label, since the flag alone carries the meaning.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key key-t">L3</span><h4>Flag, label, swap mark</h4><span class="sp pick">Choose</span></div>
+        <div class="ib col">
+          <span class="lbl">On an English page</span>
+          <span class="flagb" style="align-self:flex-start;">
+            <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#032EA1"/><rect y="4" width="24" height="8" fill="#E00025"/><rect x="8.4" y="10.2" width="7.2" height="1" fill="#fff"/><path d="M11.4 5.6h1.2v4.4h-1.2z" fill="#fff"/><path d="M12 4.6l.9 1.2h-1.8z" fill="#fff"/><path d="M9.3 7.2h1.1v2.8H9.3z" fill="#fff"/><path d="M9.85 6.4l.75 1h-1.5z" fill="#fff"/><path d="M13.6 7.2h1.1v2.8h-1.1z" fill="#fff"/><path d="M14.15 6.4l.75 1h-1.5z" fill="#fff"/></svg>
+            <span class="km">ភាសាខ្មែរ</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B94A2" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg>
+          </span>
+          <span class="lbl" style="margin-top:4px;">On a Khmer page</span>
+          <span class="flagb" style="align-self:flex-start;">
+            <svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.4"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.7"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.4"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3.2"/></svg>
+            English
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B94A2" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg>
+          </span>
+        </div>
+        <p class="on">The swap mark removes the one ambiguity in L1 — whether the label names the current language or the one you get. Costs a little width.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= FOUNDATIONS ======================= -->
+  <section class="blk">
+    <div class="shead">
+      <h2>Foundations</h2>
+      <p>Atoms shared by the landing page, the system and admin. These four choices set how the whole product feels.</p>
+    </div>
+
+    <div class="lib">
+      <div class="item w6">
+        <div class="ih"><span class="key key-t">B</span><h4>Buttons</h4><span class="sp pick">Choose B1 / B2 / B3</span></div>
+        <div class="ib col">
+          <div class="ovar"><span class="vh"><span class="key key-t">B1</span><b>Ink primary</b></span><span class="vbody"><span class="btn b-ink">Get started</span><span class="btn b-out">See how</span><span class="btn b-dang">Hide comment</span></span></div>
+          <div class="ovar"><span class="vh"><span class="key key-t">B2</span><b>Teal primary</b></span><span class="vbody"><span class="btn b-teal">Get started</span><span class="btn b-out">See how</span><span class="btn b-dang">Hide comment</span></span></div>
+          <div class="ovar"><span class="vh"><span class="key key-t">B3</span><b>Teal pill, raised</b></span><span class="vbody"><span class="btn b-teal" style="border-radius:999px;box-shadow:0 6px 16px rgba(0,169,157,.35);">Get started</span><span class="btn b-out" style="border-radius:999px;">See how</span><span class="btn b-dang" style="border-radius:999px;">Hide comment</span></span></div>
+        </div>
+        <p class="on">B1 keeps every hue on the page meaningful. B2 and B3 put the brand on every screen, at the cost of a saturated block near the state chips. B3 is closest to your Neopay reference.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key key-t">C</span><h4>Cards</h4><span class="sp pick">Choose C1 / C2 / C3</span></div>
+        <div class="ib" style="gap:12px;align-items:stretch;">
+          <div class="ovar" style="min-width:0;"><span class="vh"><span class="key key-t">C1</span><b>Hairline</b></span>
+            <div style="padding:13px;border:1px solid var(--line);border-radius:11px;"><p style="font-size:12.5px;font-weight:750;">Moderation rules</p><p style="margin-top:4px;font-size:11.5px;line-height:1.55;color:var(--slate);">Keywords with severity.</p></div>
+          </div>
+          <div class="ovar" style="min-width:0;"><span class="vh"><span class="key key-t">C2</span><b>Shadow</b></span>
+            <div style="padding:13px;border-radius:11px;background:#fff;box-shadow:var(--sh-2);"><p style="font-size:12.5px;font-weight:750;">Moderation rules</p><p style="margin-top:4px;font-size:11.5px;line-height:1.55;color:var(--slate);">Keywords with severity.</p></div>
+          </div>
+          <div class="ovar" style="min-width:0;"><span class="vh"><span class="key key-t">C3</span><b>Tinted head</b></span>
+            <div style="border:1px solid var(--line);border-radius:11px;overflow:hidden;"><p style="padding:9px 13px;background:var(--teal-wash);color:var(--teal-deep);font-size:11.5px;font-weight:750;">Moderation rules</p><p style="padding:11px 13px;font-size:11.5px;line-height:1.55;color:var(--slate);">Keywords with severity.</p></div>
+          </div>
+        </div>
+        <p class="on">C1 stays calm across a long dashboard. C2 needs a grey ground to read, so white pages lose the effect. C3 scans fastest and repeats badly past about six cards.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key key-t">S</span><h4>State chips</h4><span class="sp pick">Choose S1 / S2 / S3</span></div>
+        <div class="ib col">
+          <div class="ovar"><span class="vh"><span class="key key-t">S1</span><b>Soft wash</b></span><span class="vbody"><span class="chip c-ok">Stays visible</span><span class="chip c-warn">Needs review</span><span class="chip c-bad">Scam</span><span class="chip c-q">No rule</span></span></div>
+          <div class="ovar"><span class="vh"><span class="key key-t">S2</span><b>Outlined</b></span><span class="vbody"><span class="chip" style="border:1px solid var(--ok);color:var(--ok-i);">Stays visible</span><span class="chip" style="border:1px solid var(--warn);color:var(--warn-i);">Needs review</span><span class="chip" style="border:1px solid var(--bad);color:var(--bad-i);">Scam</span></span></div>
+          <div class="ovar"><span class="vh"><span class="key key-t">S3</span><b>Dot and label</b></span><span class="vbody"><span class="chip" style="padding:0;color:var(--ok-i);"><i style="width:7px;height:7px;border-radius:50%;background:var(--ok);"></i>Stays visible</span><span class="chip" style="padding:0;color:var(--warn-i);"><i style="width:7px;height:7px;border-radius:50%;background:var(--warn);"></i>Needs review</span><span class="chip" style="padding:0;color:var(--bad-i);"><i style="width:7px;height:7px;border-radius:50%;background:var(--bad);"></i>Scam</span></span></div>
+        </div>
+        <p class="on">The word is always present, so colour is never the only signal. S1 reads fastest in a scrolling table; S3 is quietest and pairs well with a coloured row stripe.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key key-t">I</span><h4>Inputs and search</h4><span class="sp pick">Choose I1 / I2 / I3</span></div>
+        <div class="ib col">
+          <div class="ovar"><span class="vh"><span class="key key-t">I1</span><b>Filled pill</b></span>
+            <span class="inp" style="background:var(--mist);border-color:var(--line);border-radius:999px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B94A2" stroke-width="2.1" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>Search comments, rules or people<span class="kbd" style="margin-left:auto;background:#fff;">&#8984;K</span></span>
+          </div>
+          <div class="ovar"><span class="vh"><span class="key key-t">I2</span><b>Rounded rectangle</b></span>
+            <span class="inp"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B94A2" stroke-width="2.1" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>Search comments, rules or people<span class="kbd" style="margin-left:auto;">&#8984;K</span></span>
+            <span class="inp" style="border:1.5px solid var(--teal);box-shadow:0 0 0 3px rgba(0,169,157,.15);color:var(--ink);">Focused &mdash; also the keyboard focus ring everywhere</span>
+          </div>
+          <div class="ovar"><span class="vh"><span class="key key-t">I3</span><b>Underline</b></span>
+            <span class="inp" style="border:0;border-bottom:1px solid var(--line2);border-radius:0;padding-inline:2px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B94A2" stroke-width="2.1" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>Search comments, rules or people</span>
+          </div>
+        </div>
+        <p class="on">I2 shares its radius with buttons and cards, so forms line up with everything else. I3 is the lightest and the weakest affordance — people miss that it is typeable.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= SYSTEM ======================= -->
+  <section class="blk">
+    <div class="shead">
+      <h2>System side</h2>
+      <p>Everything inside the workspace: Overview, Moderate, Management, Rules, Automated replies, Settings.</p>
+    </div>
+
+    <div class="lib">
+
+      <div class="item w12">
+        <div class="ih"><span class="key">01</span><h4>Top bar</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib pad0">
+          <div style="display:flex;align-items:center;gap:14px;width:100%;padding:13px 18px;background:#fff;border-bottom:1px solid var(--line);">
+            <span class="inp" style="width:320px;background:var(--mist);border-color:var(--line);border-radius:999px;height:36px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8B94A2" stroke-width="2.1" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>Search or run a command<span class="kbd" style="margin-left:auto;background:#fff;">&#8984;K</span></span>
+            <span style="display:flex;align-items:center;gap:8px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:650;"><i style="width:7px;height:7px;border-radius:50%;background:var(--teal);"></i>Synced 2 min ago</span>
+            <span style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+              <span class="flagb" style="padding:6px 8px;"><svg width="22" height="15" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" fill="#032EA1"/><rect y="4" width="24" height="8" fill="#E00025"/><rect x="8.4" y="10.2" width="7.2" height="1" fill="#fff"/><path d="M11.4 5.6h1.2v4.4h-1.2z" fill="#fff"/><path d="M12 4.6l.9 1.2h-1.8z" fill="#fff"/><path d="M9.3 7.2h1.1v2.8H9.3z" fill="#fff"/><path d="M9.85 6.4l.75 1h-1.5z" fill="#fff"/><path d="M13.6 7.2h1.1v2.8h-1.1z" fill="#fff"/><path d="M14.15 6.4l.75 1h-1.5z" fill="#fff"/></svg><span class="km" style="font-size:12.5px;">ភាសាខ្មែរ</span></span>
+              <span class="ico" style="position:relative;border-radius:50%;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101418" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><i style="position:absolute;top:4px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--warn);border:1.5px solid #fff;"></i></span>
+              <span class="av">SC</span>
+            </span>
+          </div>
+        </div>
+        <p class="on">Command bar left, live sync state, then language, notifications, account. The sync pill is a status, not a button — it tells you the queue you are reading is current.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">02</span><h4>Workspace switcher</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--mist);">
+            <span class="av" style="border-radius:8px;background:#fff;border:1px solid var(--line);font-family:var(--khmer);">ស</span>
+            <span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;"><span class="km" style="font-size:12.5px;font-weight:750;line-height:1.3;">ហាងកាហ្វេ សុវណ្ណ</span><span style="font-size:10.5px;color:var(--slate);">3 Pages connected</span></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#616C7A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+          </span>
+        </div>
+        <p class="on">Sits at the top of the sidebar. Shows the Page count because that is the number that decides whether you are in the right workspace.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key key-t">N</span><h4>Sidebar item</h4><span class="sp pick">Choose N1 / N2 / N3</span></div>
+        <div class="ib col">
+          <span class="lbl">N1 &mdash; teal rail</span>
+          <span class="navi" style="background:var(--teal-wash);color:var(--teal-deep);font-weight:750;"><i style="position:absolute;left:-8px;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:var(--teal);"></i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</span>
+          <span class="lbl">N2 &mdash; filled pill</span>
+          <span class="navi" style="background:var(--teal);color:#fff;font-weight:750;border-radius:999px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</span>
+          <span class="lbl">N3 &mdash; quiet ink</span>
+          <span class="navi" style="background:var(--mist2);color:var(--ink);font-weight:750;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</span>
+          <span class="navi">Moderate<span class="chip c-warn num" style="margin-left:auto;">12</span></span>
+        </div>
+        <p class="on">Whichever you pick, the mark slides between items rather than blinking. N3 keeps every drop of colour in the sidebar meaningful — the only coloured thing left is the review count.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">03</span><h4>Collapsed rail</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib" style="gap:14px;">
+          <span style="display:flex;flex-direction:column;gap:5px;padding:10px 8px;border:1px solid var(--line);border-radius:12px;background:#fff;">
+            <span style="display:grid;place-items:center;width:40px;height:40px;border-radius:10px;color:var(--slate);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+            <span style="position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--teal-wash);color:var(--teal-deep);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><i class="num" style="position:absolute;top:0;right:-2px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--warn);color:#fff;font-size:10px;font-weight:750;display:grid;place-items:center;border:1.5px solid #fff;font-style:normal;">12</i></span>
+            <span style="display:grid;place-items:center;width:40px;height:40px;border-radius:10px;color:var(--slate);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></span>
+          </span>
+          <p style="font-size:11.5px;line-height:1.6;color:var(--slate);flex:1;min-width:120px;">The Moderate screen collapses the sidebar to 72px so the queue and the review sheet both get room. Badges stay visible.</p>
+        </div>
+        <p class="on">Same component as the full sidebar in a second state, not a second navigation. Labels move to tooltips.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key key-t">K</span><h4>Dashboard figure</h4><span class="sp pick">Choose K1 / K2 / K3</span></div>
+        <div class="ib" style="align-items:stretch;gap:12px;">
+          <span style="display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line);border-radius:11px;flex:1;min-width:150px;">
+            <span class="lbl">K1 &middot; Need review</span>
+            <span class="num" style="font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1;color:var(--warn-i);">12</span>
+            <span style="display:flex;align-items:center;gap:7px;"><span class="chip c-warn">&#8593; 4 today</span></span>
+          </span>
+          <span style="display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line);border-radius:11px;flex:1;min-width:150px;">
+            <span style="display:flex;align-items:center;justify-content:space-between;"><span class="lbl">K2 &middot; Need review</span><span class="chip c-warn">&#8593; 4</span></span>
+            <span style="display:flex;align-items:flex-end;gap:10px;"><span class="num" style="font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1;color:var(--warn-i);">12</span>
+              <svg width="84" height="28" viewBox="0 0 84 28" aria-hidden="true"><polyline points="0,21 14,17 28,23 42,13 56,16 70,7 84,4" fill="none" stroke="#B96E09" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="84" cy="4" r="2.6" fill="#B96E09"/></svg>
+            </span>
+            <span style="font-size:11px;color:var(--slate);">7 days &#183; oldest 41 min</span>
+          </span>
+          <span style="display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:11px;background:var(--teal-wash);flex:1;min-width:150px;">
+            <span class="lbl" style="color:var(--teal-deep);">K3 &middot; Need review</span>
+            <span class="num" style="font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1;color:var(--teal-deep);">12</span>
+            <span style="font-size:11px;color:var(--teal-deep);opacity:.85;">Up 4 today</span>
+          </span>
+        </div>
+        <p class="on">K2 tells you whether 12 is normal for a Monday, which the number alone cannot. K3 is handsome as a row but puts teal on the one figure that is genuinely a warning — the colour then says brand rather than attention.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key">04</span><h4>Chart card</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;align-items:center;gap:12px;">
+            <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:750;">Review load</span><span style="font-size:11px;color:var(--slate);">Scanned and raised, by hour</span></span>
+            <span style="margin-left:auto;display:flex;gap:3px;padding:3px;background:var(--mist);border:1px solid var(--line);border-radius:999px;">
+              <span style="padding:5px 11px;border-radius:999px;font-size:11px;font-weight:600;color:var(--slate);">Today</span>
+              <span style="padding:5px 11px;border-radius:999px;background:#fff;box-shadow:var(--sh-1);font-size:11px;font-weight:750;">7 days</span>
+            </span>
+          </span>
+          <svg viewBox="0 0 420 140" width="100%" height="130" role="img" aria-label="Comments scanned and raised for review, hourly">
+            <defs><linearGradient id="ft" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00A99D" stop-opacity=".18"/><stop offset="100%" stop-color="#00A99D" stop-opacity=".01"/></linearGradient></defs>
+            <line x1="26" y1="112" x2="410" y2="112" stroke="#D8DDE5"/><line x1="26" y1="74" x2="410" y2="74" stroke="#E6E9EE"/><line x1="26" y1="36" x2="410" y2="36" stroke="#E6E9EE"/>
+            <text x="20" y="116" text-anchor="end" fill="#616C7A" font-family="Manrope,sans-serif" font-size="9" font-weight="600">0</text>
+            <text x="20" y="78" text-anchor="end" fill="#616C7A" font-family="Manrope,sans-serif" font-size="9" font-weight="600">60</text>
+            <text x="20" y="40" text-anchor="end" fill="#616C7A" font-family="Manrope,sans-serif" font-size="9" font-weight="600">120</text>
+            <polygon points="26,79 74,63 122,68 170,50 218,31 266,38 314,54 362,42 410,24 410,112 26,112" fill="url(#ft)"/>
+            <polyline points="26,79 74,63 122,68 170,50 218,31 266,38 314,54 362,42 410,24" fill="none" stroke="#00A99D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="26,106 74,103 122,104 170,99 218,95 266,97 314,101 362,96 410,92" fill="none" stroke="#B96E09" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="410" cy="24" r="7" fill="#00A99D" opacity=".16"/><circle cx="410" cy="24" r="3.4" fill="#00A99D" stroke="#fff" stroke-width="1.8"/>
+            <text x="26" y="131" fill="#616C7A" font-family="Manrope,sans-serif" font-size="9" font-weight="600">08</text>
+            <text x="218" y="131" text-anchor="middle" fill="#616C7A" font-family="Manrope,sans-serif" font-size="9" font-weight="600">14</text>
+            <text x="410" y="131" text-anchor="end" fill="#616C7A" font-family="Manrope,sans-serif" font-size="9" font-weight="600">19</text>
+          </svg>
+          <span style="display:flex;gap:16px;"><span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:650;color:var(--slate);"><i style="width:13px;height:2.5px;border-radius:2px;background:var(--teal);"></i>Scanned</span><span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:650;color:var(--slate);"><i style="width:13px;height:2.5px;border-radius:2px;background:var(--warn);"></i>Raised for review</span></span>
+        </div>
+        <p class="on">Teal is the primary series because teal means interactive and data, not state. The last point is emphasised so the current hour reads first.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">05</span><h4>Breakdown rows</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;flex-direction:column;gap:6px;"><span style="display:flex;gap:10px;"><span style="font-size:12.5px;font-weight:650;flex:1;">Scam and money links</span><span class="num" style="font-size:12px;font-weight:700;">44%</span></span><span style="height:6px;border-radius:3px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:44%;background:var(--bad);border-radius:3px;"></i></span></span>
+          <span style="display:flex;flex-direction:column;gap:6px;"><span style="display:flex;gap:10px;"><span style="font-size:12.5px;font-weight:650;flex:1;">Person-directed abuse</span><span class="num" style="font-size:12px;font-weight:700;">31%</span></span><span style="height:6px;border-radius:3px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:31%;background:var(--warn);border-radius:3px;"></i></span></span>
+          <span style="display:flex;flex-direction:column;gap:6px;"><span style="display:flex;gap:10px;"><span style="font-size:12.5px;font-weight:650;flex:1;">Phone and Telegram handles</span><span class="num" style="font-size:12px;font-weight:700;">17%</span></span><span style="height:6px;border-radius:3px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:17%;background:var(--teal);border-radius:3px;"></i></span></span>
+        </div>
+        <p class="on">Bars take the colour of the rule&rsquo;s severity, so the chart and the queue agree. Each row links to the rule that produced it.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key key-t">R</span><h4>Queue row</h4><span class="sp pick">Choose R1 / R2 / R3</span></div>
+        <div class="ib col">
+          <span class="lbl">R1 &mdash; left stripe</span>
+          <span class="rowc" style="border-left:2px solid var(--bad);"><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip c-bad">Scam</span></span>
+          <span class="lbl">R2 &mdash; leading dot</span>
+          <span class="rowc"><i style="width:8px;height:8px;border-radius:50%;background:var(--bad);flex:none;"></i><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip c-bad">Scam</span></span>
+          <span class="lbl">R3 &mdash; tinted row</span>
+          <span class="rowc" style="background:var(--bad-w);border-color:rgba(206,58,45,.25);"><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip" style="background:#fff;color:var(--bad-i);">Scam</span></span>
+        </div>
+        <p class="on">R1 is readable in peripheral vision while you read the text. R3 is impossible to miss and exhausting over a shift, because a full queue becomes a wall of colour.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">06</span><h4>Table header and bulk select</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col pad0" style="padding:0;">
+          <span style="display:flex;align-items:center;gap:11px;padding:10px 14px;background:var(--mist);border-bottom:1px solid var(--line);"><span class="cbx"></span><span class="lbl">Comment</span><span class="lbl" style="margin-left:auto;">Rule</span></span>
+          <span style="display:flex;align-items:center;gap:11px;padding:11px 14px;background:var(--teal-wash);border-bottom:1px solid var(--line);">
+            <span class="cbx on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="num" style="font-size:12px;font-weight:750;color:var(--teal-deep);">3 selected</span>
+            <span style="margin-left:auto;display:flex;gap:7px;"><span class="btn b-out b-sm">Hide all</span><span class="btn b-out b-sm">Leave visible</span></span>
+          </span>
+        </div>
+        <p class="on">Selecting rows swaps the header for a bulk action bar in place, rather than opening a floating toolbar that covers the rows you just chose.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key key-t">T</span><h4>Tabs and range</h4><span class="sp pick">Choose T1 / T2 / T3</span></div>
+        <div class="ib col">
+          <span class="lbl">T1 &mdash; pill on a track</span>
+          <span style="display:flex;gap:3px;padding:3px;background:var(--mist);border:1px solid var(--line);border-radius:999px;align-self:flex-start;"><span style="padding:6px 13px;border-radius:999px;background:#fff;box-shadow:var(--sh-1);font-size:12px;font-weight:750;">Needs review</span><span style="padding:6px 13px;border-radius:999px;font-size:12px;font-weight:600;color:var(--slate);">Decided</span></span>
+          <span class="lbl">T2 &mdash; underline</span>
+          <span style="display:flex;gap:20px;border-bottom:1px solid var(--line);align-self:flex-start;"><span style="padding:7px 2px 9px;border-bottom:2px solid var(--teal);font-size:12px;font-weight:750;">Needs review</span><span style="padding:7px 2px 9px;font-size:12px;font-weight:600;color:var(--slate);">Decided</span></span>
+          <span class="lbl">T3 &mdash; teal filled</span>
+          <span style="display:flex;gap:3px;padding:3px;background:#fff;border:1px solid var(--line);border-radius:999px;align-self:flex-start;"><span style="padding:6px 13px;border-radius:999px;background:var(--teal);color:#fff;font-size:12px;font-weight:750;">Needs review</span><span style="padding:6px 13px;border-radius:999px;font-size:12px;font-weight:600;color:var(--slate);">Decided</span></span>
+        </div>
+        <p class="on">One component in two places — the queue tabs and the chart&rsquo;s time range. The marker slides; it does not fade.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">07</span><h4>Filter bar</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib">
+          <span style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:650;color:var(--slate);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#616C7A" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>Filters<i class="num" style="display:grid;place-items:center;min-width:17px;height:17px;padding:0 5px;border-radius:999px;background:var(--teal-wash);color:var(--teal-deep);font-size:10px;font-weight:800;font-style:normal;">2</i></span>
+          <span style="display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 8px 0 12px;border:1px solid var(--teal-line);background:var(--teal-wash);border-radius:999px;font-size:12px;font-weight:700;color:var(--teal-deep);">Severity: High, Medium<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+          <span style="display:inline-flex;align-items:center;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:650;color:var(--slate);">Page: All</span>
+          <span style="font-size:12px;font-weight:700;color:var(--teal-deep);">Clear all</span>
+        </div>
+        <p class="on">Applied filters become teal pills with their own remove control, so you can always see and undo what is narrowing the queue.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key">08</span><h4>Review side sheet</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col grey">
+          <span style="display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh-2);">
+            <span style="display:flex;align-items:center;gap:10px;"><span class="av">VS</span><span style="display:flex;flex-direction:column;gap:1px;"><span style="font-size:12.5px;font-weight:750;">Vichea Sok</span><span class="num" style="font-size:11px;color:var(--slate);">3 comments &#183; 2 previously hidden</span></span><span class="chip c-bad" style="margin-left:auto;">Repeat sender</span></span>
+            <span style="padding:13px;border-radius:9px;background:var(--mist);border-left:2px solid var(--bad);"><span class="km" style="display:block;font-size:15px;font-weight:500;">ចុចតំណនេះទទួល<mark style="background:rgba(206,58,45,.14);padding:0 3px;border-radius:3px;">លុយ</mark> $500 ថ្ងៃនេះ!</span><span style="display:block;margin-top:6px;font-size:12px;color:var(--slate);">&ldquo;Click this link, get $500 today!&rdquo;</span></span>
+            <span style="display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;"><span style="display:flex;flex-direction:column;gap:1px;flex:1;"><span style="font-size:12px;font-weight:750;">Rule: Scam and money links</span><span class="km" style="font-size:11px;color:var(--slate);">matched លុយ + external link</span></span><span style="font-size:11.5px;font-weight:700;color:var(--teal-deep);">Edit rule</span></span>
+            <span style="display:flex;gap:8px;"><span class="btn b-ink b-sm" style="flex:1;height:38px;">Hide comment</span><span class="btn b-out b-sm" style="flex:1;height:38px;">Leave visible</span></span>
+            <span style="font-size:11px;line-height:1.6;color:var(--slate);">Recorded against your name. Undo from the Decided tab.</span>
+          </span>
+        </div>
+        <p class="on">Springs in from the right with the queue still visible behind it, so a reviewer never loses their place. J and K move through the queue without touching the mouse.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key">09</span><h4>Rule row and severity</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span class="rowc"><span class="km" style="font-size:14px;font-weight:650;flex:1;">បោកប្រាស់</span><span class="chip c-bad">High</span><span class="sw on"><i></i></span></span>
+          <span class="rowc"><span style="font-size:13.5px;font-weight:650;flex:1;">free money</span><span class="chip c-warn">Medium</span><span class="sw on"><i></i></span></span>
+          <span class="rowc" style="opacity:.6;"><span style="font-size:13.5px;font-weight:650;flex:1;">promo</span><span class="chip c-q">Low</span><span class="sw"><i></i></span></span>
+          <span style="display:flex;align-items:center;gap:9px;"><span class="inp" style="flex:1;">Add a keyword&hellip;</span><span class="btn b-ink b-sm">Add</span></span>
+        </div>
+        <p class="on">Severity chip and switch on every row; a rule that is off dims rather than disappears, so you can see what you have turned off. Khmer and Latin keywords share one list.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key">10</span><h4>Automated reply and Page connection</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;flex-direction:column;gap:9px;padding:13px;border:1px solid var(--line);border-radius:11px;">
+            <span style="display:flex;align-items:center;gap:9px;"><span style="font-size:12.5px;font-weight:750;flex:1;">Reply to scam comments</span><span class="chip c-teal">Triggered by 1 rule</span><span class="sw on"><i></i></span></span>
+            <span class="km" style="padding:10px 12px;background:var(--mist);border-radius:8px;font-size:13px;">សូមអភ័យទោស យើងមិនមានការផ្ដល់ជូនបែបនេះទេ។</span>
+            <span style="display:flex;align-items:center;gap:8px;"><span class="chip c-warn">A person still presses send</span><span class="num" style="font-size:11px;color:var(--slate);margin-left:auto;">used 34 times</span></span>
+          </span>
+          <span class="rowc"><i style="width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none;"></i><span class="t km" style="font-weight:650;">ហាងកាហ្វេ សុវណ្ណ</span><span class="chip c-ok">Connected</span></span>
+          <span class="rowc"><i style="width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none;"></i><span class="t" style="font-weight:650;">Sovann Delivery</span><span class="chip c-warn">Renew token</span><span class="btn b-out b-sm">Renew</span></span>
+        </div>
+        <p class="on">A saved reply is a draft, never an automatic send — the chip says so on the card itself. An expiring token carries its fix next to it rather than in a notification.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">11</span><h4>Form controls</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;align-items:center;gap:12px;"><span class="sw on"><i></i></span><span style="font-size:12.5px;font-weight:650;">On</span><span class="sw"><i></i></span><span style="font-size:12.5px;color:var(--slate);">Off</span></span>
+          <span style="display:flex;align-items:center;gap:12px;">
+            <span style="display:flex;align-items:center;gap:8px;"><span class="cbx on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span style="font-size:12.5px;">Checked</span></span>
+            <span style="display:flex;align-items:center;gap:8px;"><span style="width:17px;height:17px;border-radius:50%;border:5px solid var(--teal);background:#fff;"></span><span style="font-size:12.5px;">Selected</span></span>
+          </span>
+          <span class="inp" style="color:var(--ink);">Newest first<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#616C7A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;"><path d="m6 9 6 6 6-6"/></svg></span>
+          <span style="display:flex;flex-direction:column;gap:5px;"><span style="min-height:56px;padding:10px 12px;border:1px solid var(--line2);border-radius:9px;font-size:12.5px;color:var(--slate-2);">Why are you declining this request?</span><span class="num" style="font-size:10.5px;color:var(--slate);text-align:right;">0 / 400</span></span>
+        </div>
+        <p class="on">Switches are for settings that take effect immediately; checkboxes are for selections you then act on. Never mixed.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">12</span><h4>People and presence</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;align-items:center;gap:10px;"><span style="position:relative;"><span class="av">SC</span><i style="position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:var(--ok);border:2px solid #fff;"></i></span><span style="display:flex;flex-direction:column;gap:1px;"><span style="font-size:12.5px;font-weight:750;">Sophea Chan</span><span style="font-size:11px;color:var(--slate);">Reviewer &#183; working the queue</span></span></span>
+          <span style="display:flex;align-items:center;gap:10px;"><span style="display:flex;"><span class="av" style="box-shadow:0 0 0 2px #fff;">SC</span><span class="av" style="margin-left:-9px;box-shadow:0 0 0 2px #fff;">RM</span><span class="av" style="margin-left:-9px;box-shadow:0 0 0 2px #fff;background:var(--teal-wash);color:var(--teal-deep);">+3</span></span><span style="font-size:11.5px;color:var(--slate);">5 reviewers on shift</span></span>
+        </div>
+        <p class="on">A green dot means someone is in the queue right now, which stops two people reviewing the same comment. Stacks cap at three plus a count.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">13</span><h4>Pagination</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib">
+          <span class="num" style="font-size:12px;color:var(--slate);">Showing 6 of 12</span>
+          <span style="margin-left:auto;display:flex;gap:7px;"><span style="padding:6px 13px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:650;color:var(--slate-2);">Previous</span><span style="padding:6px 13px;border:1px solid var(--line2);border-radius:999px;font-size:12px;font-weight:700;">Next</span></span>
+        </div>
+        <p class="on">A count, then two controls. No page numbers — a moderation queue changes while you read it, so page 4 is not a stable place.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">14</span><h4>Empty state</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col" style="align-items:center;text-align:center;padding-block:24px;">
+          <span style="display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--ok-w);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#2E5C3F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span style="font-size:14px;font-weight:750;">Queue clear</span>
+          <span style="font-size:12px;line-height:1.65;color:var(--slate);max-width:32ch;">Nothing is waiting for a person. New comments appear here within a minute of being posted.</span>
+          <span class="btn b-out b-sm">Review decided comments</span>
+        </div>
+        <p class="on">An empty queue is good news and should read as such. It always offers the next useful thing rather than ending the path.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">15</span><h4>Loading</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;"><span class="skel" style="width:30px;height:30px;border-radius:50%;flex:none;"></span><span style="display:flex;flex-direction:column;gap:6px;flex:1;"><span class="skel" style="height:9px;width:80%;"></span><span class="skel" style="height:8px;width:52%;"></span></span><span class="skel" style="width:64px;height:22px;border-radius:999px;flex:none;"></span></span>
+          <span style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;"><span class="skel" style="width:30px;height:30px;border-radius:50%;flex:none;"></span><span style="display:flex;flex-direction:column;gap:6px;flex:1;"><span class="skel" style="height:9px;width:66%;"></span><span class="skel" style="height:8px;width:40%;"></span></span><span class="skel" style="width:64px;height:22px;border-radius:999px;flex:none;"></span></span>
+        </div>
+        <p class="on">Skeletons in the shape of the rows that are coming, not a spinner. The layout never jumps when the data lands.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">16</span><h4>Toast and undo</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col grey">
+          <span style="display:flex;align-items:center;gap:12px;padding:11px 15px;background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:var(--sh-3);align-self:flex-start;">
+            <span style="display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--ok-w);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2E5C3F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span style="font-size:12.5px;font-weight:650;">Comment hidden by Sophea Chan</span>
+            <i style="width:1px;height:13px;background:var(--line2);"></i>
+            <span style="font-size:12px;font-weight:750;color:var(--teal-deep);">Undo</span>
+          </span>
+        </div>
+        <p class="on">Every decision is reversible, so every decision toast carries Undo. It holds six seconds; the action stays undoable from the Decided tab afterwards.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">17</span><h4>Confirm dialog</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col grey">
+          <span style="display:flex;flex-direction:column;gap:11px;padding:18px;background:#fff;border-radius:13px;box-shadow:var(--sh-3);">
+            <span style="font-size:14px;font-weight:750;">Disconnect Sovann Delivery?</span>
+            <span style="font-size:12px;line-height:1.65;color:var(--slate);">New comments stop arriving. The 412 comments already reviewed stay in your audit trail.</span>
+            <span style="display:flex;gap:8px;justify-content:flex-end;"><span class="btn b-out b-sm">Cancel</span><span class="btn b-dang b-sm">Disconnect</span></span>
+          </span>
+        </div>
+        <p class="on">The title asks the question, the body says what is lost and what is kept, and the confirm button names the action rather than saying OK.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">18</span><h4>Tooltip and shortcuts</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;align-items:center;gap:9px;padding:7px 11px;background:var(--ink);color:#fff;border-radius:8px;font-size:11.5px;font-weight:650;align-self:flex-start;">Hide this comment<span class="kbd" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2);color:#fff;">H</span></span>
+          <span style="display:flex;gap:14px;flex-wrap:wrap;"><span style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--slate);"><span class="kbd">J</span><span class="kbd">K</span>move</span><span style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--slate);"><span class="kbd">H</span>hide</span><span style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--slate);"><span class="kbd">L</span>leave visible</span></span>
+        </div>
+        <p class="on">Dark tooltips are the one place the interface inverts, so they never look like part of the page. Every tooltip names its shortcut.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= ADMIN ======================= -->
+  <section class="blk">
+    <div class="shead">
+      <h2>Admin side</h2>
+      <p>The privileged surface: access requests, workspaces, roles, health and audit. Marked apart from tenant screens without going dark.</p>
+    </div>
+
+    <div class="lib">
+
+      <div class="item w6">
+        <div class="ih"><span class="key">19</span><h4>Console lockup and top rule</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col pad0" style="padding:0;">
+          <span style="height:3px;background:var(--ink);"></span>
+          <span style="display:flex;align-items:center;gap:11px;padding:14px 16px;background:var(--mist3);">
+            <span style="display:grid;gap:3px;width:26px;height:26px;padding:5px;border-radius:7px;background:var(--ink);"><i style="background:#fff;border-radius:1px;"></i><i style="background:rgba(255,255,255,.45);border-radius:1px;"></i></span>
+            <span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:13px;font-weight:750;letter-spacing:.13em;">KCMS</span><span style="font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;">Admin console</span></span>
+            <span class="chip c-q" style="margin-left:auto;">Platform admin</span>
+          </span>
+        </div>
+        <p class="on">A 3px ink rule across the top of every admin screen and a sidebar one step deeper in grey than the tenant&rsquo;s white one. An operator can tell at a glance which side they are on.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key">20</span><h4>Viewing-as banner</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:10px;background:var(--warn-w);border:1px solid rgba(185,110,9,.3);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8A5206" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.6"/></svg>
+            <span style="flex:1;min-width:0;font-size:12.5px;line-height:1.55;color:var(--warn-i);">You are viewing <b class="km">ហាងកាហ្វេ សុវណ្ណ</b> as an admin. Actions are recorded under your name.</span>
+            <span class="btn b-out b-sm">Leave</span>
+          </span>
+        </div>
+        <p class="on">Amber, pinned above everything, and it never collapses. The one screen where a person could act on someone else&rsquo;s behalf has to say so continuously.</p>
+      </div>
+
+      <div class="item w8">
+        <div class="ih"><span class="key">21</span><h4>Access request card</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;flex-direction:column;gap:13px;padding:16px;border:1px solid var(--line);border-left:2px solid var(--warn);border-radius:12px;">
+            <span style="display:flex;align-items:flex-start;gap:12px;">
+              <span class="av" style="width:38px;height:38px;border-radius:10px;font-family:var(--khmer);font-size:14px;">អ</span>
+              <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;"><span class="km" style="font-size:15px;font-weight:750;">អង្គការ អភិវឌ្ឍន៍ស្រុកស្រែ</span><span style="font-size:11.5px;color:var(--slate);">Rathana Meas &#183; rathana@[EXAMPLE-ORG].org &#183; 2 days ago</span></span>
+              <span class="chip c-warn">Pending</span>
+            </span>
+            <span style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px 0;border-block:1px solid var(--line);">
+              <span style="display:flex;flex-direction:column;gap:4px;"><span class="lbl">Page</span><span style="font-size:12.5px;font-weight:650;">[PAGE-HANDLE]</span></span>
+              <span style="display:flex;flex-direction:column;gap:4px;"><span class="lbl">Followers</span><span class="num" style="font-size:12.5px;font-weight:650;">41,200</span></span>
+              <span style="display:flex;flex-direction:column;gap:4px;"><span class="lbl">Comments / week</span><span class="num" style="font-size:12.5px;font-weight:650;">~2,400</span></span>
+            </span>
+            <span class="km" style="padding:11px 13px;border-radius:9px;background:var(--mist);font-size:13px;">យើងត្រូវការជំនួយក្នុងការគ្រប់គ្រងមតិយោបល់នៅលើទំព័ររបស់យើង។</span>
+            <span style="display:flex;align-items:center;gap:9px;"><span class="btn b-ink b-sm">Approve and send invitation</span><span class="btn b-out b-sm">Decline with a reason</span><span style="margin-left:auto;font-size:11px;color:var(--slate);">Creates a workspace and emails a setup link.</span></span>
+          </span>
+        </div>
+        <p class="on">The three facts an admin actually decides on — which Page, how big, how busy — sit above the fold of the card, before the applicant&rsquo;s own words.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">22</span><h4>Delivery and risk</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:10px;background:var(--ok-w);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2E5C3F" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg>
+            <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;"><span style="font-size:12px;font-weight:750;color:var(--ok-i);">Invitation delivered</span><span style="font-size:10.5px;color:var(--ok-i);opacity:.8;">Expires in 7 days &#183; not yet opened</span></span>
+            <span class="btn b-out b-sm">Resend</span>
+          </span>
+          <span style="display:flex;align-items:flex-start;gap:11px;padding:12px 13px;border-radius:10px;background:var(--bad-w);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A32A20" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <span style="font-size:11.5px;line-height:1.6;color:var(--bad-i);">Email domain does not match the Page, and the Page is 11 days old. Confirm ownership first.</span>
+          </span>
+        </div>
+        <p class="on">Delivery state and risk state use the same shape, so an admin reads one strip per request and knows whether to act.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">23</span><h4>System health</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;flex-direction:column;gap:6px;"><span style="display:flex;align-items:center;gap:8px;"><i style="width:7px;height:7px;border-radius:50%;background:var(--ok);"></i><span style="font-size:12.5px;font-weight:650;flex:1;">Comment ingestion</span><span class="num" style="font-size:11.5px;color:var(--slate);">2.1 s lag</span></span><span style="height:6px;border-radius:3px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:14%;background:var(--ok);border-radius:3px;"></i></span></span>
+          <span style="display:flex;flex-direction:column;gap:6px;"><span style="display:flex;align-items:center;gap:8px;"><i style="width:7px;height:7px;border-radius:50%;background:var(--ok);"></i><span style="font-size:12.5px;font-weight:650;flex:1;">Detection queue depth</span><span class="num" style="font-size:11.5px;color:var(--slate);">318 / 5,000</span></span><span style="height:6px;border-radius:3px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:6.4%;background:var(--ok);border-radius:3px;"></i></span></span>
+          <span style="display:flex;flex-direction:column;gap:6px;"><span style="display:flex;align-items:center;gap:8px;"><i style="width:7px;height:7px;border-radius:50%;background:var(--warn);"></i><span style="font-size:12.5px;font-weight:650;flex:1;">Page tokens expiring</span><span class="num" style="font-size:11.5px;color:var(--slate);">3 in 14 days</span></span><span style="height:6px;border-radius:3px;background:var(--mist2);overflow:hidden;"><i style="display:block;height:100%;width:38%;background:var(--warn);border-radius:3px;"></i></span></span>
+        </div>
+        <p class="on">Every meter shows the measurement and its ceiling, so &ldquo;318&rdquo; is meaningful without knowing the system. The dot repeats the state for anyone who cannot separate the fill colours.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">24</span><h4>Platform figures</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib">
+          <span style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:100%;">
+            <span style="display:flex;flex-direction:column;gap:4px;"><span class="lbl">Workspaces</span><span class="num" style="font-size:23px;font-weight:800;line-height:1;letter-spacing:-.02em;">27</span></span>
+            <span style="display:flex;flex-direction:column;gap:4px;"><span class="lbl">Pages connected</span><span class="num" style="font-size:23px;font-weight:800;line-height:1;letter-spacing:-.02em;">63</span></span>
+            <span style="display:flex;flex-direction:column;gap:4px;"><span class="lbl">Reviewers</span><span class="num" style="font-size:23px;font-weight:800;line-height:1;letter-spacing:-.02em;">148</span></span>
+            <span style="display:flex;flex-direction:column;gap:4px;"><span class="lbl">Comments / day</span><span class="num" style="font-size:23px;font-weight:800;line-height:1;letter-spacing:-.02em;">96k</span></span>
+          </span>
+        </div>
+        <p class="on">No cards, no icons. Four plain figures on the page — admin totals are reference material, not something to act on.</p>
+      </div>
+
+      <div class="item">
+        <div class="ih"><span class="key">25</span><h4>Audit log</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;gap:11px;padding-bottom:10px;border-bottom:1px solid var(--line);"><i style="width:7px;height:7px;border-radius:50%;background:var(--ok);margin-top:5px;flex:none;"></i><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:12.5px;font-weight:650;">Approved Sovann Delivery</span><span style="font-size:11px;color:var(--slate);">Dara Heang &#183; 14 min ago</span></span></span>
+          <span style="display:flex;gap:11px;padding-bottom:10px;border-bottom:1px solid var(--line);"><i style="width:7px;height:7px;border-radius:50%;background:var(--warn);margin-top:5px;flex:none;"></i><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:12.5px;font-weight:650;">Added &ldquo;free money&rdquo; to the shared rule library</span><span style="font-size:11px;color:var(--slate);">Dara Heang &#183; 3 h ago</span></span></span>
+          <span style="display:flex;gap:11px;"><i style="width:7px;height:7px;border-radius:50%;background:var(--bad);margin-top:5px;flex:none;"></i><span style="display:flex;flex-direction:column;gap:2px;"><span style="font-size:12.5px;font-weight:650;">Declined 1 request &mdash; unverified ownership</span><span style="font-size:11px;color:var(--slate);">Sokha Ly &#183; yesterday</span></span></span>
+        </div>
+        <p class="on">Actor, action, time, on one line each. The dot takes the colour of what the action did, not of who did it.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key">26</span><h4>Workspace row</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span class="rowc"><span class="av" style="border-radius:8px;font-family:var(--khmer);">ស</span><span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;"><span class="km" style="font-size:12.5px;font-weight:750;">ហាងកាហ្វេ សុវណ្ណ</span><span class="num" style="font-size:11px;color:var(--slate);">3 Pages &#183; 5 reviewers &#183; 2,410 comments / week</span></span><span class="chip c-ok">Active</span><span class="ico" style="width:30px;height:30px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#616C7A" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></span></span>
+          <span class="rowc"><span class="av" style="border-radius:8px;">PT</span><span style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;"><span style="font-size:12.5px;font-weight:750;">Phnom Trading News</span><span class="num" style="font-size:11px;color:var(--slate);">1 Page &#183; 1 reviewer &#183; no activity in 30 days</span></span><span class="chip c-q">Dormant</span><span class="ico" style="width:30px;height:30px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#616C7A" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></span></span>
+        </div>
+        <p class="on">One line of numbers tells an admin whether a workspace is healthy. Dormant is grey, not red — it is a fact, not a fault.</p>
+      </div>
+
+      <div class="item w6">
+        <div class="ih"><span class="key">27</span><h4>Roles and danger zone</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib col">
+          <span style="display:flex;gap:8px;">
+            <span style="flex:1;padding:11px 13px;border:1.5px solid var(--teal);background:var(--teal-wash);border-radius:10px;"><span style="display:block;font-size:12.5px;font-weight:750;color:var(--teal-deep);">Reviewer</span><span style="display:block;margin-top:3px;font-size:11px;line-height:1.5;color:var(--teal-deep);opacity:.85;">Can hide, reply and undo</span></span>
+            <span style="flex:1;padding:11px 13px;border:1px solid var(--line);border-radius:10px;"><span style="display:block;font-size:12.5px;font-weight:750;">Viewer</span><span style="display:block;margin-top:3px;font-size:11px;line-height:1.5;color:var(--slate);">Can read the queue only</span></span>
+          </span>
+          <span style="display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid rgba(206,58,45,.35);border-radius:10px;">
+            <span style="display:flex;flex-direction:column;gap:2px;flex:1;"><span style="font-size:12.5px;font-weight:750;color:var(--bad-i);">Delete this workspace</span><span style="font-size:11px;line-height:1.5;color:var(--slate);">Removes 3 Pages and 5 accounts. The audit trail is kept.</span></span>
+            <span class="btn b-dang b-sm">Delete</span>
+          </span>
+        </div>
+        <p class="on">Roles are described by what they can do, not by rank. The destructive action sits in a red-outlined block rather than a red button loose among normal ones.</p>
+      </div>
+
+      <div class="item w12">
+        <div class="ih"><span class="key">28</span><h4>Bulk approval bar</h4><span class="sp fixed">One treatment</span></div>
+        <div class="ib">
+          <span style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 15px;border-radius:11px;background:var(--ink);color:#fff;">
+            <span class="cbx on" style="background:#fff;border-color:#fff;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#101418" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="num" style="font-size:12.5px;font-weight:700;">4 requests selected</span>
+            <span style="font-size:11.5px;opacity:.65;">All four have verified Page ownership</span>
+            <span style="margin-left:auto;display:flex;gap:8px;"><span class="btn b-sm" style="background:rgba(255,255,255,.14);color:#fff;">Decline all</span><span class="btn b-sm" style="background:#fff;color:var(--ink);">Approve all and invite</span></span>
+          </span>
+        </div>
+        <p class="on">The only inverted bar in the product, because bulk approval is the highest-consequence action an admin takes. It states what the selection has in common before offering to act on all of it.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="end">
+    <h3>How to answer</h3>
+    <p>Ten choices in total. Anything you skip I will take the option that keeps colour meaningful: <b>L2, B1, C1, N1, S1, R1, T1, I2, K2</b>. Everything marked <span class="fixed">One treatment</span> needs no decision — say so only if you want it changed.</p>
+    <p class="reply">Font: F2<br>Components: L1, B1, C1, N1, S1, R1, T1, I2, K2</p>
+    <p>Then I rebuild all six artboards — landing desktop and mobile, Overview, Moderate, Admin and the foundations sheet — in your selections.</p>
+  </footer>
+</div>
