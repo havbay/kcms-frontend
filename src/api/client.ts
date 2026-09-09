@@ -215,6 +215,18 @@ export type AdminPilotRequest = components['schemas']['AdminPilotRequest']
 export type PilotDecisionResult = components['schemas']['PilotDecisionResult']
 export type SetupInvitationPreview = components['schemas']['SetupInvitationPreview']
 
+export type AdminOverview = components['schemas']['AdminOverview']
+export type AdminWorkspaceSummary = components['schemas']['AdminWorkspaceSummary']
+export type AdminWorkspaceList = components['schemas']['AdminWorkspaceList']
+export type AdminWorkspaceDetail = components['schemas']['AdminWorkspaceDetail']
+export type AdminIntegration = components['schemas']['AdminIntegration']
+export type AdminIntegrationHealth = components['schemas']['AdminIntegrationHealth']
+export type AdminPlanOverview = components['schemas']['AdminPlanOverview']
+export type AdminWorkspaceEntitlementPatch = components['schemas']['AdminWorkspaceEntitlementPatch']
+export type AdminAccess = components['schemas']['AdminAccess']
+export type AdminAuditEvent = components['schemas']['AdminAuditEvent']
+export type AdminSessionRevocation = components['schemas']['AdminSessionRevocation']
+
 export function createPilotRequest(body: PilotRequestCreate): Promise<PilotRequestReceipt> {
   return request<PilotRequestReceipt>('/api/v1/pilot-requests', {
     method: 'POST',
@@ -236,6 +248,62 @@ export function decidePilotRequest(
     `/api/v1/admin/pilot-requests/${encodeURIComponent(id)}/decision`,
     { method: 'POST', body: JSON.stringify({ decision, reason }) },
   )
+}
+
+export function getAdminOverview(): Promise<AdminOverview> {
+  return request<AdminOverview>('/api/v1/admin/overview')
+}
+
+export function listAdminWorkspaces(
+  query = '',
+  limit = 50,
+  offset = 0,
+): Promise<AdminWorkspaceList> {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) })
+  if (query.trim()) params.set('query', query.trim())
+  return request<AdminWorkspaceList>(`/api/v1/admin/workspaces?${params.toString()}`)
+}
+
+export function getAdminWorkspace(workspaceId: string): Promise<AdminWorkspaceDetail> {
+  return request<AdminWorkspaceDetail>(
+    `/api/v1/admin/workspaces/${encodeURIComponent(workspaceId)}`,
+  )
+}
+
+export function patchAdminWorkspaceEntitlement(
+  workspaceId: string,
+  body: AdminWorkspaceEntitlementPatch,
+): Promise<AdminWorkspaceDetail> {
+  return request<AdminWorkspaceDetail>(
+    `/api/v1/admin/workspaces/${encodeURIComponent(workspaceId)}/entitlement`,
+    { method: 'PATCH', body: JSON.stringify(body) },
+  )
+}
+
+export function getAdminIntegrationHealth(
+  status?: AdminIntegration['status'],
+): Promise<AdminIntegrationHealth> {
+  const query = status ? `?status=${encodeURIComponent(status)}` : ''
+  return request<AdminIntegrationHealth>(`/api/v1/admin/integrations${query}`)
+}
+
+export function getAdminPlanOverview(): Promise<AdminPlanOverview> {
+  return request<AdminPlanOverview>('/api/v1/admin/plans')
+}
+
+export function getAdminAccess(): Promise<AdminAccess> {
+  return request<AdminAccess>('/api/v1/admin/access')
+}
+
+export function revokeAdminSessions(userId: string): Promise<AdminSessionRevocation> {
+  return request<AdminSessionRevocation>(
+    `/api/v1/admin/access/${encodeURIComponent(userId)}/revoke-sessions`,
+    { method: 'POST' },
+  )
+}
+
+export function listAdminAuditLog(): Promise<AdminAuditEvent[]> {
+  return request<AdminAuditEvent[]>('/api/v1/admin/audit-log')
 }
 
 export function previewSetupInvitation(token: string): Promise<SetupInvitationPreview> {

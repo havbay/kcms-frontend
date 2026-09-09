@@ -4,6 +4,91 @@
  */
 
 export interface paths {
+    "/api/v1/admin/access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Access */
+        get: operations["getAdminAccess"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/access/{user_id}/revoke-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke Admin Sessions */
+        post: operations["revokeAdminSessions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/audit-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Admin Audit Log */
+        get: operations["listAdminAuditLog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/integrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Integration Health */
+        get: operations["getAdminIntegrationHealth"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Overview */
+        get: operations["getAdminOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/pilot-requests": {
         parameters: {
             query?: never;
@@ -36,6 +121,74 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Plan Overview */
+        get: operations["getAdminPlanOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/workspaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Workspaces */
+        get: operations["listAdminWorkspaces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/workspaces/{workspace_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Admin Workspace */
+        get: operations["getAdminWorkspace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/workspaces/{workspace_id}/entitlement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Admin Workspace Entitlement */
+        patch: operations["patchAdminWorkspaceEntitlement"];
         trace?: never;
     };
     "/api/v1/auth/clerk": {
@@ -886,6 +1039,178 @@ export interface components {
              */
             kind: "LEAVE" | "HIDE" | "UNHIDE" | "DELETE";
         };
+        /** AdminAccess */
+        AdminAccess: {
+            /** Admins */
+            admins: components["schemas"]["AdminAccount"][];
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /**
+             * Mfa
+             * @constant
+             */
+            mfa: "not_configured";
+            /**
+             * Role Management
+             * @constant
+             */
+            role_management: "deployment_allowlist";
+        };
+        /** AdminAccount */
+        AdminAccount: {
+            /** Active Session Count */
+            active_session_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Display Name */
+            display_name: string;
+            /** Email */
+            email: string;
+            /** Id */
+            id: string;
+            /** Latest Session At */
+            latest_session_at: string | null;
+        };
+        /** AdminAuditEvent */
+        AdminAuditEvent: {
+            /** Action */
+            action: string;
+            /** Actor */
+            actor: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: number;
+            /** Metadata */
+            metadata: {
+                [key: string]: unknown;
+            };
+            /** Target Id */
+            target_id: string;
+            /** Target Type */
+            target_type: string;
+        };
+        /** AdminIntegration */
+        AdminIntegration: {
+            /**
+             * Connected At
+             * Format: date-time
+             */
+            connected_at: string;
+            /** Last Synced At */
+            last_synced_at: string | null;
+            /** Method */
+            method: string;
+            /** Page Id */
+            page_id: string;
+            /** Page Name */
+            page_name: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "HEALTHY" | "STALE" | "NEVER_SYNCED" | "SUSPENDED";
+            /** Tasks */
+            tasks: string[];
+            /** Workspace Id */
+            workspace_id: string;
+            /** Workspace Name */
+            workspace_name: string;
+        };
+        /** AdminIntegrationHealth */
+        AdminIntegrationHealth: {
+            /** Attention */
+            attention: number;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Healthy */
+            healthy: number;
+            /** Items */
+            items: components["schemas"]["AdminIntegration"][];
+            /** Total */
+            total: number;
+        };
+        /** AdminMember */
+        AdminMember: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Display Name */
+            display_name: string;
+            /** Id */
+            id: string;
+            /** Role */
+            role: string;
+        };
+        /** AdminOverview */
+        AdminOverview: {
+            /** Active Workspaces */
+            active_workspaces: number;
+            /** Comments Processed 7D */
+            comments_processed_7d: number;
+            /** Connected Pages */
+            connected_pages: number;
+            /** Expired Workspaces */
+            expired_workspaces: number;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Integration Attention */
+            integration_attention: number;
+            /** Pending Access Requests */
+            pending_access_requests: number;
+            /** Recent Workspaces */
+            recent_workspaces: components["schemas"]["AdminWorkspaceSummary"][];
+            /** Replies Sent 7D */
+            replies_sent_7d: number;
+            /** Reply Failures 7D */
+            reply_failures_7d: number;
+            /** Suspended Workspaces */
+            suspended_workspaces: number;
+            /** Total Workspaces */
+            total_workspaces: number;
+            /** Trial Workspaces */
+            trial_workspaces: number;
+        };
+        /** AdminPage */
+        AdminPage: {
+            /**
+             * Connected At
+             * Format: date-time
+             */
+            connected_at: string;
+            /** Last Synced At */
+            last_synced_at: string | null;
+            /** Method */
+            method: string;
+            /** Page Id */
+            page_id: string;
+            /** Page Name */
+            page_name: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "HEALTHY" | "STALE" | "NEVER_SYNCED" | "SUSPENDED";
+            /** Tasks */
+            tasks: string[];
+        };
         /** AdminPilotRequest */
         AdminPilotRequest: {
             /**
@@ -913,6 +1238,172 @@ export interface components {
             organization: string;
             /** Status */
             status: string;
+        };
+        /** AdminPlan */
+        AdminPlan: {
+            /** Page Limit */
+            page_limit: number;
+            /**
+             * Plan
+             * @enum {string}
+             */
+            plan: "TRIAL" | "STARTER" | "GROWTH";
+            /** Suspended Count */
+            suspended_count: number;
+            /** Workspace Count */
+            workspace_count: number;
+        };
+        /** AdminPlanOverview */
+        AdminPlanOverview: {
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Plans */
+            plans: components["schemas"]["AdminPlan"][];
+        };
+        /** AdminSessionRevocation */
+        AdminSessionRevocation: {
+            /** Revoked Sessions */
+            revoked_sessions: number;
+            /** User Id */
+            user_id: string;
+        };
+        /** AdminWorkspaceDetail */
+        AdminWorkspaceDetail: {
+            /** Auto Reply Enabled */
+            auto_reply_enabled: boolean;
+            /** Comments Processed */
+            comments_processed: number;
+            /** Comments Processed 7D */
+            comments_processed_7d: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: string;
+            /** Is Sandbox */
+            is_sandbox: boolean;
+            /** Is Suspended */
+            is_suspended: boolean;
+            /** Latest Activity At */
+            latest_activity_at: string | null;
+            /** Member Count */
+            member_count: number;
+            /** Members */
+            members: components["schemas"]["AdminMember"][];
+            metrics: components["schemas"]["AdminWorkspaceMetrics"];
+            /** Name */
+            name: string;
+            /** Owner Name */
+            owner_name: string | null;
+            /** Page Count */
+            page_count: number;
+            /** Page Limit */
+            page_limit: number;
+            /** Pages */
+            pages: components["schemas"]["AdminPage"][];
+            /** Pending Comments */
+            pending_comments: number;
+            /** Plan */
+            plan: string;
+            /** Replies Sent 7D */
+            replies_sent_7d: number;
+            /** Reply Failures 7D */
+            reply_failures_7d: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "SANDBOX" | "TRIAL" | "ACTIVE" | "EXPIRED" | "SUSPENDED";
+            /** Trial Expires At */
+            trial_expires_at: string | null;
+        };
+        /** AdminWorkspaceEntitlementPatch */
+        AdminWorkspaceEntitlementPatch: {
+            /** Plan */
+            plan?: ("TRIAL" | "STARTER" | "GROWTH") | null;
+            /** Suspended */
+            suspended?: boolean | null;
+        };
+        /** AdminWorkspaceList */
+        AdminWorkspaceList: {
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Items */
+            items: components["schemas"]["AdminWorkspaceSummary"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** AdminWorkspaceMetrics */
+        AdminWorkspaceMetrics: {
+            /** Comments Processed */
+            comments_processed: number;
+            /** Comments Processed 7D */
+            comments_processed_7d: number;
+            /** Pending Comments */
+            pending_comments: number;
+            /** Replies Sent 7D */
+            replies_sent_7d: number;
+            /** Reply Failures 7D */
+            reply_failures_7d: number;
+            /** Reviewed Comments */
+            reviewed_comments: number;
+        };
+        /** AdminWorkspaceSummary */
+        AdminWorkspaceSummary: {
+            /** Auto Reply Enabled */
+            auto_reply_enabled: boolean;
+            /** Comments Processed */
+            comments_processed: number;
+            /** Comments Processed 7D */
+            comments_processed_7d: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Id */
+            id: string;
+            /** Is Sandbox */
+            is_sandbox: boolean;
+            /** Is Suspended */
+            is_suspended: boolean;
+            /** Latest Activity At */
+            latest_activity_at: string | null;
+            /** Member Count */
+            member_count: number;
+            /** Name */
+            name: string;
+            /** Page Count */
+            page_count: number;
+            /** Page Limit */
+            page_limit: number;
+            /** Pending Comments */
+            pending_comments: number;
+            /** Plan */
+            plan: string;
+            /** Replies Sent 7D */
+            replies_sent_7d: number;
+            /** Reply Failures 7D */
+            reply_failures_7d: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "SANDBOX" | "TRIAL" | "ACTIVE" | "EXPIRED" | "SUSPENDED";
+            /** Trial Expires At */
+            trial_expires_at: string | null;
         };
         /** AuthUser */
         AuthUser: {
@@ -1656,6 +2147,170 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getAdminAccess: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAccess"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revokeAdminSessions: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSessionRevocation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listAdminAuditLog: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAuditEvent"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getAdminIntegrationHealth: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminIntegrationHealth"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getAdminOverview: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listPilotRequests: {
         parameters: {
             query?: {
@@ -1713,6 +2368,142 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PilotDecisionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getAdminPlanOverview: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminPlanOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listAdminWorkspaces: {
+        parameters: {
+            query?: {
+                query?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminWorkspaceList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getAdminWorkspace: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminWorkspaceDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patchAdminWorkspaceEntitlement: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminWorkspaceEntitlementPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminWorkspaceDetail"];
                 };
             };
             /** @description Validation Error */

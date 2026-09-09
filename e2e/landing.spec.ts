@@ -399,6 +399,23 @@ async function stubApi(
     if (path.endsWith('/team/invitations')) {
       return json({ token: 'tok-123', role: 'member', expires_at: '2026-09-07T00:00:00Z' }, 201)
     }
+    if (path.endsWith('/admin/overview')) {
+      return options.isAdmin ? json({
+        total_workspaces: 1, active_workspaces: 1, trial_workspaces: 0,
+        expired_workspaces: 0, connected_pages: 0, integration_attention: 0,
+        comments_processed_7d: 12, replies_sent_7d: 0, reply_failures_7d: 0,
+        pending_access_requests: 0,
+        recent_workspaces: [{
+          id: 'w1', name: 'Angkor Shop', plan: 'STARTER', is_sandbox: true,
+          status: 'SANDBOX', trial_expires_at: null,
+          created_at: '2026-08-31T00:00:00Z', member_count: 2, page_count: 0,
+          comments_processed: 12, comments_processed_7d: 12, pending_comments: 10,
+          replies_sent_7d: 0, reply_failures_7d: 0, auto_reply_enabled: false,
+          latest_activity_at: '2026-09-01T00:00:00Z',
+        }],
+        generated_at: '2026-09-09T00:00:00Z',
+      }) : json({ detail: 'forbidden' }, 403)
+    }
     if (path.endsWith('/admin/pilot-requests')) {
       return options.isAdmin ? json([]) : json({ detail: 'forbidden' }, 403)
     }
@@ -432,8 +449,8 @@ test('an administrator sees the administration entry and can open it', async ({ 
 
   await expect(page.locator('.dash-nav-link.is-admin')).toHaveCount(1)
   await page.getByRole('link', { name: 'Administration' }).click()
-  await expect(page).toHaveURL(/\/admin\/requests$/)
-  await expect(page.getByRole('button', { name: 'Pending' })).toBeVisible()
+  await expect(page).toHaveURL(/\/admin\/overview$/)
+  await expect(page.getByRole('heading', { name: 'Admin overview' })).toBeVisible()
 })
 
 test('adding a Page is the only connection route offered in the dashboard', async ({ page }) => {

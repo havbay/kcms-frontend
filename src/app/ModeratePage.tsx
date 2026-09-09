@@ -265,11 +265,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
     if (!quiet) setSyncNote(null)
     try {
       const found = await listFacebookConnections()
-      const connections = Array.isArray(found?.connections)
-        ? found.connections
-        : (found as unknown as { state?: string })?.state === 'CONNECTED'
-          ? [{ page_id: 'page-real', page_name: 'Demo Page', connected_at: '', can_moderate: true, method: 'FACEBOOK_LOGIN' as const }]
-          : []
+      const connections = found.connections
       if (connections.length === 0) {
         setConnected(false)
         if (!quiet) setSyncNote(t.syncNoPage)
@@ -304,11 +300,7 @@ export function ModeratePage({ locale }: ModeratePageProps) {
   useEffect(() => {
     listFacebookConnections()
       .then((found) => {
-        const raw = found as unknown as Record<string, unknown>
-        if (Array.isArray(raw?.connections)) setConnected(raw.connections.length > 0)
-        else if (raw?.state === 'CONNECTED') setConnected(true)
-        else if (raw?.state === 'NOT_CONNECTED') setConnected(false)
-        else setConnected(false)
+        setConnected(found.connections.length > 0)
       })
       .catch(() => setConnected(null))
   }, [])

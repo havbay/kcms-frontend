@@ -239,7 +239,7 @@ export function DashboardLayout({ locale, setLocale, children }: DashboardLayout
             <NavLink
               className={({ isActive }) => `dash-nav-link is-admin${isActive ? ' is-active' : ''}`}
               onClick={() => setMobileNavOpen(false)}
-              to="/admin/requests"
+              to="/admin/overview"
             >
               <NavIcon type="admin" />
               <span>{content.navAdmin}</span>

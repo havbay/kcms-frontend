@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
 
 import {
   type AdminPilotRequest,
@@ -8,12 +7,11 @@ import {
   listPilotRequests,
 } from '../api/client'
 import { copy, type Locale } from './copy'
-import { useSession } from './session'
+import { Badge, Page, PageHead } from './ui'
 
 type Props = { locale: Locale; setLocale: (locale: Locale) => void }
-export function AdminRequestsPage({ locale, setLocale }: Props) {
+export function AdminRequestsPage({ locale }: Props) {
   const content = copy[locale]
-  const session = useSession()
   const [pilotRows, setPilotRows] = useState<AdminPilotRequest[]>([])
   const [pendingOnly, setPendingOnly] = useState(true)
   const [loaded, setLoaded] = useState(false)
@@ -33,15 +31,10 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
     }
   }, [])
 
-  const isAdmin = session.user?.is_platform_admin === true
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (isAdmin) void load(pendingOnly)
-  }, [isAdmin, load, pendingOnly])
-
-  if (session.status === 'checking') return null
-  if (session.status === 'signed-out') return <Navigate replace to="/sign-in" />
-  if (!isAdmin) return <Navigate replace to="/app" />
+    void load(pendingOnly)
+  }, [load, pendingOnly])
 
   async function decidePilot(id: string, decision: 'APPROVED' | 'DECLINED') {
     setBusy(id)
@@ -61,35 +54,24 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
   }
 
   return (
-    <div className="site admin-shell" lang={locale === 'km' ? 'km' : 'en'}>
-      <header className="app-header">
-        <div className="app-header-left">
-          <span aria-hidden="true" className="brand-mark"><span /><span /></span>
-          <div><h1>{content.adminOps}</h1><p>{content.adminTitle}</p></div>
+    <Page>
+      <PageHead title={content.adminTitle} lead={content.adminRequestsLead} />
+      <div className="admin-toolbar">
+        <div className="admin-filters" role="group" aria-label={content.adminTitle}>
+          <button aria-pressed={pendingOnly} className="filter-chip" onClick={() => setPendingOnly(true)} type="button">{content.adminPending}</button>
+          <button aria-pressed={!pendingOnly} className="filter-chip" onClick={() => setPendingOnly(false)} type="button">{content.adminAll}</button>
         </div>
-        <div className="app-header-actions">
-          <button className="language-toggle" onClick={() => setLocale(locale === 'en' ? 'km' : 'en')} type="button">{content.language}</button>
-          <Link className="text-link" to="/app">{content.dashNavOverview}</Link>
-        </div>
-      </header>
+      </div>
 
-      <main className="dash-body">
-        <div className="admin-toolbar">
-          <div className="admin-filters" role="group" aria-label={content.adminTitle}>
-            <button aria-pressed={pendingOnly} className="filter-chip" onClick={() => setPendingOnly(true)} type="button">{content.adminPending}</button>
-            <button aria-pressed={!pendingOnly} className="filter-chip" onClick={() => setPendingOnly(false)} type="button">{content.adminAll}</button>
-          </div>
-        </div>
+      {!loaded && <p className="work-status" role="status">{content.modLoading}</p>}
+      {loaded && pilotRows.length === 0 && <p className="work-status">{content.adminEmpty}</p>}
 
-        {!loaded && <p className="work-status" role="status">{content.modLoading}</p>}
-        {loaded && pilotRows.length === 0 && <p className="work-status">{content.adminEmpty}</p>}
-
-        <ul className="admin-list">
+      <ul className="admin-list">
             {pilotRows.map((row) => {
               const result = delivery[row.id]
               return (
                 <li className="admin-card" data-status={row.status} key={row.id}>
-                  <div className="admin-card-head"><h2>{row.organization}</h2><span className={`work-chip status-${row.status}`}>{row.status}</span></div>
+                  <div className="admin-card-head"><h2>{row.organization}</h2><Badge tone={row.status === 'APPROVED' ? 'accent' : row.status === 'DECLINED' ? 'danger' : 'amber'}>{row.status}</Badge></div>
                   <p className="admin-requester">{row.name} · {row.email}</p>
                   <p className="admin-page">{row.facebook_page}</p>
                   {row.note && <blockquote className="admin-note">{row.note}</blockquote>}
@@ -116,9 +98,8 @@ export function AdminRequestsPage({ locale, setLocale }: Props) {
                 </li>
               )
             })}
-        </ul>
-      </main>
-    </div>
+      </ul>
+    </Page>
   )
 }
 

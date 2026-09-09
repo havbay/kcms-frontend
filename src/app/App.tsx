@@ -2,7 +2,15 @@ import { useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import type { Locale } from './copy'
+import { AdminLayout } from './AdminLayout'
+import { AdminAccessPage } from './AdminAccessPage'
+import { AdminAuditPage } from './AdminAuditPage'
+import { AdminIntegrationsPage } from './AdminIntegrationsPage'
+import { AdminOverviewPage } from './AdminOverviewPage'
+import { AdminPlansPage } from './AdminPlansPage'
 import { AdminRequestsPage } from './AdminRequestsPage'
+import { AdminWorkspacePage } from './AdminWorkspacePage'
+import { AdminWorkspacesPage } from './AdminWorkspacesPage'
 import { AutomatedRepliesPage } from './AutomatedRepliesPage'
 import { ConnectPage } from './ConnectPage'
 import { ClerkAuthPage } from './ClerkAuthPage'
@@ -68,7 +76,19 @@ export function App() {
       <Route path="/app/profile" element={dashboard(<ProfilePage {...shared} />)} />
       <Route path="/join/:token" element={<JoinPage {...shared} />} />
       <Route path="/setup/:token" element={<SetupPage {...shared} />} />
-      <Route path="/admin/requests" element={<AdminRequestsPage {...shared} />} />
+      <Route path="/admin" element={<AdminLayout {...shared} />}>
+        <Route index element={<Navigate replace to="/admin/overview" />} />
+        <Route path="overview" element={<AdminOverviewPage locale={locale} />} />
+        <Route path="workspaces" element={<AdminWorkspacesPage locale={locale} />} />
+        <Route path="workspaces/:workspaceId" element={<AdminWorkspacePage locale={locale} />} />
+        <Route path="integrations" element={<AdminIntegrationsPage locale={locale} />} />
+        <Route path="plans" element={<AdminPlansPage locale={locale} />} />
+        <Route path="audit-log" element={<AdminAuditPage locale={locale} />} />
+        <Route path="access" element={<AdminAccessPage locale={locale} />} />
+        {/* Kept as a direct link for old operator bookmarks, but removed from
+            the navigation because registration is self-serve. */}
+        <Route path="requests" element={<AdminRequestsPage {...shared} />} />
+      </Route>
 
       {/* Older shared links kept working. */}
       <Route path="/moderate" element={<Navigate replace to="/app/moderate" />} />

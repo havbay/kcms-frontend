@@ -13,6 +13,7 @@ import { SessionProvider } from './app/session'
 import './sentry'
 import './styles.css'
 import './styles/workspace.css'
+import './styles/admin.css'
 import './styles/tailwind.css'
 
 const rootElement = document.getElementById('root')
