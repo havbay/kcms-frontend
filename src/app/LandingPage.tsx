@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { copy, type Locale } from './copy'
+import { useSession } from './session'
 
 type LandingPageProps = {
   locale: Locale
@@ -24,9 +25,12 @@ function Brand() {
 
 export function LandingPage({ locale, setLocale }: LandingPageProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [overviewPaused, setOverviewPaused] = useState(false)
   const content = copy[locale]
+  const session = useSession()
+  const signedIn = session.status === 'signed-in'
   const overviewVideoUrl = import.meta.env.VITE_OVERVIEW_VIDEO_URL
 
   // A drawer that cannot be dismissed with Escape traps keyboard users, and
@@ -73,8 +77,33 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             />
             {content.language}
           </button>
-          <a className="nav-link" href="/sign-in">{content.signIn}</a>
-            <a className="button button-small" href="/sign-up">{content.startTrial}</a>
+          {signedIn ? (
+            <div className="account-menu">
+              <button
+                aria-expanded={accountOpen}
+                aria-haspopup="menu"
+                className="button button-small account-menu-trigger"
+                onClick={() => setAccountOpen((open) => !open)}
+                type="button"
+              >
+                {content.openDashboard}<span aria-hidden="true">⌄</span>
+              </button>
+              {accountOpen && (
+                <div className="account-menu-panel" role="menu">
+                  <a href="/app" role="menuitem" onClick={() => setAccountOpen(false)}>{content.customerWorkspace}</a>
+                  {session.user?.is_platform_admin && (
+                    <a href="/admin/overview" role="menuitem" onClick={() => setAccountOpen(false)}>{content.adminConsole}</a>
+                  )}
+                  <button onClick={() => void session.signOut()} role="menuitem" type="button">{content.authSignOut}</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <a className="nav-link" href="/sign-in">{content.signIn}</a>
+              <a className="button button-small" href="/sign-up">{content.startTrial}</a>
+            </>
+          )}
           </nav>
         </header>
       </div>

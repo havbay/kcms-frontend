@@ -72,6 +72,11 @@ button:focus-visible, a:focus-visible { outline: 3px solid #e2a13a; outline-offs
 .button:hover { background: #095d56; transform: translateY(-1px); box-shadow: 0 0.38rem 0 #064b46; }
 .button:active { transform: translateY(3px); box-shadow: 0 0.08rem 0 #064b46; }
 .button-small { min-height: 2.65rem; padding: 0.55rem 1rem; font-size: 0.82rem; }
+.account-menu { position: relative; }
+.account-menu-trigger span { margin-left: 0.25rem; font-size: 1rem; }
+.account-menu-panel { position: absolute; z-index: 100; top: calc(100% + 0.55rem); right: 0; display: grid; min-width: 12rem; padding: 0.35rem; border: 1px solid rgba(24, 48, 51, 0.14); border-radius: 0.65rem; background: var(--clean-white); box-shadow: 0 0.8rem 2rem rgba(24, 48, 51, 0.16); }
+.account-menu-panel a, .account-menu-panel button { display: block; width: 100%; padding: 0.65rem 0.75rem; border: 0; border-radius: 0.4rem; color: var(--deep-ink); background: transparent; font: inherit; font-size: 0.82rem; font-weight: 650; text-align: left; text-decoration: none; cursor: pointer; }
+.account-menu-panel a:hover, .account-menu-panel button:hover { background: #eef3f2; }
 .menu-toggle { display: none; }
 .nav-backdrop { display: none; }
 
