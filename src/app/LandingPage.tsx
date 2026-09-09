@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 
 import { copy, type Locale } from './copy'
+import {
+  FloatingCommentCard,
+  FloatingReactionCard,
+} from './landing'
 import { useSession } from './session'
 
 /* Each locale's `as const` copy is its own literal type, so anything that
@@ -153,6 +157,7 @@ function DashboardShot({ t }: { t: V2Copy }) {
 }
 
 export function LandingPage({ locale, setLocale }: LandingPageProps) {
+  const [isScrolled, setIsScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [paused, setPaused] = useState(false)
   const content = copy[locale]
@@ -160,6 +165,14 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
   const session = useSession()
   const signedIn = session.status === 'signed-in'
   const km = locale === 'km'
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // A drawer that cannot be dismissed with Escape traps keyboard users, and a
   // scrolling page behind an open drawer is disorienting on touch.
@@ -186,47 +199,154 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
 
   return (
     <div className="v2 lp" lang={km ? 'km' : 'en'}>
-      <header className="wrap lp-nav">
-        <a aria-label="KCMS home" className="lp-brand" href="/">
-          <BrandMark />
-          <b>KCMS</b>
-        </a>
+      {/* Morphing Floating Navbar */}
+      <div className="lp-nav-outer" data-scrolled={isScrolled}>
+        <header className="lp-nav-inner" data-scrolled={isScrolled}>
+          <a aria-label="KCMS home" className="lp-brand" href="/">
+            <BrandMark />
+            <b>KCMS</b>
+          </a>
 
-        <nav aria-label="Primary navigation" className="lp-links">
-          {navLinks.map((link) => (
-            <a aria-current={link.current || undefined} href={link.href} key={link.href}>{link.label}</a>
-          ))}
-        </nav>
+          <nav aria-label="Primary navigation" className="nav-links-group">
+            {navLinks.map((link) => (
+              <a
+                aria-current={link.current || undefined}
+                href={link.href}
+                key={link.href}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
 
-        <div className="lp-actions">
+          <div className="nav-actions-group">
+            <button
+              className="lang"
+              onClick={() => setLocale(km ? 'en' : 'km')}
+              type="button"
+            >
+              <img alt="" aria-hidden="true" src={t.switchToFlag} />
+              <span lang={km ? 'en' : 'km'}>{t.switchTo}</span>
+            </button>
+            <a className="btn btn-2 btn-sm" href={signedIn ? '/app' : '/sign-in'}>
+              {signedIn ? content.openDashboard : t.signIn}
+            </a>
+            <a className="btn btn-sm btn-teal" href="/sign-up">{t.tryKcms}</a>
+          </div>
+
           <button
-            className="lang"
-            onClick={() => setLocale(km ? 'en' : 'km')}
+            aria-controls="mobile-navigation"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            className="lp-menu-btn"
+            onClick={() => setMenuOpen((prev) => !prev)}
             type="button"
           >
-            <img alt="" aria-hidden="true" src={t.switchToFlag} />
-            <span lang={km ? 'en' : 'km'}>{t.switchTo}</span>
+            <span className="lp-menu-icon">
+              <span style={{ transform: menuOpen ? 'translateY(6px) rotate(45deg)' : 'none' }} />
+              <span style={{ transform: menuOpen ? 'translateY(-2px) rotate(-45deg)' : 'none' }} />
+            </span>
           </button>
-          <a className="btn btn-2 btn-sm" href={signedIn ? '/app' : '/sign-in'}>
-            {signedIn ? content.openDashboard : t.signIn}
-          </a>
-          <a className="btn btn-sm" href="/sign-up">{t.tryKcms}</a>
-        </div>
-      </header>
+        </header>
+      </div>
 
-      {/* 01 — Hero */}
-      <section aria-labelledby="lp-hero-heading">
+      {/* Mobile Drawer */}
+      {menuOpen && (
+        <>
+          <div className="lp-drawer-backdrop" onClick={() => setMenuOpen(false)} />
+          <nav aria-label="Mobile navigation" className="lp-drawer" id="mobile-navigation">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div className="lp-brand">
+                <BrandMark />
+                <b>KCMS</b>
+              </div>
+              <button
+                aria-label="Close menu"
+                className="lp-menu-btn"
+                onClick={() => setMenuOpen(false)}
+                type="button"
+              >
+                ✕
+              </button>
+            </div>
+            {navLinks.map((link) => (
+              <a
+                aria-current={link.current || undefined}
+                href={link.href}
+                key={link.href}
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: 'var(--ink)',
+                  background: link.current ? 'var(--mist)' : 'transparent',
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+            <hr style={{ borderColor: 'var(--line)', margin: '8px 0' }} />
+            <button
+              className="lang"
+              onClick={() => {
+                setLocale(km ? 'en' : 'km')
+                setMenuOpen(false)
+              }}
+              style={{ justifyContent: 'flex-start', padding: '10px 14px' }}
+              type="button"
+            >
+              <img alt="" aria-hidden="true" src={t.switchToFlag} />
+              <span lang={km ? 'en' : 'km'}>{t.switchTo}</span>
+            </button>
+            <a className="btn btn-2" href={signedIn ? '/app' : '/sign-in'} onClick={() => setMenuOpen(false)}>
+              {signedIn ? content.openDashboard : t.signIn}
+            </a>
+            <a className="btn btn-teal" href="/sign-up" onClick={() => setMenuOpen(false)}>
+              {t.tryKcms}
+            </a>
+          </nav>
+        </>
+      )}
+
+      {/* 01 — Hero (Floating Bento Cards + Centered Narrative) */}
+      <section aria-labelledby="lp-hero-heading" style={{ paddingTop: 'clamp(96px, 12vw, 120px)' }}>
         <span aria-hidden="true" className="lp-glow" />
 
-        <div className="wrap lp-hero">
-          <p className="eyebrow">{t.heroEyebrow}</p>
-          <h1 id="lp-hero-heading">{t.heroHeading}</h1>
-          <p className="lede">{t.heroLede}</p>
-          <div className="cta">
-            <a className="btn" href="/sign-up">{t.heroPrimary}</a>
-            <a className="btn btn-2" href="#how">{t.heroSecondary}</a>
+        <div className="wrap" style={{ position: 'relative' }}>
+          {/* Centered Hero Content */}
+          <div className="lp-hero" style={{ position: 'relative', zIndex: 10 }}>
+            <p className="eyebrow">{t.heroEyebrow}</p>
+            <h1 id="lp-hero-heading" style={{ fontFamily: "'Kantumruy Pro', 'Google Sans Variable', sans-serif" }}>
+              {t.heroHeading}
+            </h1>
+            <p className="lede">{t.heroLede}</p>
+            <div className="cta">
+              <a className="btn btn-teal" href="/sign-up">{t.heroPrimary}</a>
+              <a className="btn btn-2" href="#how">{t.heroSecondary}</a>
+            </div>
+          </div>
+
+          {/* Clean Bento Floating Cards Showcase (Balanced, Zero Overlap) */}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '28px',
+              marginTop: '42px',
+              marginBottom: '12px',
+              position: 'relative',
+              zIndex: 10,
+            }}
+          >
+            <FloatingCommentCard />
+            <FloatingReactionCard />
           </div>
         </div>
+
 
         <div className="wrap lp-preview">
           <div className="card lp-preview-card">

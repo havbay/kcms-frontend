@@ -1,5 +1,20 @@
+@font-face {
+  font-family: 'Kantumruy Pro';
+  src: url('/fonts/KantumruyPro-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Kantumruy Pro';
+  src: url('/fonts/KantumruyPro-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
-  font-family: 'Google Sans Variable', 'Manrope Variable', 'Noto Sans Khmer Variable', system-ui, sans-serif;
+  font-family: 'Kantumruy Pro', 'Google Sans Variable', 'Manrope Variable', 'Noto Sans Khmer Variable', system-ui, sans-serif;
   color: #183033;
   background: #f6f4ed;
   font-synthesis: none;

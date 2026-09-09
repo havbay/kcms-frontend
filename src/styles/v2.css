@@ -7,6 +7,21 @@
  * and secondary text is `--slate` for that reason.
  */
 
+@font-face {
+  font-family: 'Kantumruy Pro';
+  src: url('/fonts/KantumruyPro-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Kantumruy Pro';
+  src: url('/fonts/KantumruyPro-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   --teal: #00a99d;
   --teal-deep: #00706a;
@@ -34,8 +49,8 @@
   --bad-w: #fbedeb;
   --bad-i: #a32a20;
 
-  --sans: 'DM Sans Variable', 'Noto Sans Khmer Variable', system-ui, sans-serif;
-  --khmer: 'Noto Sans Khmer Variable', 'DM Sans Variable', system-ui, sans-serif;
+  --sans: 'Kantumruy Pro', 'Google Sans Variable', 'Manrope Variable', system-ui, sans-serif;
+  --khmer: 'Kantumruy Pro', 'Noto Sans Khmer Variable', system-ui, sans-serif;
 
   --sh1: 0 1px 2px rgba(16, 20, 24, 0.05);
   --sh2: 0 1px 2px rgba(16, 20, 24, 0.05), 0 10px 26px rgba(16, 20, 24, 0.07);

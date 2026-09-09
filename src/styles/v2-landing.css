@@ -5,6 +5,11 @@
 
 .lp {
   background: var(--paper);
+  font-family: 'Kantumruy Pro', 'Google Sans Variable', 'Manrope Variable', system-ui, sans-serif;
+}
+
+.lp :is(h1, h2, h3, h4, p, span, li, a, button, b, strong, small, time, div) {
+  font-family: 'Kantumruy Pro', 'Google Sans Variable', 'Manrope Variable', system-ui, sans-serif;
 }
 .lp .wrap {
   width: min(100% - 40px, 1152px);
@@ -33,43 +38,210 @@
 .lp .heads { display: flex; flex-direction: column; gap: 15px; }
 .lp .heads.mid { align-items: center; text-align: center; }
 
-/* ---------- navbar ---------- */
+/* ---------- morphing floating navbar ---------- */
 
-.lp-nav {
+.lp-nav-outer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  transition: padding 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.lp-nav-outer[data-scrolled='false'] {
+  padding: 1rem 1rem 0;
+}
+.lp-nav-outer[data-scrolled='true'] {
+  padding: 0.65rem 0.75rem 0;
+}
+
+.lp-nav-inner {
+  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  height: 96px;
+  width: 100%;
+  border-radius: 9999px;
+  border: 1px solid rgba(203, 213, 225, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: max-width 500ms cubic-bezier(0.4, 0, 0.2, 1),
+              padding 500ms cubic-bezier(0.4, 0, 0.2, 1),
+              gap 500ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 500ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 500ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-.lp-brand { display: flex; align-items: center; gap: 10px; color: var(--ink); }
-.lp-brand b { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+.lp-nav-inner[data-scrolled='false'] {
+  max-width: 76rem;
+  gap: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.90);
+  padding: 0.875rem 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+.lp-nav-inner[data-scrolled='true'] {
+  max-width: 64rem;
+  gap: 1rem;
+  background-color: rgba(255, 255, 255, 0.96);
+  padding: 0.65rem 1.25rem;
+  box-shadow: 0 10px 35px -10px rgba(0, 169, 157, 0.16);
+  border-color: rgba(203, 213, 225, 0.95);
+}
 
-.lp-links {
+.lp-nav-inner a:focus-visible,
+.lp-nav-inner button:focus-visible {
+  outline: 2px solid #00A99D !important;
+  outline-offset: 2px !important;
+}
+
+.lp-brand {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 5px;
-  border-radius: 999px;
-  background: var(--mist);
-}
-.lp-links a {
-  padding: 10px 18px;
-  border-radius: 999px;
-  color: var(--slate);
-  font-size: 14px;
-  font-weight: 500;
+  gap: 10px;
+  color: var(--ink);
   white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
 }
-.lp-links a:hover { color: var(--ink); }
-.lp-links a[aria-current='true'] {
+.lp-brand b { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; }
+
+.nav-links-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 9999px;
+  background: var(--mist);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-links-group a {
+  padding: 8px 16px;
+  border-radius: 9999px;
+  color: var(--slate);
+  font-size: 13.5px;
+  font-weight: 550;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: all 180ms ease;
+}
+.nav-links-group a:hover { color: var(--ink); }
+.nav-links-group a[aria-current='true'] {
   background: var(--paper);
   color: var(--ink);
   font-weight: 700;
   box-shadow: var(--sh1);
 }
-.lp-actions { display: flex; align-items: center; gap: 10px; }
-.lp-menu { display: none; }
+
+.nav-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-teal {
+  background: #00A99D !important;
+  color: #ffffff !important;
+  border-color: #00A99D !important;
+  box-shadow: 0 4px 14px rgba(0, 169, 157, 0.3) !important;
+}
+.btn-teal:hover {
+  background: #008F85 !important;
+  border-color: #008F85 !important;
+  box-shadow: 0 6px 20px rgba(0, 169, 157, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+/* Mobile Hamburger Menu */
+.lp-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.lp-menu-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 16px;
+}
+.lp-menu-icon span {
+  display: block;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 1px;
+  transition: transform 200ms ease;
+}
+
+/* Mobile Drawer */
+.lp-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(24, 48, 51, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.lp-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(20rem, 85vw);
+  padding: 5.5rem 1.5rem 2rem;
+  background: #ffffff;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.12);
+}
+.lp-drawer a, .lp-drawer button {
+  white-space: nowrap;
+}
+
+/* ---------- Bento Floating Cards Keyframes ---------- */
+@keyframes bento-float-1 {
+  0%, 100% { transform: translateY(0px) rotate(-4deg); }
+  50% { transform: translateY(-8px) rotate(-3deg); }
+}
+@keyframes bento-float-2 {
+  0%, 100% { transform: translateY(0px) rotate(-8deg); }
+  50% { transform: translateY(-10px) rotate(-7deg); }
+}
+@keyframes bento-float-3 {
+  0%, 100% { transform: translateY(0px) rotate(6deg); }
+  50% { transform: translateY(-7px) rotate(5deg); }
+}
+@keyframes bento-float-4 {
+  0%, 100% { transform: translateY(0px) rotate(3deg); }
+  50% { transform: translateY(-9px) rotate(4deg); }
+}
+@keyframes bento-float-5 {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50% { transform: translateY(-6px) rotate(-1deg); }
+}
+
+.bento-float-1 { animation: bento-float-1 5s ease-in-out infinite; }
+.bento-float-2 { animation: bento-float-2 6s ease-in-out infinite; }
+.bento-float-3 { animation: bento-float-3 4.5s ease-in-out infinite; }
+.bento-float-4 { animation: bento-float-4 5.5s ease-in-out infinite; }
+.bento-float-5 { animation: bento-float-5 4s ease-in-out infinite; }
+
+.bento-floating-card:hover {
+  animation-play-state: paused;
+}
 
 /* ---------- 01 hero ---------- */
 
@@ -422,6 +594,8 @@
 /* ---------- responsive ---------- */
 
 @media (max-width: 1024px) {
+  .nav-links-group, .nav-actions-group { display: none; }
+  .lp-menu-btn { display: inline-flex; }
   .lp-links { display: none; }
   .lp-split { grid-template-columns: minmax(0, 1fr); gap: 36px; }
   .lp-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
