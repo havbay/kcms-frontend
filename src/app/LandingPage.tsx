@@ -92,7 +92,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
                 <div className="account-menu-panel" role="menu">
                   <a href="/app" role="menuitem" onClick={() => setAccountOpen(false)}>{content.customerWorkspace}</a>
                   {session.user?.is_platform_admin && (
-                    <a href="/admin/overview" role="menuitem" onClick={() => setAccountOpen(false)}>{content.adminConsole}</a>
+                    <a href="/admin/overview" role="menuitem" onClick={() => setAccountOpen(false)}>{content.platformAdmin}</a>
                   )}
                   <button onClick={() => void session.signOut()} role="menuitem" type="button">{content.authSignOut}</button>
                 </div>

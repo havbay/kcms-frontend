@@ -4,6 +4,8 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { App } from './App'
+import { LandingPage } from './LandingPage'
+import { SessionContext } from './session'
 
 describe('KCMS public landing page', () => {
   // The app defaults an unseeded visitor to Khmer; these tests describe the
@@ -47,6 +49,29 @@ describe('KCMS public landing page', () => {
       'href',
       '/sign-in',
     )
+  })
+
+  it('offers both dashboards when the signed-in account is a platform admin', async () => {
+    const user = userEvent.setup()
+    render(
+      <SessionContext.Provider
+        value={{
+          user: { id: 'admin-1', display_name: 'KCMS Demo', is_platform_admin: true },
+          status: 'signed-in',
+          signIn: () => {},
+          signOut: async () => {},
+          refresh: async () => {},
+        }}
+      >
+        <LandingPage locale="en" setLocale={() => {}} />
+      </SessionContext.Provider>,
+      { wrapper: MemoryRouter },
+    )
+
+    await user.click(screen.getByRole('button', { name: /open dashboard/i }))
+
+    expect(screen.getByRole('menuitem', { name: 'Customer workspace' })).toHaveAttribute('href', '/app')
+    expect(screen.getByRole('menuitem', { name: 'Platform admin' })).toHaveAttribute('href', '/admin/overview')
   })
 
   it('lets a visitor read the hero in Khmer without leaving the page', async () => {
