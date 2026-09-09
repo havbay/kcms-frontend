@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import type { Locale } from './copy'
 import { AdminLayout } from './AdminLayout'
+import { AdminSignInPage } from './AdminSignInPage'
 import { AdminAccessPage } from './AdminAccessPage'
 import { AdminAuditPage } from './AdminAuditPage'
 import { AdminIntegrationsPage } from './AdminIntegrationsPage'
@@ -76,6 +77,7 @@ export function App() {
       <Route path="/app/profile" element={dashboard(<ProfilePage {...shared} />)} />
       <Route path="/join/:token" element={<JoinPage {...shared} />} />
       <Route path="/setup/:token" element={<SetupPage {...shared} />} />
+      <Route path="/admin/sign-in/*" element={<AdminSignInPage {...shared} />} />
       <Route path="/admin" element={<AdminLayout {...shared} />}>
         <Route index element={<Navigate replace to="/admin/overview" />} />
         <Route path="overview" element={<AdminOverviewPage locale={locale} />} />

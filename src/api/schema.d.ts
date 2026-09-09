@@ -55,6 +55,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/auth/clerk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign In Admin With Clerk
+         * @description Exchange Clerk only for an operator on the deployment allowlist.
+         *
+         *     Customer sign-in stays on ``/api/v1/auth/clerk``. This separate exchange
+         *     prevents a normal customer session from becoming a platform session just
+         *     because the browser visited an admin URL; the allowlist is checked before
+         *     any KCMS account/session is provisioned.
+         */
+        post: operations["signInAdminWithClerk"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/integrations": {
         parameters: {
             query?: never;
@@ -2232,6 +2257,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminAuditEvent"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    signInAdminWithClerk: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
                 };
             };
             /** @description Validation Error */

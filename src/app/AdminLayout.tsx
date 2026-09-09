@@ -22,7 +22,7 @@ export function AdminLayout({ locale, setLocale }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   if (session.status === 'checking') return <p className="work-status" role="status">{content.modLoading}</p>
-  if (session.status === 'signed-out') return <Navigate replace to="/sign-in" />
+  if (session.status === 'signed-out') return <Navigate replace to="/admin/sign-in" />
   if (!session.user?.is_platform_admin) return <Navigate replace to="/app" />
 
   return (

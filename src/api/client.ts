@@ -183,6 +183,10 @@ export function exchangeClerkSession(clerkToken: string): Promise<Session> {
   return requestWithBearer<Session>('/api/v1/auth/clerk', clerkToken, { method: 'POST' })
 }
 
+export function exchangeAdminClerkSession(clerkToken: string): Promise<Session> {
+  return requestWithBearer<Session>('/api/v1/admin/auth/clerk', clerkToken, { method: 'POST' })
+}
+
 async function requestWithBearer<T>(path: string, token: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     ...init,

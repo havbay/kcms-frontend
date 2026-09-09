@@ -12,14 +12,15 @@ import { useSession } from './session'
 type SignInPageProps = {
   locale: Locale
   setLocale: (locale: Locale) => void
+  redirectTo?: string
 }
 
-export function SignInPage({ locale, setLocale }: SignInPageProps) {
+export function SignInPage({ locale, setLocale, redirectTo = '/app' }: SignInPageProps) {
   if (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) return <ClerkAuthPage mode="sign-in" />
-  return <LegacySignInPage locale={locale} setLocale={setLocale} />
+  return <LegacySignInPage locale={locale} setLocale={setLocale} redirectTo={redirectTo} />
 }
 
-function LegacySignInPage({ locale, setLocale }: SignInPageProps) {
+function LegacySignInPage({ locale, setLocale, redirectTo = '/app' }: SignInPageProps) {
   const content = copy[locale]
   const session = useSession()
   const [email, setEmail] = useState('')
@@ -70,7 +71,7 @@ function LegacySignInPage({ locale, setLocale }: SignInPageProps) {
     return () => script.remove()
   }, [providers, session, content.authUnreachable])
 
-  if (session.status === 'signed-in') return <Navigate replace to="/app" />
+  if (session.status === 'signed-in') return <Navigate replace to={redirectTo ?? '/app'} />
 
   // Validation lives here so the same rules drive blur, change and submit.
   const problems: Record<string, string | null> = {

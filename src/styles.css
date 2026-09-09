@@ -3634,6 +3634,60 @@ figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-
   width: min(100%, 29rem);
 }
 
+.admin-clerk-auth-shell {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(11, 107, 99, 0.12) 0%, transparent 48%),
+    linear-gradient(135deg, rgba(230, 241, 239, 0.82), transparent 55%),
+    var(--rice-paper);
+}
+
+.admin-auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: var(--clean-white);
+  border: 1px solid rgba(24, 48, 51, 0.12);
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 50px -18px rgba(24, 48, 51, 0.22);
+}
+
+.admin-auth-brand {
+  align-self: flex-start;
+}
+
+.admin-auth-heading {
+  display: grid;
+  gap: 0.55rem;
+  padding-block: 0.35rem 0.25rem;
+}
+
+.admin-auth-heading .admin-console-label {
+  width: fit-content;
+}
+
+.admin-auth-heading h1 {
+  margin: 0;
+  color: var(--deep-ink);
+  font-size: clamp(1.55rem, 4vw, 2rem);
+}
+
+.admin-auth-heading p {
+  margin: 0;
+  color: var(--muted-ink);
+  line-height: 1.55;
+}
+
+.admin-auth-card .cl-rootBox {
+  width: 100%;
+}
+
+.admin-auth-back {
+  color: var(--muted-ink);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
 /* Auth / Onboarding / Notice Card Container */
 .auth,
 .notice,
