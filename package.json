@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false",
-    "api:generate": "cp ../kcms-backend/openapi.json src/api/openapi.json && npx -y openapi-typescript@7 src/api/openapi.json -o src/api/schema.d.ts"
+    "api:generate": "cp ../kcms-backend/openapi.json src/api/openapi.json && npx -y openapi-typescript@7 src/api/openapi.json -o src/api/schema.d.ts",
+    "optimize:video": "bash scripts/optimize-hero-video.sh"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.61.9",

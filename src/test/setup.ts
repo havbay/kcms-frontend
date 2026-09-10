@@ -19,6 +19,11 @@ if (!globalThis.IntersectionObserver) {
   globalThis.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver
 }
 
+if (typeof window !== 'undefined' && window.HTMLMediaElement) {
+  window.HTMLMediaElement.prototype.play = () => Promise.resolve()
+  window.HTMLMediaElement.prototype.pause = () => {}
+}
+
 afterEach(() => {
   cleanup()
   // Persisted state (session token, locale) must not leak from one test's

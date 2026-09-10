@@ -150,8 +150,8 @@ blockquote { margin: 0.9rem 0 0; color: var(--deep-ink); font-family: 'Google Sa
 .review-mark { color: #7b3e00; background: #f7d9a4; }
 .pathway-step-human { border-color: rgba(11, 107, 99, 0.35); background: #f1faf8; }
 .human-mark { color: var(--clean-white); background: var(--mekong-teal); }
-figcaption { display: flex; align-items: center; justify-content: center; gap: 0.55rem; margin-top: 1.2rem; color: var(--muted); font-size: 0.67rem; font-weight: 700; letter-spacing: 0.03em; }
-figcaption span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-teal); border-radius: 50%; }
+figcaption:not(.lp-swarm-key) { display: flex; align-items: center; justify-content: center; gap: 0.55rem; margin-top: 1.2rem; color: var(--muted); font-size: 0.67rem; font-weight: 700; letter-spacing: 0.03em; }
+figcaption:not(.lp-swarm-key) span { width: 0.5rem; height: 0.5rem; border: 1px solid var(--mekong-teal); border-radius: 50%; }
 
 /* One contained panel holding both columns, rather than two columns floating
    on the page background. The media column previously carried a 30rem hard

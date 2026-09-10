@@ -4,6 +4,7 @@ import { copy, type Locale } from './copy'
 import {
   FloatingCommentCard,
   FloatingReactionCard,
+  HeroBackgroundVideo,
 } from './landing'
 import { useSession } from './session'
 
@@ -82,8 +83,8 @@ const FEATURE_ICONS = [
 function DashboardShot({ t }: { t: V2Copy }) {
   return (
     <div className="lp-shot">
-      <div className="lp-shot-inner" style={{ display: 'flex', height: 520 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: 184, flex: 'none', padding: '16px 12px', background: 'var(--mist)' }}>
+      <div className="lp-shot-inner">
+        <div className="lp-shot-sidebar">
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '4px 8px 14px' }}>
             <span aria-hidden="true" className="brandmark" style={{ width: 22, height: 22, padding: 4, borderRadius: 7 }}><span /><span /></span>
             <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: '.1em' }}>KCMS</span>
@@ -98,29 +99,33 @@ function DashboardShot({ t }: { t: V2Copy }) {
           ))}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 54, padding: '0 20px', borderBottom: '1px solid var(--hair)' }}>
-            <span style={{ display: 'flex', alignItems: 'center', width: 250, height: 31, padding: '0 13px', borderRadius: 999, background: 'var(--mist)', color: 'var(--slate-2)', fontSize: 11.5 }}>
+        <div className="lp-shot-main">
+          <div className="lp-shot-topbar">
+            <div className="lp-shot-mobile-brand">
+              <span aria-hidden="true" className="brandmark" style={{ width: 20, height: 20, padding: 3, borderRadius: 6 }}><span /><span /></span>
+              <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em' }}>KCMS</span>
+            </div>
+            <span className="lp-shot-search">
               {t.dashEyebrow}
             </span>
-            <span style={{ marginLeft: 'auto', display: 'grid', placeItems: 'center', width: 29, height: 29, borderRadius: '50%', background: 'var(--mist-2)', fontSize: 10.5, fontWeight: 700 }}>SC</span>
+            <span className="lp-shot-avatar">SC</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 13, padding: '18px 20px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
+          <div className="lp-shot-body">
+            <div className="lp-shot-stats">
               {[
                 { n: '4,182', c: 'var(--ink)', p: '0,16 15,12 30,14 45,8 60,10 75,4 90,2', s: 'var(--teal)' },
                 { n: '12', c: 'var(--warn-i)', p: '0,15 15,11 30,16 45,9 60,11 75,5 90,3', s: 'var(--warn)' },
                 { n: '386', c: 'var(--ink)', p: '0,14 15,15 30,10 45,12 60,7 75,8 90,4', s: 'var(--teal)' },
               ].map((k) => (
-                <div className="card" key={k.n} style={{ padding: 14, borderRadius: 13, boxShadow: 'var(--sh1)' }}>
-                  <p className="num" style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-.035em', color: k.c }}>{k.n}</p>
+                <div className="card lp-shot-stat-card" key={k.n}>
+                  <p className="num lp-shot-stat-num" style={{ color: k.c }}>{k.n}</p>
                   <div style={{ marginTop: 5 }}><Spark colour={k.s} points={k.p} /></div>
                 </div>
               ))}
             </div>
 
-            <div className="card" style={{ padding: '16px 18px', borderRadius: 13, boxShadow: 'var(--sh1)' }}>
+            <div className="card lp-shot-chart-card">
               <svg aria-hidden="true" height="140" viewBox="0 0 560 140" width="100%">
                 <defs>
                   <linearGradient id="lpShotFill" x1="0" x2="0" y1="0" y2="1">
@@ -139,14 +144,14 @@ function DashboardShot({ t }: { t: V2Copy }) {
               </svg>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+            <div className="lp-shot-comments">
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'var(--bad-w)' }}>
                 <span className="km" lang="km" style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{SAMPLE_SCAM}</span>
-                <span className="chip" style={{ background: '#fff', color: 'var(--bad-i)', height: 21, fontSize: 10 }}>{t.howHarmful}</span>
+                <span className="chip" style={{ background: '#fff', color: 'var(--bad-i)', height: 21, fontSize: 10, flexShrink: 0 }}>{t.howHarmful}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'var(--warn-w)' }}>
                 <span className="km" lang="km" style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{SAMPLE_ABUSE}</span>
-                <span className="chip" style={{ background: '#fff', color: 'var(--warn-i)', height: 21, fontSize: 10 }}>{t.howOffensive}</span>
+                <span className="chip" style={{ background: '#fff', color: 'var(--warn-i)', height: 21, fontSize: 10, flexShrink: 0 }}>{t.howOffensive}</span>
               </div>
             </div>
           </div>
@@ -189,12 +194,57 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
     }
   }, [menuOpen])
 
+  const [activeSection, setActiveSection] = useState('#solution')
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault()
+      setActiveSection(href)
+      const targetId = href.slice(1)
+      const targetElement = document.getElementById(targetId)
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        window.history.pushState(null, '', href)
+      }
+    }
+  }
+
+  // Dynamically update activeSection indicator based on scroll position
+  useEffect(() => {
+    const sectionIds = ['solution', 'how', 'features', 'pricing', 'why']
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null)
+
+    if (elements.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(`#${entry.target.id}`)
+          }
+        }
+      },
+      {
+        rootMargin: '-20% 0px -60% 0px',
+        threshold: 0,
+      },
+    )
+
+    for (const el of elements) {
+      observer.observe(el)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   const navLinks = [
-    { href: '#solution', label: t.navProduct, current: true },
-    { href: '#how', label: t.navHow, current: false },
-    { href: '#features', label: t.navFeatures, current: false },
-    { href: '#pricing', label: t.navPricing, current: false },
-    { href: '#why', label: t.navAbout, current: false },
+    { href: '#solution', label: t.navProduct, current: activeSection === '#solution' },
+    { href: '#how', label: t.navHow, current: activeSection === '#how' },
+    { href: '#features', label: t.navFeatures, current: activeSection === '#features' },
+    { href: '#pricing', label: t.navPricing, current: activeSection === '#pricing' },
+    { href: '#why', label: t.navAbout, current: activeSection === '#why' },
   ]
 
   return (
@@ -213,6 +263,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
                 aria-current={link.current || undefined}
                 href={link.href}
                 key={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
               >
                 {link.label}
               </a>
@@ -274,7 +325,10 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
                 aria-current={link.current || undefined}
                 href={link.href}
                 key={link.href}
-                onClick={() => setMenuOpen(false)}
+                onClick={(e) => {
+                  handleNavClick(e, link.href)
+                  setMenuOpen(false)
+                }}
                 style={{
                   padding: '10px 14px',
                   borderRadius: 12,
@@ -311,7 +365,8 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
       )}
 
       {/* 01 — Hero (Floating Bento Cards + Centered Narrative) */}
-      <section aria-labelledby="lp-hero-heading" style={{ paddingTop: 'clamp(96px, 12vw, 120px)' }}>
+      <section aria-labelledby="lp-hero-heading" className="lp-hero-section" style={{ paddingTop: 'clamp(96px, 12vw, 120px)' }}>
+        <HeroBackgroundVideo />
         <span aria-hidden="true" className="lp-glow" />
 
         <div className="wrap" style={{ position: 'relative' }}>
