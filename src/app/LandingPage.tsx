@@ -54,6 +54,26 @@ function Arrow() {
   )
 }
 
+function renderHeroHeading(heading: string) {
+  if (heading.includes('មិនចាំបាច់ចំណាយពេលច្រើនមើល')) {
+    return (
+      <>
+        <span className="lp-hero-line">មិនចាំបាច់ចំណាយពេលច្រើនមើល</span>{' '}
+        <span className="lp-hero-line">និង Check Comment ម្ដងមួយទៀតទេ</span>
+      </>
+    )
+  }
+  if (heading.includes('No more spending hours')) {
+    return (
+      <>
+        <span className="lp-hero-line">No more spending hours</span>{' '}
+        <span className="lp-hero-line">checking comments one by one.</span>
+      </>
+    )
+  }
+  return heading
+}
+
 function Spark({ points, colour }: { points: string; colour: string }) {
   return (
     <svg aria-hidden="true" height="20" preserveAspectRatio="none" viewBox="0 0 90 20" width="100%">
@@ -379,7 +399,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             <div className="lp-hero" style={{ position: 'relative', zIndex: 10 }}>
               <p className="eyebrow">{t.heroEyebrow}</p>
               <h1 id="lp-hero-heading">
-                {t.heroHeading}
+                {renderHeroHeading(t.heroHeading)}
               </h1>
               <p className="lede">{t.heroLede}</p>
               <div className="cta">

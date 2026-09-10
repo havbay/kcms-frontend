@@ -387,18 +387,23 @@
 
 .lp-hero { display: flex; flex-direction: column; align-items: center; gap: var(--lp-space-5); padding-top: var(--lp-space-7); text-align: center; }
 .lp-hero h1 {
-  max-width: 15ch;
-  font-size: clamp(38px, 5.6vw, 62px);
+  max-width: 640px;
+  font-size: clamp(30px, 4.2vw, 46px);
   font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.042em;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 .lp-hero h1:lang(km) {
-  max-width: 19ch;
-  font-size: clamp(32px, 4.6vw, 54px);
+  max-width: 640px;
+  font-size: clamp(24px, 3.4vw, 36px);
   font-weight: 600;
-  line-height: 1.46;
+  line-height: 1.62;
   letter-spacing: 0;
+  text-wrap: balance;
+}
+.lp-hero-line {
+  display: inline-block;
 }
 .lp-hero .lede { max-width: 48ch; text-align: center; }
 .lp-hero .cta { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--lp-space-3); margin-top: var(--lp-space-1); }
