@@ -16,7 +16,7 @@ export function FloatingReplyCard() {
           </div>
           <span className="text-[11px] font-semibold text-slate-800">Smart Assistant</span>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#00A99D]/10 px-2 py-0.5 text-[10px] font-semibold text-[#00A99D] border border-[#00A99D]/20">
+        <span className="inline-flex items-center gap-1 rounded-full bg-[#00A99D]/10 px-2 py-0.5 text-[11px] font-semibold text-[#00A99D] border border-[#00A99D]/20">
           Auto-Replied ✓
         </span>
       </div>
@@ -27,7 +27,7 @@ export function FloatingReplyCard() {
         </p>
       </div>
 
-      <div className="flex items-center justify-between text-[10px] text-slate-400">
+      <div className="flex items-center justify-between text-[11px] text-slate-400">
         <span>Channel: Messenger / Post</span>
         <span className="font-medium text-[#00A99D]">0.2s latency</span>
       </div>

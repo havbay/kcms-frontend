@@ -23,18 +23,24 @@ export function FloatingReactionCard() {
       className="bento-floating-card bento-float-2 group relative flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl backdrop-blur-md transition-all duration-300 hover:rotate-0 hover:scale-105 hover:shadow-2xl font-['Kantumruy_Pro',sans-serif]"
       style={{
         transform: 'rotate(2deg)',
-        maxWidth: '320px',
+        width: '300px',
       }}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500" />
-          </span>
-          <span className="text-xs font-semibold text-slate-800">Facebook Live Stream</span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {/* Facebook Icon, matching FloatingCommentCard's badge */}
+          <div className="relative flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#1877F2] text-white shadow-sm">
+            <svg aria-hidden="true" className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+            </svg>
+            <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-white bg-rose-500" />
+            </span>
+          </div>
+          <span className="text-xs font-semibold text-slate-800 truncate">Facebook Live Stream</span>
         </div>
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+        <span className="flex-shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
           Live Moderation
         </span>
       </div>
@@ -69,7 +75,7 @@ export function FloatingReactionCard() {
               src="/animation/Emojis - Love.lottie"
             />
           </div>
-          <span className="text-[10.5px] font-semibold text-slate-700">{counts.love.toLocaleString()}</span>
+          <span className="text-[11px] font-semibold text-slate-700">{counts.love.toLocaleString()}</span>
         </button>
 
         {/* Like */}
@@ -90,7 +96,7 @@ export function FloatingReactionCard() {
               src="/animation/Emojis - Like.lottie"
             />
           </div>
-          <span className="text-[10.5px] font-semibold text-slate-700">{counts.like.toLocaleString()}</span>
+          <span className="text-[11px] font-semibold text-slate-700">{counts.like.toLocaleString()}</span>
         </button>
 
         {/* Angry */}
@@ -111,7 +117,7 @@ export function FloatingReactionCard() {
               src="/animation/Angry Emoji.lottie"
             />
           </div>
-          <span className="text-[10.5px] font-semibold text-slate-700">{counts.angry.toLocaleString()}</span>
+          <span className="text-[11px] font-semibold text-slate-700">{counts.angry.toLocaleString()}</span>
         </button>
       </div>
     </div>

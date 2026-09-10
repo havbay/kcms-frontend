@@ -22,7 +22,7 @@ describe('Bento Floating Cards', () => {
     const user = userEvent.setup()
     render(<FloatingCommentCard />)
 
-    expect(screen.getByText('Sokha Roth')).toBeInTheDocument()
+    expect(screen.getByText('Rin Layheang')).toBeInTheDocument()
     expect(screen.getByText(/98% Scam Risk/i)).toBeInTheDocument()
     expect(screen.getByText('ចុចតំណនេះទទួលលុយ $500 ថ្ងៃនេះ!')).toBeInTheDocument()
 

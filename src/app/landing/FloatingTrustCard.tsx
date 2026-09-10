@@ -15,11 +15,11 @@ export function FloatingTrustCard() {
       </div>
 
       <div className="flex flex-col">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">Audit Safeguard</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-700">Audit Safeguard</span>
         <span className="text-xs font-bold text-slate-800">100% Human-Approved</span>
       </div>
 
-      <span className="ml-auto rounded-full bg-[#00A99D]/15 px-2 py-0.5 text-[10px] font-bold text-[#00A99D]">
+      <span className="ml-auto rounded-full bg-[#00A99D]/15 px-2 py-0.5 text-[11px] font-bold text-[#00A99D]">
         Verified
       </span>
     </div>

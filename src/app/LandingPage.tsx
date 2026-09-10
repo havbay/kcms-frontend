@@ -370,35 +370,27 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
         <span aria-hidden="true" className="lp-glow" />
 
         <div className="wrap" style={{ position: 'relative' }}>
-          {/* Centered Hero Content */}
-          <div className="lp-hero" style={{ position: 'relative', zIndex: 10 }}>
-            <p className="eyebrow">{t.heroEyebrow}</p>
-            <h1 id="lp-hero-heading" style={{ fontFamily: "'Kantumruy Pro', 'Google Sans Variable', sans-serif" }}>
-              {t.heroHeading}
-            </h1>
-            <p className="lede">{t.heroLede}</p>
-            <div className="cta">
-              <a className="btn btn-teal" href="/sign-up">{t.heroPrimary}</a>
-              <a className="btn btn-2" href="#how">{t.heroSecondary}</a>
+          <div className="lp-hero-row">
+            {/* Bento Floating Cards flank the hero copy on wide screens */}
+            <div className="lp-hero-cards lp-hero-cards-left">
+              <FloatingCommentCard />
             </div>
-          </div>
 
-          {/* Clean Bento Floating Cards Showcase (Balanced, Zero Overlap) */}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '28px',
-              marginTop: '42px',
-              marginBottom: '12px',
-              position: 'relative',
-              zIndex: 10,
-            }}
-          >
-            <FloatingCommentCard />
-            <FloatingReactionCard />
+            <div className="lp-hero" style={{ position: 'relative', zIndex: 10 }}>
+              <p className="eyebrow">{t.heroEyebrow}</p>
+              <h1 id="lp-hero-heading">
+                {t.heroHeading}
+              </h1>
+              <p className="lede">{t.heroLede}</p>
+              <div className="cta">
+                <a className="btn btn-teal" href="/sign-up">{t.heroPrimary}</a>
+                <a className="btn btn-2" href="#how">{t.heroSecondary}</a>
+              </div>
+            </div>
+
+            <div className="lp-hero-cards lp-hero-cards-right">
+              <FloatingReactionCard />
+            </div>
           </div>
         </div>
 
@@ -430,7 +422,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
       </section>
 
       {/* 02 — Problem */}
-      <section aria-labelledby="lp-problem-heading" className="band pad" style={{ marginTop: 96 }}>
+      <section aria-labelledby="lp-problem-heading" className="band pad" style={{ marginTop: 'var(--lp-space-9)' }}>
         <div className="wrap lp-split">
           <div className="heads">
             <p className="eyebrow">{t.problemEyebrow}</p>
@@ -465,7 +457,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
           {t.solutionSteps.map((step, i) => (
             <li key={step.title} style={{ display: 'contents' }}>
               {i > 0 && <Arrow />}
-              <div className="card">
+              <div className="card" style={{ animationDelay: `${i * 2}s` }}>
                 <h3>{step.title}</h3>
                 <p>{step.body}</p>
               </div>
@@ -654,7 +646,6 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
             <span className="lp-label">{t.footCompany}</span>
             <a href="#why">{t.navAbout}</a>
             <a href="/request-access">{t.footContact}</a>
-            <a href="/">{t.footLegal}</a>
           </div>
         </nav>
       </footer>

@@ -47,6 +47,11 @@ export function HeroBackgroundVideo() {
     const video = videoRef.current
     if (!video || prefersReducedMotion) return
 
+    // <source> children only get re-read on an explicit load() call, not on
+    // re-render, so a breakpoint crossing needs a manual reload to pick up
+    // the new (mobile vs. desktop) source before playback resumes.
+    video.load()
+
     // If playback has already started (e.g. from fast cache)
     if (!video.paused && video.currentTime > 0) {
       setIsPlaying(true)

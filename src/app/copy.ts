@@ -16,7 +16,7 @@ export const copy = {
       closeMenu: 'Close menu',
 
       heroEyebrow: 'Khmer-first AI moderation',
-      heroHeading: 'Finally, AI that understands Khmer.',
+      heroHeading: 'No more spending hours checking comments one by one.',
       heroLede: 'Manage thousands of comments effortlessly with AI.',
       heroPrimary: 'Try free trial',
       heroSecondary: 'See how it works',
@@ -124,7 +124,6 @@ export const copy = {
       footProduct: 'Product',
       footCompany: 'Company',
       footContact: 'Contact',
-      footLegal: '[LEGAL PAGES]',
     },
     howItWorks: 'How KCMS works', signIn: 'Sign in', language: 'ភាសាខ្មែរ', openDashboard: 'Open dashboard', customerWorkspace: 'Customer workspace',
     eyebrow: 'Khmer-first content moderation',
@@ -665,7 +664,7 @@ export const copy = {
       closeMenu: 'បិទម៉ឺនុយ',
 
       heroEyebrow: 'ការត្រួតពិនិត្យដោយ AI ខ្មែរជាចម្បង',
-      heroHeading: 'ទីបំផុត AI ដែលយល់ភាសាខ្មែរ',
+      heroHeading: 'មិនចាំបាច់ចំណាយពេលច្រើនមើល និង Check Comment ម្ដងមួយទៀតទេ',
       heroLede: 'គ្រប់គ្រងមតិយោបល់រាប់ពាន់បានកាន់តែងាយស្រួលជាមួយ AI។',
       heroPrimary: 'សាកល្បង',
       heroSecondary: 'មើលរបៀបដំណើរការ',
@@ -773,7 +772,6 @@ export const copy = {
       footProduct: 'ផលិតផល',
       footCompany: 'ក្រុមហ៊ុន',
       footContact: 'ទាក់ទង',
-      footLegal: '[LEGAL PAGES]',
     },
     howItWorks: 'របៀបដំណើរការ', signIn: 'ចូលប្រើ', language: 'English', openDashboard: 'បើកផ្ទាំងគ្រប់គ្រង', customerWorkspace: 'កន្លែងធ្វើការអតិថិជន',
     eyebrow: 'ការគ្រប់គ្រងមាតិកាខ្មែរជាចម្បង',

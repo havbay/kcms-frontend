@@ -17,7 +17,7 @@ describe('KCMS public landing page', () => {
     render(<App />, { wrapper: MemoryRouter })
 
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Finally, AI that understands Khmer.' }),
+      screen.getByRole('heading', { level: 1, name: 'No more spending hours checking comments one by one.' }),
     ).toBeInTheDocument()
     expect(
       screen.getByText('Manage thousands of comments effortlessly with AI.'),
@@ -130,7 +130,7 @@ describe('KCMS public landing page', () => {
     await user.click(screen.getByRole('button', { name: 'ភាសាខ្មែរ' }))
 
     expect(
-      screen.getByRole('heading', { level: 1, name: 'ទីបំផុត AI ដែលយល់ភាសាខ្មែរ' }),
+      screen.getByRole('heading', { level: 1, name: 'មិនចាំបាច់ចំណាយពេលច្រើនមើល និង Check Comment ម្ដងមួយទៀតទេ' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'មតិយោបល់ច្រើនពេក?' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'បង្កើតឡើងសម្រាប់ភាសាខ្មែរ' })).toBeInTheDocument()

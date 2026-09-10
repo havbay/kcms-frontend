@@ -22,7 +22,7 @@ export function FloatingChannelCard() {
           </div>
           <div>
             <h4 className="text-xs font-bold text-slate-800">Official Business Page</h4>
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Live Webhook · 0.3s sync</span>
             </div>
@@ -32,7 +32,7 @@ export function FloatingChannelCard() {
 
       <div className="flex items-center justify-between pt-1 border-t border-slate-100">
         <div className="flex flex-col">
-          <span className="text-[10px] text-slate-400">Status</span>
+          <span className="text-[11px] text-slate-400">Status</span>
           <span className="text-[11px] font-semibold text-slate-700">{active ? 'Syncing Active' : 'Paused'}</span>
         </div>
         <button
