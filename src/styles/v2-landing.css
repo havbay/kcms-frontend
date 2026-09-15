@@ -28,9 +28,9 @@
   --lp-space-11: 96px;
 
   /* Type scale: one step per distinct role in use, no half-pixel sizes. */
-  --lp-text-1: 11px; /* timestamps, tiniest meta */
-  --lp-text-2: 12px; /* badges, small labels */
-  --lp-text-3: 13px; /* secondary text, nav links */
+  --lp-text-1: 18px; /* timestamps, tiniest meta */
+  --lp-text-2: 14px; /* badges, small labels */
+  --lp-text-3: 14px; /* secondary text, nav links */
   --lp-text-4: 14px; /* body default */
   --lp-text-5: 16px; /* lead paragraphs */
   --lp-text-6: 17px; /* Khmer h3, larger body */
