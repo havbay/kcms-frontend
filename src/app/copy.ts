@@ -1,5 +1,6 @@
 export const copy = {
   en: {
+    howItWorks: 'How KCMS works', signIn: 'Sign in', language: 'ភាសាខ្មែរ', openDashboard: 'Open dashboard', customerWorkspace: 'Customer workspace', platformAdmin: 'Platform admin',
     // Redesigned landing page. Namespaced so the migration cannot disturb the
     // strings the shipped screens still read.
     v2: {
@@ -125,7 +126,6 @@ export const copy = {
       footCompany: 'Company',
       footContact: 'Contact',
     },
-    howItWorks: 'How KCMS works', signIn: 'Sign in', language: 'ភាសាខ្មែរ', openDashboard: 'Open dashboard', customerWorkspace: 'Customer workspace',
     eyebrow: 'Khmer-first content moderation',
     heading: 'Moderate Khmer comments with context—not guesswork.',
     description: 'Find harmful comments and scams faster. KCMS helps your team prioritize what needs attention, while humans decide every moderation action.',
@@ -650,6 +650,7 @@ export const copy = {
     footerRights: '© 2026 KCMS',
   },
   km: {
+    howItWorks: 'របៀបដំណើរការ', signIn: 'ចូលប្រើ', language: 'English', openDashboard: 'បើកផ្ទាំងគ្រប់គ្រង', customerWorkspace: 'កន្លែងធ្វើការអតិថិជន', platformAdmin: 'អ្នកគ្រប់គ្រងវេទិកា',
     v2: {
       switchTo: 'English',
       switchToFlag: '/flags/gb.svg',
@@ -773,7 +774,6 @@ export const copy = {
       footCompany: 'ក្រុមហ៊ុន',
       footContact: 'ទាក់ទង',
     },
-    howItWorks: 'របៀបដំណើរការ', signIn: 'ចូលប្រើ', language: 'English', openDashboard: 'បើកផ្ទាំងគ្រប់គ្រង', customerWorkspace: 'កន្លែងធ្វើការអតិថិជន',
     eyebrow: 'ការគ្រប់គ្រងមាតិកាខ្មែរជាចម្បង',
     heading: 'គ្រប់គ្រងមតិយោបល់ខ្មែរ ដោយយល់ពីបរិបទ មិនមែនការស្មាន។',
     description: 'ស្វែងរកមតិយោបល់បង្កគ្រោះថ្នាក់ និងការបោកប្រាស់បានលឿនជាងមុន។ KCMS ជួយក្រុមរបស់អ្នកកំណត់អាទិភាព ខណៈមនុស្សជាអ្នកសម្រេចចិត្តលើសកម្មភាពគ្រប់យ៉ាង។',

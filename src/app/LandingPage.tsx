@@ -184,6 +184,7 @@ function DashboardShot({ t }: { t: V2Copy }) {
 export function LandingPage({ locale, setLocale }: LandingPageProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
   const [paused, setPaused] = useState(false)
   const content = copy[locale]
   const t = content.v2
@@ -299,9 +300,30 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
               <img alt="" aria-hidden="true" src={t.switchToFlag} />
               <span lang={km ? 'en' : 'km'}>{t.switchTo}</span>
             </button>
-            <a className="btn btn-2 btn-sm" href={signedIn ? '/app' : '/sign-in'}>
-              {signedIn ? content.openDashboard : t.signIn}
-            </a>
+            {signedIn ? (
+              <div className="account-menu">
+                <button
+                  aria-expanded={accountOpen}
+                  aria-haspopup="menu"
+                  className="btn btn-2 btn-sm account-menu-trigger"
+                  onClick={() => setAccountOpen((open) => !open)}
+                  type="button"
+                >
+                  {content.openDashboard}<span aria-hidden="true">⌄</span>
+                </button>
+                {accountOpen && (
+                  <div className="account-menu-panel" role="menu">
+                    <a href="/app" role="menuitem" onClick={() => setAccountOpen(false)}>{content.customerWorkspace}</a>
+                    {session.user?.is_platform_admin && (
+                      <a href="/admin/overview" role="menuitem" onClick={() => setAccountOpen(false)}>{content.platformAdmin}</a>
+                    )}
+                    <button onClick={() => void session.signOut()} role="menuitem" type="button">{content.authSignOut}</button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <a className="btn btn-2 btn-sm" href="/sign-in">{t.signIn}</a>
+            )}
             <a className="btn btn-sm btn-teal" href="/sign-up">{t.tryKcms}</a>
           </div>
 
@@ -374,9 +396,32 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
               <img alt="" aria-hidden="true" src={t.switchToFlag} />
               <span lang={km ? 'en' : 'km'}>{t.switchTo}</span>
             </button>
-            <a className="btn btn-2" href={signedIn ? '/app' : '/sign-in'} onClick={() => setMenuOpen(false)}>
-              {signedIn ? content.openDashboard : t.signIn}
-            </a>
+            {signedIn ? (
+              <>
+                <a className="btn btn-2" href="/app" onClick={() => setMenuOpen(false)}>
+                  {content.customerWorkspace}
+                </a>
+                {session.user?.is_platform_admin && (
+                  <a className="btn btn-2" href="/admin/overview" onClick={() => setMenuOpen(false)}>
+                    {content.platformAdmin}
+                  </a>
+                )}
+                <button
+                  className="btn btn-2"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    void session.signOut()
+                  }}
+                  type="button"
+                >
+                  {content.authSignOut}
+                </button>
+              </>
+            ) : (
+              <a className="btn btn-2" href="/sign-in" onClick={() => setMenuOpen(false)}>
+                {t.signIn}
+              </a>
+            )}
             <a className="btn btn-teal" href="/sign-up" onClick={() => setMenuOpen(false)}>
               {t.tryKcms}
             </a>
