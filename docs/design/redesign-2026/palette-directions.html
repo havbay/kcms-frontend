@@ -1,0 +1,295 @@
+<title>KCMS Colour Directions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --page:#FFFFFF; --panel:#FBFCFD; --ink:#101418; --slate:#616C7A; --line:#E6E9EE; --line2:#D8DDE5;
+    --ok:#11785A; --ok-w:#E8F3EF; --ok-i:#0C5A44;
+    --warn:#B96E09; --warn-w:#FCF3E4; --warn-i:#8A5206;
+    --bad:#CE3A2D; --bad-w:#FBEDEB; --bad-i:#A32A20;
+    --sans:'Manrope','Noto Sans Khmer',system-ui,-apple-system,sans-serif;
+    --serif:'Instrument Serif','Times New Roman',serif;
+    --khmer:'Noto Sans Khmer','Manrope',system-ui,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+  body{background:var(--page);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  .wrap{width:min(100% - 48px,1180px);margin-inline:auto;padding-block:56px 72px;}
+  h1,h2,h3,p{margin:0;}
+  .km{font-family:var(--khmer);}
+  .mono{font-family:var(--mono);font-size:11px;letter-spacing:.01em;}
+  .lbl{font-size:10.5px;font-weight:750;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);}
+
+  header.top{display:flex;flex-direction:column;gap:14px;padding-bottom:34px;border-bottom:1px solid var(--line);}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,5vw,52px);line-height:1.04;letter-spacing:-.02em;text-wrap:balance;max-width:20ch;}
+  .sub{font-size:16px;line-height:1.7;color:var(--slate);max-width:66ch;}
+
+  .brief{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:28px;padding:20px 22px;border:1px solid var(--line);border-radius:12px;background:var(--panel);}
+  .brief p{font-size:13.5px;line-height:1.7;color:var(--slate);}
+  .brief strong{color:var(--ink);font-weight:750;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:22px;margin-top:34px;}
+
+  .pcard{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--page);overflow:hidden;}
+  .phead{display:flex;align-items:flex-start;gap:14px;padding:20px 22px 16px;}
+  .pkey{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:8px;background:var(--ink);color:#fff;font-size:13px;font-weight:800;}
+  .pname{font-family:var(--serif);font-weight:400;font-size:25px;line-height:1.1;letter-spacing:-.01em;}
+  .pchar{font-size:13px;line-height:1.6;color:var(--slate);margin-top:3px;}
+
+  .swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:0 22px 18px;}
+  .sw{display:flex;flex-direction:column;gap:6px;}
+  .sw i{display:block;height:38px;border-radius:7px;border:1px solid var(--line);}
+  .sw span{font-size:9.5px;font-weight:700;color:var(--slate);letter-spacing:.02em;}
+  .sw em{display:block;font-family:var(--mono);font-size:9.5px;font-style:normal;color:var(--slate);opacity:.8;}
+
+  /* hero preview */
+  .hero{position:relative;isolation:isolate;overflow:hidden;padding:16px 22px 26px;background:#fff;border-block:1px solid var(--line);}
+  .glow{position:absolute;z-index:-1;inset:auto -10% -70% -10%;height:210px;border-radius:50%;filter:blur(38px);opacity:.85;}
+  .nav{display:flex;align-items:center;gap:10px;padding:5px 5px 5px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.7);width:fit-content;margin-inline:auto;}
+  .nav b{font-size:11px;font-weight:800;letter-spacing:.12em;}
+  .nav u{text-decoration:none;font-size:11px;font-weight:600;color:var(--slate);}
+  .navbtn{padding:5px 12px;border-radius:999px;font-size:11px;font-weight:700;background:var(--btn-bg);color:var(--btn-fg);}
+  .hl{margin-top:18px;text-align:center;font-family:var(--serif);font-weight:400;font-size:27px;line-height:1.06;letter-spacing:-.02em;text-wrap:balance;}
+  .hsub{margin-top:8px;text-align:center;font-size:11.5px;line-height:1.6;color:var(--slate);}
+  .btns{display:flex;justify-content:center;gap:9px;margin-top:15px;}
+  .b1{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;background:var(--btn-bg);color:var(--btn-fg);}
+  .b2{padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;background:#fff;color:var(--ink);border:1px solid var(--line2);}
+  .kpi{display:flex;justify-content:center;gap:8px;margin-top:16px;}
+  .kpi span{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:9px;background:var(--brand-soft);font-size:11px;font-weight:700;color:var(--brand-2);}
+  .kpi i{width:6px;height:6px;border-radius:50%;background:var(--brand);}
+
+  /* state preview */
+  .states{display:flex;flex-direction:column;gap:8px;padding:18px 22px;background:var(--panel);}
+  .row{display:flex;align-items:center;gap:11px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-left:2px solid var(--s);border-radius:9px;}
+  .row .t{flex:1;min-width:0;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .chip{flex:none;display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:999px;font-size:10.5px;font-weight:750;background:var(--cw);color:var(--ci);}
+  .sel{box-shadow:inset 0 0 0 1px var(--brand);background:var(--brand-soft);}
+
+  .verdict{display:flex;gap:11px;padding:16px 22px 20px;border-top:1px solid var(--line);}
+  .verdict i{flex:none;width:5px;border-radius:3px;background:var(--brand);}
+  .verdict p{font-size:12.5px;line-height:1.7;color:var(--slate);}
+  .verdict b{color:var(--ink);font-weight:750;}
+
+  footer.end{margin-top:36px;padding:24px 26px;border:1px solid var(--line);border-radius:12px;background:var(--panel);}
+  footer.end p{font-size:14px;line-height:1.75;color:var(--slate);max-width:80ch;}
+  footer.end b{color:var(--ink);font-weight:750;}
+  @media (max-width:560px){.swatches{grid-template-columns:repeat(3,1fr);}}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <span class="lbl">KCMS redesign &middot; step 1 of the rebuild</span>
+    <h1>Six colour directions. Pick one, or mix two.</h1>
+    <p class="sub">Each card shows the same two moments: the landing hero, and three queue rows where colour has to carry meaning. Neutrals and typography stay as they are — only the palette changes.</p>
+  </header>
+
+  <div class="brief">
+    <p><strong>What I read from your references.</strong> Neopay: white ground, one energetic brand hue as a soft glow behind the hero and as a filled button, near-black nav pill. The indigo dashboard: white page, one saturated hue owning the app surface.</p>
+    <p><strong>The catch.</strong> KCMS needs three state colours — safe, needs review, harm. If the brand hue is green, "green means safe" stops working. Each option below says how it resolves that.</p>
+    <p><strong>What is fixed.</strong> White ground, cool grey neutrals, Instrument Serif headlines, Manrope interface. Those held up; only the hue is in question.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- A -->
+    <article class="pcard" style="--brand:#A9E635;--brand-2:#4C6B12;--brand-soft:#F1FADF;--btn-bg:#101418;--btn-fg:#FFFFFF;--ok:#4B5768;--ok-w:#EEF1F5;--ok-i:#374151;">
+      <div class="phead">
+        <span class="pkey">A</span>
+        <div>
+          <h2 class="pname">Lime Signal</h2>
+          <p class="pchar">Neopay, almost directly. Lime glow behind the hero, black actions, lime reserved for energy and brand moments.</p>
+        </div>
+      </div>
+      <div class="swatches">
+        <span class="sw"><i style="background:#A9E635;border-color:#A9E635;"></i><span>Lime</span><em>#A9E635</em></span>
+        <span class="sw"><i style="background:#F1FADF;"></i><span>Lime wash</span><em>#F1FADF</em></span>
+        <span class="sw"><i style="background:#101418;border-color:#101418;"></i><span>Ink</span><em>#101418</em></span>
+        <span class="sw"><i style="background:#F7F8FA;"></i><span>Mist</span><em>#F7F8FA</em></span>
+        <span class="sw"><i style="background:#E6E9EE;"></i><span>Line</span><em>#E6E9EE</em></span>
+        <span class="sw"><i style="background:#616C7A;border-color:#616C7A;"></i><span>Slate</span><em>#616C7A</em></span>
+      </div>
+      <div class="hero">
+        <span class="glow" style="background:radial-gradient(closest-side,#A9E635,rgba(169,230,53,0));"></span>
+        <div class="nav"><b>KCMS</b><u>Product</u><u>Pricing</u><span class="navbtn">Get started</span></div>
+        <p class="hl">Moderate Khmer comments with context.</p>
+        <p class="hsub">A person on your team decides every action.</p>
+        <div class="btns"><span class="b1">Get started</span><span class="b2">See how it works</span></div>
+        <div class="kpi"><span><i></i>3 Pages synced</span><span><i></i>12 need review</span></div>
+      </div>
+      <div class="states">
+        <div class="row" style="--s:var(--ok);--cw:var(--ok-w);--ci:var(--ok-i);"><span class="t km">សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់</span><span class="chip">Stays visible</span></div>
+        <div class="row" style="--s:var(--warn);--cw:var(--warn-w);--ci:var(--warn-i);"><span class="t km">អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។</span><span class="chip">Needs review</span></div>
+        <div class="row" style="--s:var(--bad);--cw:var(--bad-w);--ci:var(--bad-i);"><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip">Scam</span></div>
+      </div>
+      <div class="verdict"><i></i><p><b>State fit:</b> green is spent on the brand, so "safe" drops out of the colour ramp and becomes plain slate. That is arguably more honest — safe comments need no colour at all — but you lose the green tick as a reassurance signal.</p></div>
+    </article>
+
+    <!-- B -->
+    <article class="pcard" style="--brand:#4F46E5;--brand-2:#3730A3;--brand-soft:#EEEDFD;--btn-bg:#101418;--btn-fg:#FFFFFF;">
+      <div class="phead">
+        <span class="pkey">B</span>
+        <div>
+          <h2 class="pname">Indigo Precision</h2>
+          <p class="pchar">Your second reference. Indigo owns the app shell and the data; the landing stays white with a violet-blue haze.</p>
+        </div>
+      </div>
+      <div class="swatches">
+        <span class="sw"><i style="background:#4F46E5;border-color:#4F46E5;"></i><span>Indigo</span><em>#4F46E5</em></span>
+        <span class="sw"><i style="background:#EEEDFD;"></i><span>Indigo wash</span><em>#EEEDFD</em></span>
+        <span class="sw"><i style="background:#101418;border-color:#101418;"></i><span>Ink</span><em>#101418</em></span>
+        <span class="sw"><i style="background:#F7F8FA;"></i><span>Mist</span><em>#F7F8FA</em></span>
+        <span class="sw"><i style="background:#E6E9EE;"></i><span>Line</span><em>#E6E9EE</em></span>
+        <span class="sw"><i style="background:#616C7A;border-color:#616C7A;"></i><span>Slate</span><em>#616C7A</em></span>
+      </div>
+      <div class="hero">
+        <span class="glow" style="background:radial-gradient(closest-side,rgba(79,70,229,.55),rgba(79,70,229,0));"></span>
+        <div class="nav"><b>KCMS</b><u>Product</u><u>Pricing</u><span class="navbtn">Get started</span></div>
+        <p class="hl">Moderate Khmer comments with context.</p>
+        <p class="hsub">A person on your team decides every action.</p>
+        <div class="btns"><span class="b1">Get started</span><span class="b2">See how it works</span></div>
+        <div class="kpi"><span><i></i>3 Pages synced</span><span><i></i>12 need review</span></div>
+      </div>
+      <div class="states">
+        <div class="row" style="--s:var(--ok);--cw:var(--ok-w);--ci:var(--ok-i);"><span class="t km">សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់</span><span class="chip">Stays visible</span></div>
+        <div class="row" style="--s:var(--warn);--cw:var(--warn-w);--ci:var(--warn-i);"><span class="t km">អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។</span><span class="chip">Needs review</span></div>
+        <div class="row sel" style="--s:var(--bad);--cw:var(--bad-w);--ci:var(--bad-i);"><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip">Scam</span></div>
+      </div>
+      <div class="verdict"><i></i><p><b>State fit:</b> clean. Indigo is far enough from green, amber and red that all three states survive intact, and it doubles as the "selected row" colour (shown above). The safe, boring choice — and the one closest to every other B2B tool.</p></div>
+    </article>
+
+    <!-- C -->
+    <article class="pcard" style="--brand:#D7F24B;--brand-2:#4F5A0B;--brand-soft:#F6FBDD;--btn-bg:#101418;--btn-fg:#FFFFFF;">
+      <div class="phead">
+        <span class="pkey">C</span>
+        <div>
+          <h2 class="pname">Ink &amp; Citron</h2>
+          <p class="pchar">Black and white does the work. Citron appears three or four times per page — a pill, an underline, a live dot — and nowhere else.</p>
+        </div>
+      </div>
+      <div class="swatches">
+        <span class="sw"><i style="background:#D7F24B;border-color:#D7F24B;"></i><span>Citron</span><em>#D7F24B</em></span>
+        <span class="sw"><i style="background:#F6FBDD;"></i><span>Citron wash</span><em>#F6FBDD</em></span>
+        <span class="sw"><i style="background:#101418;border-color:#101418;"></i><span>Ink</span><em>#101418</em></span>
+        <span class="sw"><i style="background:#F7F8FA;"></i><span>Mist</span><em>#F7F8FA</em></span>
+        <span class="sw"><i style="background:#E6E9EE;"></i><span>Line</span><em>#E6E9EE</em></span>
+        <span class="sw"><i style="background:#616C7A;border-color:#616C7A;"></i><span>Slate</span><em>#616C7A</em></span>
+      </div>
+      <div class="hero">
+        <span class="glow" style="background:radial-gradient(closest-side,rgba(215,242,75,.55),rgba(215,242,75,0));"></span>
+        <div class="nav"><b>KCMS</b><u>Product</u><u>Pricing</u><span class="navbtn">Get started</span></div>
+        <p class="hl">Moderate Khmer comments with context.</p>
+        <p class="hsub">A person on your team decides every action.</p>
+        <div class="btns"><span class="b1">Get started</span><span class="b2">See how it works</span></div>
+        <div class="kpi"><span><i></i>3 Pages synced</span><span><i></i>12 need review</span></div>
+      </div>
+      <div class="states">
+        <div class="row" style="--s:var(--ok);--cw:var(--ok-w);--ci:var(--ok-i);"><span class="t km">សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់</span><span class="chip">Stays visible</span></div>
+        <div class="row" style="--s:var(--warn);--cw:var(--warn-w);--ci:var(--warn-i);"><span class="t km">អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។</span><span class="chip">Needs review</span></div>
+        <div class="row" style="--s:var(--bad);--cw:var(--bad-w);--ci:var(--bad-i);"><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip">Scam</span></div>
+      </div>
+      <div class="verdict"><i></i><p><b>State fit:</b> works, because citron is so light and so rare that it never reads as a status. The most distinctive of the six and the most demanding — with this little colour, the spacing and typography have to be exact.</p></div>
+    </article>
+
+    <!-- D -->
+    <article class="pcard" style="--brand:#6D5AE6;--brand-2:#4A3AB8;--brand-soft:#F0EEFE;--btn-bg:#6D5AE6;--btn-fg:#FFFFFF;">
+      <div class="phead">
+        <span class="pkey">D</span>
+        <div>
+          <h2 class="pname">Violet Mist</h2>
+          <p class="pchar">Softer than indigo, and the brand hue takes the primary button rather than black. Friendly rather than corporate.</p>
+        </div>
+      </div>
+      <div class="swatches">
+        <span class="sw"><i style="background:#6D5AE6;border-color:#6D5AE6;"></i><span>Violet</span><em>#6D5AE6</em></span>
+        <span class="sw"><i style="background:#F0EEFE;"></i><span>Violet wash</span><em>#F0EEFE</em></span>
+        <span class="sw"><i style="background:#101418;border-color:#101418;"></i><span>Ink</span><em>#101418</em></span>
+        <span class="sw"><i style="background:#F7F8FA;"></i><span>Mist</span><em>#F7F8FA</em></span>
+        <span class="sw"><i style="background:#E6E9EE;"></i><span>Line</span><em>#E6E9EE</em></span>
+        <span class="sw"><i style="background:#616C7A;border-color:#616C7A;"></i><span>Slate</span><em>#616C7A</em></span>
+      </div>
+      <div class="hero">
+        <span class="glow" style="background:radial-gradient(closest-side,rgba(109,90,230,.5),rgba(109,90,230,0));"></span>
+        <div class="nav"><b>KCMS</b><u>Product</u><u>Pricing</u><span class="navbtn">Get started</span></div>
+        <p class="hl">Moderate Khmer comments with context.</p>
+        <p class="hsub">A person on your team decides every action.</p>
+        <div class="btns"><span class="b1">Get started</span><span class="b2">See how it works</span></div>
+        <div class="kpi"><span><i></i>3 Pages synced</span><span><i></i>12 need review</span></div>
+      </div>
+      <div class="states">
+        <div class="row" style="--s:var(--ok);--cw:var(--ok-w);--ci:var(--ok-i);"><span class="t km">សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់</span><span class="chip">Stays visible</span></div>
+        <div class="row" style="--s:var(--warn);--cw:var(--warn-w);--ci:var(--warn-i);"><span class="t km">អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។</span><span class="chip">Needs review</span></div>
+        <div class="row" style="--s:var(--bad);--cw:var(--bad-w);--ci:var(--bad-i);"><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip">Scam</span></div>
+      </div>
+      <div class="verdict"><i></i><p><b>State fit:</b> clean, same as indigo. The trade-off is the opposite one: a coloured primary button competes slightly with the state chips, where a black button never does. Worth it if you want the brand present on every screen.</p></div>
+    </article>
+
+    <!-- E -->
+    <article class="pcard" style="--brand:#00A99D;--brand-2:#00706A;--brand-soft:#E0F5F3;--btn-bg:#101418;--btn-fg:#FFFFFF;--ok:#3F7A55;--ok-w:#EAF3EC;--ok-i:#2E5C3F;">
+      <div class="phead">
+        <span class="pkey">E</span>
+        <div>
+          <h2 class="pname">Bright Teal</h2>
+          <p class="pchar">A thread back to the old identity, but modern: a clean bright teal instead of the muted Mekong green, on white instead of cream.</p>
+        </div>
+      </div>
+      <div class="swatches">
+        <span class="sw"><i style="background:#00A99D;border-color:#00A99D;"></i><span>Teal</span><em>#00A99D</em></span>
+        <span class="sw"><i style="background:#E0F5F3;"></i><span>Teal wash</span><em>#E0F5F3</em></span>
+        <span class="sw"><i style="background:#101418;border-color:#101418;"></i><span>Ink</span><em>#101418</em></span>
+        <span class="sw"><i style="background:#F7F8FA;"></i><span>Mist</span><em>#F7F8FA</em></span>
+        <span class="sw"><i style="background:#E6E9EE;"></i><span>Line</span><em>#E6E9EE</em></span>
+        <span class="sw"><i style="background:#616C7A;border-color:#616C7A;"></i><span>Slate</span><em>#616C7A</em></span>
+      </div>
+      <div class="hero">
+        <span class="glow" style="background:radial-gradient(closest-side,rgba(0,169,157,.42),rgba(0,169,157,0));"></span>
+        <div class="nav"><b>KCMS</b><u>Product</u><u>Pricing</u><span class="navbtn">Get started</span></div>
+        <p class="hl">Moderate Khmer comments with context.</p>
+        <p class="hsub">A person on your team decides every action.</p>
+        <div class="btns"><span class="b1">Get started</span><span class="b2">See how it works</span></div>
+        <div class="kpi"><span><i></i>3 Pages synced</span><span><i></i>12 need review</span></div>
+      </div>
+      <div class="states">
+        <div class="row" style="--s:var(--ok);--cw:var(--ok-w);--ci:var(--ok-i);"><span class="t km">សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់</span><span class="chip">Stays visible</span></div>
+        <div class="row" style="--s:var(--warn);--cw:var(--warn-w);--ci:var(--warn-i);"><span class="t km">អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។</span><span class="chip">Needs review</span></div>
+        <div class="row" style="--s:var(--bad);--cw:var(--bad-w);--ci:var(--bad-i);"><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip">Scam</span></div>
+      </div>
+      <div class="verdict"><i></i><p><b>State fit:</b> the weakest of the six. Teal and the safe-green sit close enough that a glance at a busy queue can confuse "brand" with "safe", so safe has been pushed toward a muted forest green to separate them. Pick this only if continuity with the old logo matters to you.</p></div>
+    </article>
+
+    <!-- F -->
+    <article class="pcard" style="--brand:#FF5A36;--brand-2:#B33418;--brand-soft:#FFEDE8;--btn-bg:#101418;--btn-fg:#FFFFFF;--bad:#9E1B14;--bad-w:#F7E7E5;--bad-i:#7D140F;">
+      <div class="phead">
+        <span class="pkey">F</span>
+        <div>
+          <h2 class="pname">Signal Coral</h2>
+          <p class="pchar">The outlier. Warm coral on white — nothing in Cambodian trust-and-safety tooling looks like this, which is either the point or the problem.</p>
+        </div>
+      </div>
+      <div class="swatches">
+        <span class="sw"><i style="background:#FF5A36;border-color:#FF5A36;"></i><span>Coral</span><em>#FF5A36</em></span>
+        <span class="sw"><i style="background:#FFEDE8;"></i><span>Coral wash</span><em>#FFEDE8</em></span>
+        <span class="sw"><i style="background:#101418;border-color:#101418;"></i><span>Ink</span><em>#101418</em></span>
+        <span class="sw"><i style="background:#F7F8FA;"></i><span>Mist</span><em>#F7F8FA</em></span>
+        <span class="sw"><i style="background:#E6E9EE;"></i><span>Line</span><em>#E6E9EE</em></span>
+        <span class="sw"><i style="background:#616C7A;border-color:#616C7A;"></i><span>Slate</span><em>#616C7A</em></span>
+      </div>
+      <div class="hero">
+        <span class="glow" style="background:radial-gradient(closest-side,rgba(255,90,54,.4),rgba(255,90,54,0));"></span>
+        <div class="nav"><b>KCMS</b><u>Product</u><u>Pricing</u><span class="navbtn">Get started</span></div>
+        <p class="hl">Moderate Khmer comments with context.</p>
+        <p class="hsub">A person on your team decides every action.</p>
+        <div class="btns"><span class="b1">Get started</span><span class="b2">See how it works</span></div>
+        <div class="kpi"><span><i></i>3 Pages synced</span><span><i></i>12 need review</span></div>
+      </div>
+      <div class="states">
+        <div class="row" style="--s:var(--ok);--cw:var(--ok-w);--ci:var(--ok-i);"><span class="t km">សេវាកម្មក្រុមហ៊ុននេះយឺតណាស់</span><span class="chip">Stays visible</span></div>
+        <div class="row" style="--s:var(--warn);--cw:var(--warn-w);--ci:var(--warn-i);"><span class="t km">អ្នកនេះល្ងង់ណាស់ កុំឱ្យវានិយាយ។</span><span class="chip">Needs review</span></div>
+        <div class="row" style="--s:var(--bad);--cw:var(--bad-w);--ci:var(--bad-i);"><span class="t km">ចុចតំណនេះទទួលលុយ $500!</span><span class="chip">Scam</span></div>
+      </div>
+      <div class="verdict"><i></i><p><b>State fit:</b> needs a compromise. Coral sits too near the harm red, so harm has been pushed to a deep maroon and coral is kept off every product screen — brand on the landing page only, neutral inside the app. Workable, but it is the one option where the palette is not one system.</p></div>
+    </article>
+  </div>
+
+  <footer class="end">
+    <p><b>Reply with a letter and I will rebuild all six artboards in it.</b> Mixing is fine and often better than any single card: <b>C's restraint with B's indigo</b> gives you a black-and-white product with one calm accent, and <b>A's glow over B's palette</b> gives you the Neopay hero without spending green on the brand. If none of them land, send a hex and I will build the system around it — the neutrals, the type and the layout all stay put either way.</p>
+  </footer>
+</div>

@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ClerkProvider } from '@clerk/clerk-react'
+import '@fontsource-variable/dm-sans'
 import '@fontsource-variable/google-sans'
 import '@fontsource-variable/manrope'
 import '@fontsource-variable/noto-sans-khmer'
@@ -15,6 +16,9 @@ import './styles.css'
 import './styles/workspace.css'
 import './styles/admin.css'
 import './styles/tailwind.css'
+import './styles/v2.css'
+import './styles/v2-landing.css'
+import './styles/v2-workspace.css'
 
 const rootElement = document.getElementById('root')
 

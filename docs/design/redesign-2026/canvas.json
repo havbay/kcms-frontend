@@ -1,0 +1,115 @@
+{
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Landing"
+    },
+    {
+      "id": "page-2",
+      "name": "System"
+    },
+    {
+      "id": "page-3",
+      "name": "Admin + foundations"
+    }
+  ],
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "page": "page-1",
+      "title": "Landing - Khmer (default)",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 6000,
+      "print": "flow"
+    },
+    {
+      "file": "LandingEN.dc.html",
+      "page": "page-1",
+      "title": "Landing - English",
+      "x": 1600,
+      "y": 0,
+      "w": 1440,
+      "h": 6200,
+      "print": "flow"
+    },
+    {
+      "file": "LandingMobile.dc.html",
+      "page": "page-1",
+      "title": "Landing - Khmer, 390px",
+      "x": 3300,
+      "y": 0,
+      "w": 390,
+      "h": 5700,
+      "print": "flow"
+    },
+    {
+      "file": "Workspace.dc.html",
+      "page": "page-2",
+      "title": "System — Overview",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 960
+    },
+    {
+      "file": "Moderate.dc.html",
+      "page": "page-2",
+      "title": "System — Moderate queue",
+      "x": 1600,
+      "y": 0,
+      "w": 1440,
+      "h": 960
+    },
+    {
+      "file": "Admin.dc.html",
+      "page": "page-3",
+      "title": "Admin console",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 960
+    },
+    {
+      "file": "Foundations.dc.html",
+      "page": "page-3",
+      "title": "Foundations + motion",
+      "x": 1600,
+      "y": 0,
+      "w": 1440,
+      "h": 1780,
+      "print": "flow"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "note-landing",
+      "page": "page-1",
+      "x": 0,
+      "y": -230,
+      "w": 720,
+      "text": "LANDING - one language at a time, switched in the header.\nKhmer is the default (matches readStoredLocale in App.tsx). The toggle always offers the OTHER language: the Khmer page shows the UK flag + English, the English page shows the Cambodian flag + Khmer.\n\nNine sections in both: Hero, Problem, Solution, How It Works, Dashboard, Pricing, Features, Why KCMS, Final CTA.\n\nKhmer strings taken from copy.ts where they already exist (severity labels, target labels, coverage list, sample comments). The rest I drafted - worth a native read before it ships.\n\nPricing: Free $0, Pro $- marked coming soon, Business custom. No invented prices."
+    },
+    {
+      "id": "note-system",
+      "page": "page-2",
+      "x": 0,
+      "y": -230,
+      "w": 720,
+      "text": "SYSTEM\nN1 teal rail on the sidebar, K2 figures with sparklines, T2 underline tabs, I1 pill search, C2 shadow cards.\n\nR3 tinted queue rows, with one adjustment: rows that need nothing stay neutral grey, so a full queue is not a wall of colour. Only comments awaiting a decision carry a tint.\n\nModerate collapses the sidebar to a 72px rail so the queue and the review sheet both get room."
+    },
+    {
+      "id": "note-admin",
+      "page": "page-3",
+      "x": 0,
+      "y": -230,
+      "w": 720,
+      "text": "ADMIN\nA 3px ink rule across the top and a sidebar one step deeper in grey than the tenant's white one — the privileged surface stays obvious without going dark.\n\nBuilt around the access-request flow already in AdminRequestsPage.tsx, plus the operational panels it is missing: system health, platform totals, audit.\n\nFoundations (right) carries the locked palette, the DM Sans + Noto Sans Khmer ramp, your component picks, and the eight named motions with live demos."
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-1"
+  }
+}
