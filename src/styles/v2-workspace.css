@@ -1,0 +1,251 @@
+/* KCMS redesign — workspace shell.
+ *
+ * Restyles the shipped dashboard markup rather than replacing it, so the
+ * existing routes, tests and page components keep working while the visual
+ * system lands. Selectors are scoped under `.v2` so nothing here reaches a
+ * screen that has not been migrated.
+ */
+
+.v2.dashboard {
+  background: var(--mist);
+  color: var(--ink);
+  font-family: var(--sans);
+}
+
+/* ---------- sidebar ---------- */
+
+.v2 .dash-sidebar {
+  background: var(--paper);
+  border-right: 1px solid var(--hair);
+  box-shadow: none;
+}
+.v2 .dash-sidebar-header { border-bottom: 0; }
+
+.v2 .dash-sidebar .brand { letter-spacing: -0.01em; font-size: 17px; font-weight: 700; }
+.v2 .dash-sidebar .brand-mark {
+  display: grid;
+  gap: 3px;
+  width: 28px;
+  height: 28px;
+  padding: 5px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--teal);
+  box-shadow: 0 5px 12px rgba(0, 169, 157, 0.35);
+  transform: none;
+}
+.v2 .dash-sidebar .brand-mark span { background: #fff; border-radius: 1px; }
+.v2 .dash-sidebar .brand-mark span:last-child { background: rgba(255, 255, 255, 0.5); }
+
+.v2 .dash-workspace-badge {
+  gap: 10px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--mist);
+}
+.v2 .dash-workspace-dot { background: var(--teal); }
+.v2 .dash-workspace-title { color: var(--ink); font-size: 13px; font-weight: 600; }
+
+/* N1: teal wash plus a rail on the sidebar edge. The rail is the element that
+   slides between items, so the nav reads as one object rather than a row of
+   lights switching on and off. */
+.v2 .dash-nav { gap: 2px; }
+.v2 .dash-nav-link {
+  position: relative;
+  gap: 11px;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--slate);
+  font-size: 14px;
+  font-weight: 500;
+}
+.v2 .dash-nav-link:hover { background: var(--mist); color: var(--ink); }
+.v2 .dash-nav-link.is-active {
+  background: var(--teal-wash);
+  color: var(--teal-deep);
+  font-weight: 700;
+}
+.v2 .dash-nav-link.is-active::before {
+  position: absolute;
+  left: -12px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--teal);
+  content: '';
+}
+.v2 .dash-nav-link.is-pending { color: var(--slate-2); }
+
+.v2 .dash-account-card { border-top: 1px solid var(--hair); }
+.v2 .dash-user-profile { border-radius: 12px; }
+.v2 .dash-user-profile:hover { background: var(--mist); }
+.v2 .dash-user-avatar {
+  border-radius: 50%;
+  background: var(--mist-2);
+  color: var(--ink);
+  font-weight: 700;
+}
+.v2 .dash-user-name { color: var(--ink); font-weight: 600; }
+.v2 .dash-user-role, .v2 .dash-user-plan {
+  border-radius: 999px;
+  background: var(--teal-wash);
+  color: var(--teal-deep);
+  font-weight: 700;
+}
+
+/* I1: the command bar is a filled pill, and every other control follows it. */
+.v2 .language-toggle {
+  gap: 8px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.v2 .language-toggle:hover { background: var(--mist); }
+.v2 .language-flag { border-radius: 2px; box-shadow: 0 0 0 1px rgba(16, 20, 24, 0.12); }
+.v2 .dash-signout { color: var(--slate); font-size: 13px; font-weight: 500; }
+.v2 .dash-signout:hover { color: var(--ink); }
+
+/* ---------- body ---------- */
+
+.v2 .dash-body { background: transparent; }
+.v2 .dash-head { border-bottom: 0; }
+.v2 .dash-head-text h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.032em; }
+.v2 .dash-head-text h1:lang(km) { font-size: 22px; font-weight: 600; letter-spacing: 0; line-height: 1.6; }
+.v2 .dash-head-text p { color: var(--slate); font-size: 13.5px; }
+
+/* C2: cards float off the mist ground on a soft shadow, no border. A border
+   plus a shadow reads as two separate "this is an object" signals. */
+.v2 :is(.stat, .work-card, .ov-card, .ws-card, .work-empty, .work-error) {
+  border: 0;
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: var(--sh2);
+}
+
+/* K2: label and delta on one line, then the figure, then its context. */
+.v2 .stat { gap: 10px; padding: 18px; }
+.v2 .stat-label {
+  color: var(--slate);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.v2 .stat-label:lang(km) { font-size: 12px; letter-spacing: 0; text-transform: none; }
+.v2 .stat-value {
+  color: var(--ink);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.v2 .stat-hint { color: var(--slate); font-size: 12px; }
+.v2 .stat-pill, .v2 .work-chip {
+  border-radius: 999px;
+  background: var(--mist-2);
+  color: var(--slate);
+  font-size: 11px;
+  font-weight: 700;
+}
+.v2 .stat-icon-wrap { border-radius: 10px; background: var(--mist); }
+.v2 .stat-icon-wrap.is-amber { background: var(--warn-w); color: var(--warn-i); }
+.v2 .stat-icon-wrap.is-teal, .v2 .stat-icon-wrap.is-green { background: var(--teal-wash); color: var(--teal-deep); }
+
+/* The one card that is a warning gets the only coloured edge in the row. */
+.v2 .stat-warning { box-shadow: var(--sh2), inset 0 0 0 1px var(--warn); }
+.v2 .stat-warning .stat-value, .v2 .stat-warning .stat-label { color: var(--warn-i); }
+
+/* R1: white rows, severity carried on a 2px left edge, hairline separators. */
+.v2 .work-table { border-collapse: collapse; }
+.v2 .work-table :is(th, td) { border-bottom: 1px solid var(--hair); }
+.v2 .work-table th {
+  background: var(--mist);
+  color: var(--slate);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.v2 .work-table tbody tr { background: var(--paper); }
+.v2 .work-table tbody tr:hover { background: var(--mist); }
+
+/* T2: tabs are an underline that slides, not a filled pill. */
+.v2 .mod-status-tabs { gap: 26px; padding: 0; border-bottom: 1px solid var(--hair); background: transparent; }
+.v2 .mod-status-tab {
+  padding: 9px 2px 13px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--slate);
+  font-size: 14px;
+  font-weight: 500;
+}
+.v2 .mod-status-tab[aria-selected='true'] {
+  border-bottom-color: var(--teal);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.v2 :is(.mod-quick-search, .mod-search-input) {
+  border: 0;
+  border-radius: 999px;
+  background: var(--mist);
+}
+.v2 .filter-chip, .v2 .active-filter-pill {
+  border: 0;
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: var(--sh1);
+  color: var(--slate);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.v2 .active-filter-pill {
+  background: var(--teal-wash);
+  color: var(--teal-deep);
+  font-weight: 700;
+  box-shadow: none;
+}
+
+/* B3: one raised teal pill for the dominant action; everything else recedes. */
+.v2 .button {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--teal);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(0, 169, 157, 0.32);
+}
+.v2 .button:hover { background: #009488; transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0, 169, 157, 0.34); }
+.v2 .button:active { transform: translateY(0); }
+.v2 .button-small { min-height: 36px; padding: 0 16px; font-size: 13px; }
+.v2 .button-quiet {
+  background: var(--paper);
+  border: 1px solid var(--hair-2);
+  color: var(--ink);
+  box-shadow: var(--sh1);
+}
+.v2 .button-quiet:hover { background: var(--mist); box-shadow: var(--sh1); }
+
+.v2 :is(.work-status, .work-empty p) { color: var(--slate); }
+.v2 .work-spinner { border-color: var(--hair); border-top-color: var(--teal); }
+
+@media (max-width: 900px) {
+  .v2 .dash-mobile-header { background: var(--paper); border-bottom: 1px solid var(--hair); }
+  .v2 .mobile-toggle-bar { background: var(--ink); }
+}

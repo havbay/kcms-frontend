@@ -14,14 +14,17 @@
     "test:e2e": "playwright test",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false",
-    "api:generate": "cp ../kcms-backend/openapi.json src/api/openapi.json && npx -y openapi-typescript@7 src/api/openapi.json -o src/api/schema.d.ts"
+    "api:generate": "cp ../kcms-backend/openapi.json src/api/openapi.json && npx -y openapi-typescript@7 src/api/openapi.json -o src/api/schema.d.ts",
+    "optimize:video": "bash scripts/optimize-hero-video.sh"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.61.9",
+    "@fontsource-variable/dm-sans": "^5.3.0",
     "@fontsource-variable/google-sans": "^5.3.1",
     "@fontsource-variable/manrope": "^5.3.0",
     "@fontsource-variable/noto-sans-khmer": "^5.3.0",
     "@headlessui/react": "^2.2.10",
+    "@lottiefiles/dotlottie-react": "^0.19.16",
     "@radix-ui/react-label": "^2.1.15",
     "@sentry/react": "^10.73.0",
     "@tailwindcss/vite": "^4.3.3",
