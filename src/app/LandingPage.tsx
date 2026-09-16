@@ -83,7 +83,11 @@ function Spark({ points, colour }: { points: string; colour: string }) {
 }
 
 const FEATURE_ICONS = [
-  null,
+  <svg aria-hidden="true" fill="none" height="22" key="globe" stroke="var(--teal-deep)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24" width="22">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18" />
+    <path d="M12 3c2.5 2.5 4 5.7 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.7-4-9s1.5-6.5 4-9z" />
+  </svg>,
   <svg aria-hidden="true" fill="none" height="22" key="shield" stroke="var(--teal-deep)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24" width="22">
     <path d="M12 3l7.5 3v5.5c0 4.2-3 7.6-7.5 9-4.5-1.4-7.5-4.8-7.5-9V6z" />
     <path d="m9 12 2 2 4-4" />
@@ -624,11 +628,14 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
                   {featured && <span className="chip" style={{ background: 'var(--teal)', color: '#fff' }}>{t.priceRecommended}</span>}
                 </div>
                 <div>
-                  <p className="lp-price">
-                    {plan.price}
-                    {i < 2 && <small> {t.priceMonth}</small>}
-                  </p>
-                  {featured && <p className="lp-soon">{t.priceSoon}</p>}
+                  {plan.price === '$—' ? (
+                    <p className="lp-price-pending">{t.priceSoon}</p>
+                  ) : (
+                    <p className="lp-price">
+                      {plan.price}
+                      {i < 2 && <small> {t.priceMonth}</small>}
+                    </p>
+                  )}
                 </div>
                 <ul>
                   {plan.features.map((feature) => (
@@ -651,9 +658,7 @@ export function LandingPage({ locale, setLocale }: LandingPageProps) {
         <div className="lp-features">
           {t.features.map((feature, i) => (
             <article className="lp-feature" key={feature.title}>
-              <span className="lp-feature-icon">
-                {i === 0 ? <img alt="" aria-hidden="true" src="/flags/kh.svg" /> : FEATURE_ICONS[i]}
-              </span>
+              <span className="lp-feature-icon">{FEATURE_ICONS[i]}</span>
               <h3>{feature.title}</h3>
               <p>{feature.body}</p>
             </article>

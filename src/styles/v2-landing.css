@@ -28,9 +28,9 @@
   --lp-space-11: 96px;
 
   /* Type scale: one step per distinct role in use, no half-pixel sizes. */
-  --lp-text-1: 11px; /* timestamps, tiniest meta */
-  --lp-text-2: 12px; /* badges, small labels */
-  --lp-text-3: 13px; /* secondary text, nav links */
+  --lp-text-1: 18px; /* timestamps, tiniest meta */
+  --lp-text-2: 14px; /* badges, small labels */
+  --lp-text-3: 14px; /* secondary text, nav links */
   --lp-text-4: 14px; /* body default */
   --lp-text-5: 16px; /* lead paragraphs */
   --lp-text-6: 17px; /* Khmer h3, larger body */
@@ -887,14 +887,13 @@
   outline-offset: -1.5px;
   box-shadow: 0 3px 8px rgba(0, 169, 157, 0.12), 0 30px 66px rgba(0, 169, 157, 0.24);
 }
-.lp-soon { color: var(--warn-i); font-size: var(--lp-text-2); font-weight: 500; margin-top: var(--lp-space-1); }
+.lp-price-pending { font-size: var(--lp-text-5); font-weight: 600; letter-spacing: -0.01em; line-height: 1.4; color: var(--teal-deep); }
 
 /* ---------- 07 features ---------- */
 
 .lp-features { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--lp-space-5); margin-top: var(--lp-space-8); }
 .lp-feature { display: flex; flex-direction: column; gap: var(--lp-space-3); }
 .lp-feature-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; background: var(--mist); }
-.lp-feature-icon img { width: 24px; height: auto; border-radius: 2px; box-shadow: 0 0 0 1px rgba(16, 20, 24, 0.12); }
 .lp-feature p { color: var(--slate); font-size: var(--lp-text-3); line-height: 1.7; }
 .lp-feature p:lang(km) { line-height: 2; }
 
@@ -933,10 +932,13 @@
 
 /* ---------- responsive ---------- */
 
-@media (max-width: 1024px) {
+@media (max-width: 1180px) {
   .nav-links-group, .nav-actions-group { display: none; }
   .lp-menu-btn { display: inline-flex; }
   .lp-links { display: none; }
+}
+
+@media (max-width: 1024px) {
   .lp-split { grid-template-columns: minmax(0, 1fr); gap: var(--lp-space-7); }
   .lp .lp-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--lp-space-4); }
   .lp-arrow { display: none; }
